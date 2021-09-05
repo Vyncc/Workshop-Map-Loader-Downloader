@@ -1,0 +1,35 @@
+v1.0 :
+-Plugin release
+
+v1.1 :
+
+-research optimization
+-added some filtering features (most recent, most popular, most subscribers)
+-fixed some little bugs
+
+v1.11 :
+
+-fixed some bugs, downloads are working
+
+v1.12
+
+-fixed a bug (there is no more offset between maps when a folder is empty)
+-now it uses PluginSettingsWindow
+
+v1.12.1
+
+-added error
+
+v1.12.2
+
+-added error message when the maps folder need administrator permission
+-fixed game crashing when clicking on "refresh maps"
+
+v1.13
+
+-Added 2 methods to extract the files of a map just downloaded : Powershell Method, Batch File Method
+IMPORTANT : If when you were clicking on \"Refresh Maps\" nothing happened, now you don't need to extract the files manually anymore to make the maps appear,
+you have to choose settings->Extract Method->Powershell Method
+If it still doesn't work, let me know on discord(check Credits)
+
+-Fixed previews that didn't correspond to the maps
