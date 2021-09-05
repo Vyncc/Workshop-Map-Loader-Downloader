@@ -30,6 +30,9 @@ v1.13
 -Added 2 methods to extract the files of a map just downloaded : Powershell Method, Batch File Method
 IMPORTANT : If when you were clicking on \"Refresh Maps\" nothing happened, now you don't need to extract the files manually anymore to make the maps appear,
 you have to choose settings->Extract Method->Powershell Method
-If it still doesn't work, let me know on discord(check Credits)
 
 -Fixed previews that didn't correspond to the maps
+
+-Fixed : the previews images don't appear when you are searching a workshop, and you can't download a map
+
+If one of the fixes still doesn't work for you, let me know on discord(check Credits)
