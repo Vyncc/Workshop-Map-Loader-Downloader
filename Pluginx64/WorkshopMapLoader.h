@@ -14,11 +14,25 @@ struct Map
 	bool isPreviewImageLoaded;
 };
 
-struct MapResult
+struct Steam_MapResult
 {
 	std::string Name;
 	std::string ID;
 	std::string Size;
+	std::string Description;
+	std::string PreviewUrl;
+	std::string Author;
+	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
+	std::shared_ptr<ImageWrapper> Image;
+	bool isImageLoaded;
+};
+
+struct RLMAPS_MapResult
+{
+	std::string Name;
+	std::string ZipName;
+	std::string ID;
+	std::string ShortDescription;
 	std::string Description;
 	std::string PreviewUrl;
 	std::string Author;
@@ -47,7 +61,8 @@ public:
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
 	std::string IfNoPreviewImagePath;
-	std::string base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
+	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
+	std::string rlmaps_url = "http://rocketleaguemaps.us/api/getmultimap.php";
 	static char MapsFolderPathBuf[200];
 
 
@@ -62,13 +77,17 @@ public:
 
 
 	//Search Workshop
-	std::vector<MapResult> MapResultList;
+	//Steam
+	std::vector<Steam_MapResult> Steam_MapResultList;
 	std::vector<std::string> OtherPagesList;
 	void StartSearchRequest(std::string fullurl);
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	void CreateJSONSearchWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapSize, std::string mapDescription);
 	std::vector<std::string> GetJSONSearchMapInfos(std::string jsonFilePath);
 	bool isSearching = false;
+	//rocketleaguemaps.us
+	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
+	void GetResults(std::string keyWord);
 
 
 	//Related to download
@@ -108,8 +127,8 @@ public:
 
 	void Render() override;
 	void renderMaps();
-	void RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
-	void renderSearchWorkshopResults(static char mapspath[200]);
+	void Steam_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
+	void Steam_renderSearchWorkshopResults(static char mapspath[200]);
 	std::string GetMenuName() override;
 	std::string GetMenuTitle() override;
 	void SetImGuiContext(uintptr_t ctx) override;
@@ -117,6 +136,11 @@ public:
 	bool IsActiveOverlay() override;
 	void OnOpen() override;
 	void OnClose() override;
+
+
+
+	void RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
+	void RLMAPS_renderSearchWorkshopResults(static char mapspath[200]);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////  Text Variables
 

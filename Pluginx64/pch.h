@@ -3,6 +3,7 @@
 #pragma comment(lib, "zlib.lib")
 #pragma comment(lib, "libcurl.lib")
 #pragma comment(lib, "cpr.lib")
+#pragma comment(lib, "jsoncpp.lib")
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment (lib, "crypt32")
 #pragma comment (lib, "Wldap32.lib")
@@ -14,6 +15,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include <cpr/cpr.h>
+#include <json/json.h>
 
 namespace fs = std::filesystem;
 

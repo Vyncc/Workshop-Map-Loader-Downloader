@@ -298,7 +298,7 @@ void Pluginx64::DownloadWorkshop(std::string workshopURL, std::string Dfolderpat
 
 		if (createJsonFile)
 		{
-			CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", MapResultList.at(index).Name, MapResultList.at(index).Author, MapResultList.at(index).Description, MapResultList.at(index).PreviewUrl);
+			CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", Steam_MapResultList.at(index).Name, Steam_MapResultList.at(index).Author, Steam_MapResultList.at(index).Description, Steam_MapResultList.at(index).PreviewUrl);
 			cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 		}
 
@@ -397,7 +397,7 @@ std::vector<std::string> Pluginx64::FindAllSubstringInAString(std::string texte,
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
 	isSearching = true;
-	MapResultList.clear();
+	Steam_MapResultList.clear();
 
 	cpr::Response request_response = cpr::Get(cpr::Url{fullurl});
 	
@@ -458,7 +458,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		resultisImageLoaded = true;
 
 
-		MapResult result;
+		Steam_MapResult result;
 		result.Name = resultMapName;
 		result.ID = resultMapID;
 		result.PreviewUrl = resultMapPreviewUrl;
@@ -469,21 +469,21 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		result.Image = resultImage;
 		result.isImageLoaded = resultisImageLoaded;
 
-		MapResultList.push_back(result);
+		Steam_MapResultList.push_back(result);
 	}
 
 	//get the href(url) of other pages if there are
 	OtherPagesList = FindAllSubstringInAString(request_response.text, "pagelink\" href=\"", "\">");
 
 	/*
-	for (int i = 0; i < MapResultList.size(); i++)
+	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
-		cvarManager->log("Map Name : " + MapResultList.at(i).Name);
-		cvarManager->log("Map ID : " + MapResultList.at(i).ID);
-		cvarManager->log("Map Size : " + MapResultList.at(i).Size);
-		cvarManager->log("Map Description : " + MapResultList.at(i).Description);
-		cvarManager->log("Map Preview Url : " + MapResultList.at(i).PreviewUrl);
-		cvarManager->log("Map Author : " + MapResultList.at(i).Author);
+		cvarManager->log("Map Name : " + Steam_MapResultList.at(i).Name);
+		cvarManager->log("Map ID : " + Steam_MapResultList.at(i).ID);
+		cvarManager->log("Map Size : " + Steam_MapResultList.at(i).Size);
+		cvarManager->log("Map Description : " + Steam_MapResultList.at(i).Description);
+		cvarManager->log("Map Preview Url : " + Steam_MapResultList.at(i).PreviewUrl);
+		cvarManager->log("Map Author : " + Steam_MapResultList.at(i).Author);
 		cvarManager->log("");
 	}
 	*/
@@ -653,6 +653,78 @@ void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvar
 	CFGFile << "HasSeeNewUpdateAlert = \"" + hasSeenNewUpdateAlert + "\"";
 
 	CFGFile.close();
+}
+
+
+void Pluginx64::GetResults(std::string keyWord)
+{
+	RLMAPS_MapResultList.clear();
+
+	std::string request_url = rlmaps_url;
+	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
+
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+
+	reader.parse(request_response.text, actualJson);
+
+	const Json::Value maps = actualJson["body"];
+
+	for (int index = 0; index < maps.size(); ++index)
+	{
+		std::string resultMapID = maps[index]["mapid"].asString();
+		std::string resultMapName = maps[index]["mapName"].asString();
+		std::string resultMapPreviewUrl = maps[index]["mapPicture"].asString();
+
+
+		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + resultMapID + ".jfif";
+		std::shared_ptr<ImageWrapper> resultImage;
+		bool resultisImageLoaded;
+
+
+
+		std::string resultMapNameToLower = maps[index]["mapName"].asString();
+
+		std::transform(resultMapNameToLower.begin(), resultMapNameToLower.end(), resultMapNameToLower.begin(), ::tolower); //transform a string to lowercase
+		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
+
+
+		if (resultMapNameToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
+		{
+			cvarManager->log(resultMapName);
+
+			if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
+			{
+				IsDownloadingPreview = true;
+				DownloadPreviewImage(resultMapPreviewUrl, resultImagePath.string());
+			}
+
+			while (IsDownloadingPreview == true)
+			{
+				Sleep(10);
+			}
+
+
+			resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
+			resultisImageLoaded = true;
+
+			RLMAPS_MapResult result;
+			result.ID = resultMapID;
+			result.Name = resultMapName;
+			result.ZipName = maps[index]["mapZipName"].asString();
+			result.Author = maps[index]["creator"].asString();
+			result.ShortDescription = maps[index]["mapShortDescription"].asString();
+			result.Description = maps[index]["mapDescription"].asString();
+			result.PreviewUrl = resultMapPreviewUrl;
+			result.ImagePath = resultImagePath;
+			result.Image = resultImage;
+			result.isImageLoaded = resultisImageLoaded;
+
+			RLMAPS_MapResultList.push_back(result);
+		}
+	}
 }
 
 
