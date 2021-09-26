@@ -779,6 +779,10 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 
 	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
 	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
+
+	fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory
+	cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + Workshop_filename + ".jfif");
+
 	
 	std::string download_url = "http://rocketleaguemaps.b-cdn.net/" + mapResult.Author + "/Maps/" + mapResult.ZipName;
 	cvarManager->log("Download URL : " + download_url);
@@ -818,6 +822,16 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 		RLMAPS_WorkshopDownload_ProgressString = RLMAPS_Download_Progress;
 		RLMAPS_WorkshopDownload_FileSizeString = std::stoi(mapResult.Size);
 		Sleep(500);
+	}
+
+	if (unzipMethod == "Bat")
+	{
+		CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
+	}
+	else
+	{
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
+		system(extractCommand.c_str());
 	}
 }
 

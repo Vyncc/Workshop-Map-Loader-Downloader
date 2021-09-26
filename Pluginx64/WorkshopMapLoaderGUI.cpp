@@ -240,6 +240,7 @@ void Pluginx64::Render()
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing ;)");
+			ImGui::Text("Thanks to JetFox");
 
 			ImGui::EndMenu();
 		}
@@ -1184,7 +1185,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 					}
 				}
 
-				if ((!hasFoundPreview && fileExtension == ".png") || (!hasFoundPreview && fileExtension == ".jpg")) // || fileExtension == ".jpg"
+				if ((!hasFoundPreview && fileExtension == ".png") || (!hasFoundPreview && fileExtension == ".jpg") || (!hasFoundPreview && fileExtension == ".jfif"))
 				{
 					map.PreviewImage = std::make_shared<ImageWrapper>(file.path(), false, true);
 					map.isPreviewImageLoaded = true;
