@@ -305,16 +305,10 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		std::string download_url = "https://backend-02-prd.steamworkshopdownloader.io/api/download/transmit?uuid=" + Workshop_uuid;
 		cvarManager->log("Download URL : " + download_url);
 		std::string Folder_Path = Workshop_Dl_Path + "/" + Workshop_filename + ".zip";
-		//converting download_url string to LPCWSTR
-		std::wstring w_URL = s2ws(download_url);
-		LPCWSTR L_URL = w_URL.c_str();
-		//converting Folder_Path string to LPCWSTR
-		std::wstring w_PATH = s2ws(Folder_Path);
-		LPCWSTR L_PATH = w_PATH.c_str();
 
 
 		IsRetrievingWorkshopFiles = false;
-		IsDownloadingWorkshop = true;
+		STEAM_IsDownloadingWorkshop = true;
 
 		cvarManager->log("Download Starting...");
 		
@@ -324,7 +318,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		req.progress_function = [this](double file_size, double downloaded, ...)
 		{
 			//cvarManager->log("Download progress : " + std::to_string(downloaded));
-			DlProgress = downloaded;
+			STEAM_Download_Progress = downloaded;
 		};
 
 		HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
@@ -335,17 +329,17 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 					out_file.write(data, size);
 
 					cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
-					IsDownloadingWorkshop = false;
+					STEAM_IsDownloadingWorkshop = false;
 				}
 			});
 
 
-		while (IsDownloadingWorkshop == true)
+		while (STEAM_IsDownloadingWorkshop == true)
 		{
 			cvarManager->log("downloading...............");
 
-			WorkshopDownload_ProgressString = DlProgress;
-			WorkshopDownload_FileSizeString = std::stoi(Workshop_filesize);
+			STEAM_WorkshopDownload_ProgressString = STEAM_Download_Progress;
+			STEAM_WorkshopDownload_FileSizeString = std::stoi(Workshop_filesize);
 			Sleep(500);
 		}
 		
@@ -755,7 +749,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 	std::string Workshop_Dl_Path = "";
-	std::string Workshop_filename = replace(mapResult.Name, *" ", *"_");
+	std::string Workshop_filename = replace(mapResult.Name, *" ", *"_"); //replace spaces by underscores
 
 
 	if (folderpath.back() == '/' || folderpath.back() == '\\')
@@ -786,7 +780,45 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
 	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 	
+	std::string download_url = "http://rocketleaguemaps.b-cdn.net/" + mapResult.Author + "/Maps/" + mapResult.ZipName;
+	cvarManager->log("Download URL : " + download_url);
+	std::string Folder_Path = Workshop_Dl_Path + "/" + mapResult.ZipName;
 
+
+	RLMAPS_IsDownloadingWorkshop = true;
+
+	cvarManager->log("Download Starting...");
+
+	//download
+	CurlRequest req;
+	req.url = download_url;
+	req.progress_function = [this](double file_size, double downloaded, ...)
+	{
+		//cvarManager->log("Download progress : " + std::to_string(downloaded));
+		RLMAPS_Download_Progress = downloaded;
+	};
+
+	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
+		{
+			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
+			if (out_file)
+			{
+				out_file.write(data, size);
+
+				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
+				RLMAPS_IsDownloadingWorkshop = false;
+			}
+		});
+
+
+	while (RLMAPS_IsDownloadingWorkshop == true)
+	{
+		cvarManager->log("downloading...............");
+
+		RLMAPS_WorkshopDownload_ProgressString = RLMAPS_Download_Progress;
+		RLMAPS_WorkshopDownload_FileSizeString = std::stoi(mapResult.Size);
+		Sleep(500);
+	}
 }
 
 

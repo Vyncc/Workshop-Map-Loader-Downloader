@@ -413,10 +413,10 @@ void Pluginx64::Render()
 			}
 
 
-			if (IsDownloadingWorkshop == true)
+			if (STEAM_IsDownloadingWorkshop == true)
 			{
-				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(WorkshopDownload_ProgressString)).c_str(),
-					convertToMB(std::to_string(WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
+				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)).c_str(),
+					convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
 			}
 
 			ImGui::Separator();
@@ -657,10 +657,10 @@ void Pluginx64::Render()
 			}
 
 
-			if (IsDownloadingWorkshop == true)
+			if (RLMAPS_IsDownloadingWorkshop == true)
 			{
-				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(WorkshopDownload_ProgressString)).c_str(),
-					convertToMB(std::to_string(WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
+				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(RLMAPS_WorkshopDownload_ProgressString)).c_str(),
+					convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
 			}
 
 			ImGui::Separator();
@@ -892,7 +892,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
 		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
 		{
-			if (IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+			if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 			{
 				std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
 				t2.detach();
@@ -904,7 +904,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 					ImGui::OpenPopup("Exists?");
 				}
 
-				if (IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+				if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
 				{
 					ImGui::OpenPopup("Downloading?");
 				}
@@ -1061,7 +1061,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
 		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
 		{
-			if (IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+			if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 			{
 				std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, mapspath, mapResult);
 				t2.detach();
@@ -1073,7 +1073,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 					ImGui::OpenPopup("Exists?");
 				}
 
-				if (IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+				if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
 				{
 					ImGui::OpenPopup("Downloading?");
 				}

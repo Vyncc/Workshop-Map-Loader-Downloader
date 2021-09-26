@@ -101,15 +101,19 @@ public:
 	bool DownloadFailed = false;
 	bool UserIsChoosingYESorNO = false;
 	bool FolderErrorBool = false;
-	bool IsDownloadingWorkshop = false;
+	bool STEAM_IsDownloadingWorkshop = false;
 	bool AcceptTheDownload = false;
-	int DlProgress;
-	int WorkshopDownload_ProgressString;
-	int WorkshopDownload_FileSizeString;
+	int STEAM_Download_Progress;
+	int STEAM_WorkshopDownload_ProgressString;
+	int STEAM_WorkshopDownload_FileSizeString;
 	bool IsDownloadingPreview;
 
 	//rocketleaguemaps.us
 	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult);
+	int RLMAPS_Download_Progress;
+	int RLMAPS_WorkshopDownload_ProgressString;
+	int RLMAPS_WorkshopDownload_FileSizeString;
+	bool RLMAPS_IsDownloadingWorkshop = false;
 
 
 
