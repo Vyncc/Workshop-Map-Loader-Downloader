@@ -169,7 +169,7 @@ std::string Pluginx64::GetWorkshopIDByUrl(std::string workshopurl)
 }
 
 
-void Pluginx64::DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile)
+void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile)
 {
 	std::string Workshop_url = workshopURL;
 	std::string Workshop_id;
@@ -656,7 +656,7 @@ void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvar
 }
 
 
-void Pluginx64::GetResults(std::string keyWord)
+void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 {
 	RLMAPS_MapResultList.clear();
 
@@ -685,13 +685,22 @@ void Pluginx64::GetResults(std::string keyWord)
 
 
 
-		std::string resultMapNameToLower = maps[index]["mapName"].asString();
+		std::string searchingTypeValueToLower;
+		if (searchType == "Maps")
+		{
+			searchingTypeValueToLower = maps[index]["mapName"].asString();
+		}
+		else
+		{
+			searchingTypeValueToLower = maps[index]["creator"].asString();
+		}
 
-		std::transform(resultMapNameToLower.begin(), resultMapNameToLower.end(), resultMapNameToLower.begin(), ::tolower); //transform a string to lowercase
+
+		std::transform(searchingTypeValueToLower.begin(), searchingTypeValueToLower.end(), searchingTypeValueToLower.begin(), ::tolower); //transform a string to lowercase
 		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
 
 
-		if (resultMapNameToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
+		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
 		{
 			cvarManager->log(resultMapName);
 
@@ -714,6 +723,7 @@ void Pluginx64::GetResults(std::string keyWord)
 			result.ID = resultMapID;
 			result.Name = resultMapName;
 			result.ZipName = maps[index]["mapZipName"].asString();
+			result.Size = maps[index]["filesize"].asString();
 			result.Author = maps[index]["creator"].asString();
 			result.ShortDescription = maps[index]["mapShortDescription"].asString();
 			result.Description = maps[index]["mapDescription"].asString();
@@ -725,6 +735,58 @@ void Pluginx64::GetResults(std::string keyWord)
 			RLMAPS_MapResultList.push_back(result);
 		}
 	}
+}
+
+
+void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult)
+{
+
+	UserIsChoosingYESorNO = true;
+
+	while (UserIsChoosingYESorNO)
+	{
+		//while he is choosing
+		Sleep(100);
+	}
+
+	if (!AcceptTheDownload) //if user canceled the download
+	{
+		return;
+	}
+
+	std::string Workshop_Dl_Path = "";
+	std::string Workshop_filename = replace(mapResult.Name, *" ", *"_");
+
+
+	if (folderpath.back() == '/' || folderpath.back() == '\\')
+	{
+		Workshop_Dl_Path = folderpath + Workshop_filename;
+	}
+	else  //if last character != /
+	{
+		Workshop_Dl_Path = folderpath + "/" + Workshop_filename;
+		cvarManager->log("A slash has been added a the end of the path");
+	}
+
+
+	try
+	{
+		fs::create_directory(Workshop_Dl_Path); //create directory for the map downloaded
+		cvarManager->log("Directory Created : " + Workshop_Dl_Path);
+	}
+	catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+	{
+		cvarManager->log(ex.what());
+		FolderErrorText = ex.what();
+		FolderErrorBool = true;
+		return;
+	}
+
+
+	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
+	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
+	
+
 }
 
 

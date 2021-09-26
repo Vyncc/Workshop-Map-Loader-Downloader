@@ -16,8 +16,8 @@ struct Map
 
 struct Steam_MapResult
 {
-	std::string Name;
 	std::string ID;
+	std::string Name;
 	std::string Size;
 	std::string Description;
 	std::string PreviewUrl;
@@ -29,9 +29,10 @@ struct Steam_MapResult
 
 struct RLMAPS_MapResult
 {
+	std::string ID;
 	std::string Name;
 	std::string ZipName;
-	std::string ID;
+	std::string Size;
 	std::string ShortDescription;
 	std::string Description;
 	std::string PreviewUrl;
@@ -87,11 +88,12 @@ public:
 	bool isSearching = false;
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
-	void GetResults(std::string keyWord);
+	void GetResults(std::string searchType, std::string keyWord);
 
 
 	//Related to download
-	void DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile);
+	//Steam
+	void STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile);
 	std::string GetWorkshopIDByUrl(std::string workshopurl);
 	void CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath);
 	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription, std::string mapPreviewUrl);
@@ -105,6 +107,10 @@ public:
 	int WorkshopDownload_ProgressString;
 	int WorkshopDownload_FileSizeString;
 	bool IsDownloadingPreview;
+
+	//rocketleaguemaps.us
+	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult);
+
 
 
 	//utils

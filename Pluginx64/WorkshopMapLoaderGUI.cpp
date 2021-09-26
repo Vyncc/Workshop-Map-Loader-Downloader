@@ -308,10 +308,10 @@ void Pluginx64::Render()
 			{
 				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
 				static char url[200] = "Ex : https://steamcommunity.com/sharedfiles/filedetails/?id=2120912805&searchtext=rings+3";
-				ImGui::InputText("##workshopurl", url, IM_ARRAYSIZE(url));
+				ImGui::InputText("##STEAMworkshopurl", url, IM_ARRAYSIZE(url));
 				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
 				{
-					std::thread t1(&Pluginx64::DownloadWorkshop, this, url, MapsFolderPathBuf, "", true, 0, false);
+					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, "", true, 0, false);
 					t1.detach();
 				}
 			}
@@ -320,7 +320,7 @@ void Pluginx64::Render()
 
 			ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
 			static char keyWord[200] = "";
-			ImGui::InputText("##workshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
+			ImGui::InputText("##STEAMworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 			std::string get_full_url = steam_base_url + replace(std::string(keyWord), *" ", *"+");
 			//ImGui::Text(get_full_url.c_str());
 
@@ -546,23 +546,9 @@ void Pluginx64::Render()
 
 		if (ImGui::BeginTabItem("Search Workshop(rocketleaguemaps.us)"))
 		{
-			if (ImGui::CollapsingHeader(DlWorkshopByURLText.c_str())) // "Download Workshop By Url"
-			{
-				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
-				static char url[200] = "Ex : https://steamcommunity.com/sharedfiles/filedetails/?id=2120912805&searchtext=rings+3";
-				ImGui::InputText("##workshopurl", url, IM_ARRAYSIZE(url));
-				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
-				{
-					std::thread t1(&Pluginx64::DownloadWorkshop, this, url, MapsFolderPathBuf, "", true, 0, false);
-					t1.detach();
-				}
-			}
-
-			ImGui::Separator();
-
 			ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
 			static char keyWord[200] = "";
-			ImGui::InputText("##workshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
+			ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100.f);
@@ -584,11 +570,8 @@ void Pluginx64::Render()
 
 			if (ImGui::Button("Search##2") && isSearching == false) // "Search"
 			{
-				if (combo_selected_searchingType == "Maps")
-				{
-					std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord));
-					t2.detach();
-				}
+				std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
+				t2.detach();
 			}
 
 
@@ -684,22 +667,6 @@ void Pluginx64::Render()
 
 			ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
 
-			if (OtherPagesList.size() > 0) //if there is other pages of wokshop maps
-			{
-				for (int i = 0; i < OtherPagesList.size(); i++)
-				{
-					ImGui::SameLine();
-
-					//std::string PageButtonName = "Page " + OtherPagesList.at(i).substr(OtherPagesList.at(i).length() - 1, 1);
-					std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
-
-					if (ImGui::Button(PageButtonName.c_str()) && isSearching == false)
-					{
-						std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
-						Page_Thread.detach();
-					}
-				}
-			}
 			ImGui::NewLine();
 			ImGui::NewLine();
 
@@ -927,7 +894,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 		{
 			if (IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 			{
-				std::thread t2(&Pluginx64::DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
+				std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
 				t2.detach();
 			}
 			else
@@ -1033,6 +1000,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 
 	RLMAPS_MapResult mapResult = RLMAPS_MapResultList.at(i);
 	std::string mapName = mapResult.Name;
+	std::string mapSize = mapResult.Size;
 	std::string mapDescription = mapResult.Description;
 	std::string mapAuthor = mapResult.Author;
 
@@ -1066,6 +1034,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 
 	ImGui::BeginGroup();
 	{
+		std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
 
 		ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
 		ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
@@ -1086,6 +1055,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 			GoodMapName.append("...");
 		}
 		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
+		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
 		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
 			std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
 		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
@@ -1093,7 +1063,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 		{
 			if (IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 			{
-				std::thread t2(&Pluginx64::DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
+				std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, mapspath, mapResult);
 				t2.detach();
 			}
 			else
