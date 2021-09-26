@@ -707,12 +707,38 @@ void Pluginx64::renderMaps()
 
 					if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
 					{
-						gameWrapper->Execute([&, curMap](GameWrapper* gw)
-							{
-								cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UdkFile.filename().string() + "\"");
-							});
-						cvarManager->log("Map selected : " + curMap.UdkFile.filename().string());
+						ImGui::OpenPopup("LaunchMode");
 					}
+
+					if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						if (ImGui::Button("Solo", ImVec2(100.f, 25.f)))
+						{
+							gameWrapper->Execute([&, curMap](GameWrapper* gw)
+								{
+									cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UdkFile.filename().string() + "\"");
+								});
+							cvarManager->log("Map selected : " + curMap.UdkFile.filename().string());
+
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Host Multiplayer", ImVec2(100.f, 25.f)))
+						{
+							gameWrapper->ExecuteUnrealCommand("start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+							/*
+							gameWrapper->Execute([&, curMap](GameWrapper* gw)
+								{
+									cvarManager->executeCommand("unreal_command \"start " + curMap.Folder.string() + "/" + curMap.UdkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
+								});*/
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+
+
+
 					ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 					ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
 					ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
@@ -1151,7 +1177,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				std::string fileExtension = file.path().filename().extension().string();
 				nbFiles++;
 
-				if (!hasFoundUDK && fileExtension == ".udk")
+				if (!hasFoundUDK && fileExtension == ".upk")
 				{
 					map.UdkFile = file.path();
 					hasFoundUDK = true;

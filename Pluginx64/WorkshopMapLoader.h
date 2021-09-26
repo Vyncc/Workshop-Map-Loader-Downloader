@@ -9,6 +9,7 @@ struct Map
 {
 	std::filesystem::path Folder; //Map folder
 	std::filesystem::path UdkFile; //Map(.udk) found in your map directory
+	std::filesystem::path UpkFile; //Map(.upk) found in your map directory
 	std::string JsonFile; //.json file found in your map directory
 	std::shared_ptr<ImageWrapper> PreviewImage;
 	bool isPreviewImageLoaded;
@@ -50,6 +51,7 @@ public:
 	virtual void onUnload();
 
 
+	std::string UdkInDirectory(std::string dirPath);
 
 
 

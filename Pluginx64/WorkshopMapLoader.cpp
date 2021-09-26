@@ -352,6 +352,24 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
 			system(extractCommand.c_str());
 		}
+
+		while (UdkInDirectory(Workshop_Dl_Path) == "Null")
+		{
+			cvarManager->log("Extracting udk file");
+			Sleep(10);
+		}
+
+
+		cvarManager->log("File Extracted");
+
+		std::string UDKPath = UdkInDirectory(Workshop_Dl_Path);
+		std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
+		cvarManager->log("upk file : " + UPKPath);
+
+		if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
+			cvarManager->log("Error renaming file");
+		else
+			cvarManager->log("File renamed successfully");
 	}
 }
 
@@ -661,7 +679,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	//Parse response json
 	Json::Value actualJson;
 	Json::Reader reader;
-
+	
 	reader.parse(request_response.text, actualJson);
 
 	const Json::Value maps = actualJson["body"];
@@ -833,6 +851,39 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
 		system(extractCommand.c_str());
 	}
+
+
+
+	while(UdkInDirectory(Workshop_Dl_Path) == "Null")
+	{
+		cvarManager->log("Extracting udk file");
+		Sleep(10);
+	}
+
+
+	cvarManager->log("File Extracted");
+
+	std::string UDKPath = UdkInDirectory(Workshop_Dl_Path);
+	std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
+	cvarManager->log("upk file : " + UPKPath);
+	
+	if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
+		cvarManager->log("Error renaming file");
+	else
+		cvarManager->log("File renamed successfully");
+}
+
+std::string Pluginx64::UdkInDirectory(std::string dirPath)
+{
+	for (const auto& file : fs::directory_iterator(dirPath))
+	{
+		if (file.path().extension().string() == ".udk")
+		{
+			cvarManager->log(file.path().string());
+			return file.path().string();
+		}
+	}
+	return "Null";
 }
 
 
