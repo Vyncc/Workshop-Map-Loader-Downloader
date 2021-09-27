@@ -696,7 +696,7 @@ void Pluginx64::renderMaps()
 		{
 			Map curMap = MapList.at(i);
 
-			if (curMap.UdkFile != "NoUdkFound") //needed to avoid problems if a folder is not containing a .udk
+			if (curMap.UpkFile != "NoUpkFound") //needed to avoid problems if a folder is not containing a .udk
 			{
 				ImGui::PushID(i); //needed to make the button work
 				ImGui::BeginGroup();
@@ -716,21 +716,20 @@ void Pluginx64::renderMaps()
 						{
 							gameWrapper->Execute([&, curMap](GameWrapper* gw)
 								{
-									cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UdkFile.filename().string() + "\"");
+									cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
 								});
-							cvarManager->log("Map selected : " + curMap.UdkFile.filename().string());
+							cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
 
 							ImGui::CloseCurrentPopup();
 						}
 						ImGui::SameLine();
 						if (ImGui::Button("Host Multiplayer", ImVec2(100.f, 25.f)))
 						{
-							gameWrapper->ExecuteUnrealCommand("start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
-							/*
 							gameWrapper->Execute([&, curMap](GameWrapper* gw)
 								{
-									cvarManager->executeCommand("unreal_command \"start " + curMap.Folder.string() + "/" + curMap.UdkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-								});*/
+									//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
+									gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+								});
 							ImGui::CloseCurrentPopup();
 						}
 
@@ -1159,6 +1158,10 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		Map map;
 		map.Folder = MapsDirectories.at(i).string();
 
+
+		renameFileToUPK(CurrentMapDirectory);		//rename the map udk to upk, for people that already had the plugin
+
+
 		int nbFilesInDirectory = 0;
 		//get the numbers of files in the current map directory
 		for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
@@ -1169,7 +1172,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		if (nbFilesInDirectory > 0)
 		{
 			int nbFiles = 0;
-			bool hasFoundUDK = false;
+			bool hasFoundUPK = false;
 			bool hasFoundPreview = false;
 			bool hasFoundJSON = false;
 			for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
@@ -1177,17 +1180,18 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				std::string fileExtension = file.path().filename().extension().string();
 				nbFiles++;
 
-				if (!hasFoundUDK && fileExtension == ".upk")
+
+				if (!hasFoundUPK && fileExtension == ".upk")
 				{
-					map.UdkFile = file.path();
-					hasFoundUDK = true;
+					map.UpkFile = file.path();
+					hasFoundUPK = true;
 				}
 				else
 				{
-					if (nbFiles == nbFilesInDirectory && hasFoundUDK == false)
+					if (nbFiles == nbFilesInDirectory && hasFoundUPK == false)
 					{
-						map.UdkFile = "NoUdkFound";
-						cvarManager->log("No udk found in this folder : " + CurrentMapDirectory.string());
+						map.UpkFile = "NoUpkFound";
+						cvarManager->log("No upk found in this folder : " + CurrentMapDirectory.string());
 						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
 					}
 				}
@@ -1232,7 +1236,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		else       //if the folder is empty
 		{
 			cvarManager->log("Empty folder !");
-			map.UdkFile = "NoUdkFound";
+			map.UpkFile = "NoUpkFound";
 			map.JsonFile = "NoInfos";
 			map.PreviewImage = std::make_shared<ImageWrapper>(IfNoPreviewImagePath, false, true); //if there is no preview image, it will load a red cross image
 			map.isPreviewImageLoaded = true;

@@ -8,8 +8,7 @@
 struct Map
 {
 	std::filesystem::path Folder; //Map folder
-	std::filesystem::path UdkFile; //Map(.udk) found in your map directory
-	std::filesystem::path UpkFile; //Map(.upk) found in your map directory
+	std::filesystem::path UpkFile; //Map(.udk) found in your map directory
 	std::string JsonFile; //.json file found in your map directory
 	std::shared_ptr<ImageWrapper> PreviewImage;
 	bool isPreviewImageLoaded;
@@ -125,6 +124,7 @@ public:
 	std::string convertToMB(std::string numberToConvert);
 	std::vector<std::string> FindAllSubstringInAString(std::string texte, std::string beginString, std::string endString);
 	bool Directory_Or_File_Exists(const fs::path& p, fs::file_status s = fs::file_status{});
+	void renameFileToUPK(std::filesystem::path filePath);
 
 
 	//ImGui SettingsWindow Functions

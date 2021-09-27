@@ -362,14 +362,8 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 		cvarManager->log("File Extracted");
 
-		std::string UDKPath = UdkInDirectory(Workshop_Dl_Path);
-		std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
-		cvarManager->log("upk file : " + UPKPath);
 
-		if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
-			cvarManager->log("Error renaming file");
-		else
-			cvarManager->log("File renamed successfully");
+		renameFileToUPK(Workshop_Dl_Path);
 	}
 }
 
@@ -863,14 +857,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 
 	cvarManager->log("File Extracted");
 
-	std::string UDKPath = UdkInDirectory(Workshop_Dl_Path);
-	std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
-	cvarManager->log("upk file : " + UPKPath);
-	
-	if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
-		cvarManager->log("Error renaming file");
-	else
-		cvarManager->log("File renamed successfully");
+	renameFileToUPK(Workshop_Dl_Path);
 }
 
 std::string Pluginx64::UdkInDirectory(std::string dirPath)
@@ -879,11 +866,24 @@ std::string Pluginx64::UdkInDirectory(std::string dirPath)
 	{
 		if (file.path().extension().string() == ".udk")
 		{
-			cvarManager->log(file.path().string());
+			//cvarManager->log(file.path().string());
 			return file.path().string();
 		}
 	}
 	return "Null";
+}
+
+void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
+{
+	std::string UDKPath = UdkInDirectory(filePath.string());
+	if (UDKPath == "Null") { return; }
+	std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
+	//cvarManager->log("upk file : " + UPKPath);
+
+	if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
+		cvarManager->log("Error renaming file");
+	else
+		cvarManager->log("File renamed successfully");
 }
 
 
