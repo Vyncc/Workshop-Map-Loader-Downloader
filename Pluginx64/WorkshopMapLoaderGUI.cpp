@@ -698,9 +698,7 @@ void Pluginx64::Render()
 					{
 						cvarManager->log("IP : " + str_IP);
 						cvarManager->log("PORT : " + str_PORT);
-						//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
 						gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");  //si ca marche pas c'est peut etre a cause du / a coté de ?Lan
-						
 					});
 			}
 
