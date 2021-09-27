@@ -676,6 +676,38 @@ void Pluginx64::Render()
 			ImGui::EndTabItem();
 		}
 
+
+		if (ImGui::BeginTabItem("Join Multiplayer Server"))
+		{
+			ImGui::Text("IP :");
+			ImGui::SameLine();
+			static char IP[200] = "";
+			ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+			
+			ImGui::Text("PORT :");
+			ImGui::SameLine();
+			static char PORT[200] = "";
+			ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+			std::string str_IP = std::string(IP);
+			std::string str_PORT = std::string(PORT);
+
+			if (ImGui::Button("Join Server"))
+			{
+				gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+					{
+						cvarManager->log("IP : " + str_IP);
+						cvarManager->log("PORT : " + str_PORT);
+						//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
+						gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":port" + str_PORT + "/?Lan?Password=password");  //si ca marche pas c'est peut etre a cause du / a coté de ?Lan
+						
+					});
+			}
+
+			ImGui::EndTabItem();
+		}
+
+
 		ImGui::EndTabBar();
 	}
 
