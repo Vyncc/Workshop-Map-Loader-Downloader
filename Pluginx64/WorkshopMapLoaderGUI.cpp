@@ -752,7 +752,9 @@ void Pluginx64::renderMaps()
 
 							ImGui::CloseCurrentPopup();
 						}
+
 						ImGui::SameLine();
+
 						if (ImGui::Button("Host Multiplayer", ImVec2(100.f, 25.f)))
 						{
 							gameWrapper->Execute([&, curMap](GameWrapper* gw)
@@ -760,6 +762,53 @@ void Pluginx64::renderMaps()
 									//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
 									gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
 								});
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::SameLine();
+
+						if(ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+						{
+							ImGui::OpenPopup("JoinServerPopup");
+						}
+
+						if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+						{
+							ImGui::Text("IP :");
+							ImGui::SameLine();
+							static char IP[200] = "";
+							ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+
+							ImGui::Text("PORT :");
+							ImGui::SameLine();
+							static char PORT[200] = "";
+							ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+							std::string str_IP = std::string(IP);
+							std::string str_PORT = std::string(PORT);
+
+							if (ImGui::Button("Join Server"))
+							{
+								gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+									{
+										cvarManager->log("IP : " + str_IP);
+										cvarManager->log("PORT : " + str_PORT);
+										gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");  //si ca marche pas c'est peut etre a cause du / a coté de ?Lan
+									});
+
+								ImGui::CloseCurrentPopup();
+							}
+
+							if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+							{
+								ImGui::CloseCurrentPopup();
+							}
+
+							ImGui::EndPopup();
+						}
+
+						if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+						{
 							ImGui::CloseCurrentPopup();
 						}
 

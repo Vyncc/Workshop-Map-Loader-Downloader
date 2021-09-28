@@ -53,7 +53,6 @@ public:
 	std::string UdkInDirectory(std::string dirPath);
 
 
-
 	std::vector<std::string> MapsNamesList;
 
 	//Variables

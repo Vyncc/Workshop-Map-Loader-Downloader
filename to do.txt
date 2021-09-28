@@ -1,0 +1,3 @@
+tester le join(lancer un deuxieme rl sur le pc)
+faire la fenetre quand on appuie sur host multiplayer avec tous les mutators etc
+faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
