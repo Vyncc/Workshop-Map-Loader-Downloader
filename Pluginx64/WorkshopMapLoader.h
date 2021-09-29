@@ -49,6 +49,12 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
+	int widthTest;
+
+	void CopyMapTo_CookedPCConsole(Map map);
+
+	void TextCenter(std::string text);
+	void CenterNexIMGUItItem(float itemWidth);
 
 	std::string UdkInDirectory(std::string dirPath);
 

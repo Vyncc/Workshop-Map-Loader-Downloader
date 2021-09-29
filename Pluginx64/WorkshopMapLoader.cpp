@@ -355,7 +355,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 		while (UdkInDirectory(Workshop_Dl_Path) == "Null")
 		{
-			cvarManager->log("Extracting udk file");
+			cvarManager->log("Extracting zip file");
 			Sleep(10);
 		}
 
@@ -659,6 +659,8 @@ void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvar
 	CFGFile << "HasSeeNewUpdateAlert = \"" + hasSeenNewUpdateAlert + "\"";
 
 	CFGFile.close();
+
+	cvarManager->log("Saved in cfg");
 }
 
 
@@ -850,7 +852,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 
 	while(UdkInDirectory(Workshop_Dl_Path) == "Null")
 	{
-		cvarManager->log("Extracting udk file");
+		cvarManager->log("Extracting zip file");
 		Sleep(10);
 	}
 
@@ -884,6 +886,31 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 		cvarManager->log("Error renaming file");
 	else
 		cvarManager->log("File renamed successfully");
+}
+
+
+void Pluginx64::CopyMapTo_CookedPCConsole(Map map)
+{
+	std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mod";
+
+	if (!Directory_Or_File_Exists(modsDirPath))
+	{
+		cvarManager->log("CopyMapTo_CookedPCConsole : mods doesn't folder exist");
+		fs::create_directory(modsDirPath);
+		cvarManager->log("CopyMapTo_CookedPCConsole : Directory Created : " + modsDirPath);
+	}
+
+	cvarManager->log("CopyMapTo_CookedPCConsole : copying upk file to CookedPCConsole/mods");
+	try                     //peut etre retirer le try, peut etre a cause de ca que ca join pas jsp frr
+	{
+		fs::copy(map.UpkFile, modsDirPath);
+	}
+	catch (const std::exception& ex)
+	{
+		cvarManager->log(ex.what());
+	}
+	cvarManager->log("CopyMapTo_CookedPCConsole : map copied");
+
 }
 
 

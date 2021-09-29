@@ -252,7 +252,14 @@ void Pluginx64::Render()
 	{
 		if (ImGui::BeginTabItem(Tab1MapLoaderText.c_str())) // "Map Loader"
 		{
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
+
+			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
 			ImGui::Text(Label1Text.c_str()); // "Put the folder's path of the maps, don't forget to add a  /  at the end."
+
+
+			CenterNexIMGUItItem(620.f);
+			ImGui::SetNextItemWidth(620.f);
 			ImGui::InputText("##workshopurl123", MapsFolderPathBuf, IM_ARRAYSIZE(MapsFolderPathBuf));
 			ImGui::SameLine();
 			if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
@@ -264,17 +271,20 @@ void Pluginx64::Render()
 				ImGui::Text("");
 			}
 
+			CenterNexIMGUItItem(620.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button(SavePathText.c_str())) // "Save Path"
+			if (ImGui::Button(SavePathText.c_str(), ImVec2(306.f, 32.f))) // "Save Path"
 			{
 				if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\"))
 				{
 					SaveInCFG(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg", MapsFolderPathBuf, std::to_string(FR), unzipMethod, std::to_string(HasSeeNewUpdateAlert));
 				}
 			}
+			ImGui::CalcItemWidth();
 
+			ImGui::SameLine();
 
-			if (ImGui::Button(RefreshMapsButtonText.c_str())) // "Refresh Maps"
+			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(306.f, 32.f))) // "Refresh Maps"
 			{
 				if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
 				{
@@ -297,7 +307,8 @@ void Pluginx64::Render()
 				ImGui::EndPopup();
 			}
 
-			ImGui::Separator();
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+
 
 			renderMaps();
 			ImGui::EndTabItem();
@@ -319,13 +330,19 @@ void Pluginx64::Render()
 
 			ImGui::Separator();
 
+
+			CenterNexIMGUItItem(ImGui::CalcTextSize(Label3Text.c_str()).x + 181.f);
 			ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
+
+			CenterNexIMGUItItem(300.f);
+			ImGui::SetNextItemWidth(300.f);
 			static char keyWord[200] = "";
 			ImGui::InputText("##STEAMworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 			std::string get_full_url = steam_base_url + replace(std::string(keyWord), *" ", *"+");
 			//ImGui::Text(get_full_url.c_str());
 
-			if (ImGui::Button(SearchButtonText.c_str()) && isSearching == false) // "Search"
+			CenterNexIMGUItItem(300.f);
+			if (ImGui::Button(SearchButtonText.c_str(), ImVec2(300.f, 25.f)) && isSearching == false) // "Search"
 			{
 				std::thread t2(&Pluginx64::StartSearchRequest, this, get_full_url);
 				t2.detach();
@@ -422,12 +439,15 @@ void Pluginx64::Render()
 
 			ImGui::Separator();
 
+			ImGui::SliderInt("width", &widthTest, 0, 1920);
+
 			ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
 			ImGui::SameLine();
 
 			std::string MostPopular_Url = "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=trend&section=readytouseitems";
 
-			if (ImGui::BeginCombo(combo_selected_most, combo_selected_most, ImGuiComboFlags_NoPreview))
+			ImGui::SetNextItemWidth(122.f);
+			if (ImGui::BeginCombo("##sortByMost", combo_selected_most))
 			{
 				if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
 				{
@@ -718,6 +738,24 @@ void Pluginx64::Render()
 }
 
 
+//https://stackoverflow.com/questions/64653747/how-to-center-align-text-horizontally
+void Pluginx64::TextCenter(std::string text) {
+	auto windowWidth = ImGui::GetWindowSize().x;
+	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
+
+	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+	ImGui::Text(text.c_str());
+}
+
+void Pluginx64::CenterNexIMGUItItem(float itemWidth)
+{
+	auto windowWidth = ImGui::GetWindowSize().x;
+
+	ImGui::SetCursorPosX((windowWidth - itemWidth) * 0.5f);
+}
+
+
+
 void Pluginx64::renderMaps()
 {
 	if (ImGui::BeginChild("#MapsLauncherButtons"))
@@ -789,6 +827,8 @@ void Pluginx64::renderMaps()
 
 							if (ImGui::Button("Join Server"))
 							{
+								CopyMapTo_CookedPCConsole(curMap);
+
 								gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
 									{
 										cvarManager->log("IP : " + str_IP);
