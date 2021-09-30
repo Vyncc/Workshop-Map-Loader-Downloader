@@ -50,11 +50,15 @@ public:
 	virtual void onUnload();
 
 	int widthTest;
+	int heightTest;
 
 	void CopyMapTo_CookedPCConsole(Map map);
 
 	void TextCenter(std::string text);
 	void CenterNexIMGUItItem(float itemWidth);
+	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
+
+	std::shared_ptr<ImageWrapper> imgTest;
 
 	std::string UdkInDirectory(std::string dirPath);
 

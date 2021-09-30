@@ -29,6 +29,8 @@ void Pluginx64::onLoad()
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
 	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
+	std::string pathTest = "C:\\Users\\snipj\\Pictures\\steam-logo-black-transparent.png";
+	imgTest = std::make_shared<ImageWrapper>(pathTest, false, true);
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
