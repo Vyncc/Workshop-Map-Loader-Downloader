@@ -29,8 +29,11 @@ void Pluginx64::onLoad()
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
 	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
-	std::string pathTest = "C:\\Users\\snipj\\Pictures\\steam-logo-transparent.png";
-	imgTest = std::make_shared<ImageWrapper>(pathTest, false, true);
+	std::string SteamLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\steamlogo.png";
+	SteamLogoImage = std::make_shared<ImageWrapper>(SteamLogoPath, false, true);
+
+	std::string RLMAPSLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\rlmapslogo.png";
+	RLMAPSLogoImage = std::make_shared<ImageWrapper>(RLMAPSLogoPath, false, true);
 
 	browsing = false;
 
@@ -893,29 +896,6 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 }
 
 
-void Pluginx64::CopyMapTo_CookedPCConsole(Map map)
-{
-	std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mod";
-
-	if (!Directory_Or_File_Exists(modsDirPath))
-	{
-		cvarManager->log("CopyMapTo_CookedPCConsole : mods doesn't folder exist");
-		fs::create_directory(modsDirPath);
-		cvarManager->log("CopyMapTo_CookedPCConsole : Directory Created : " + modsDirPath);
-	}
-
-	cvarManager->log("CopyMapTo_CookedPCConsole : copying upk file to CookedPCConsole/mods");
-	try                     //peut etre retirer le try, peut etre a cause de ca que ca join pas jsp frr
-	{
-		fs::copy(map.UpkFile, modsDirPath);
-	}
-	catch (const std::exception& ex)
-	{
-		cvarManager->log(ex.what());
-	}
-	cvarManager->log("CopyMapTo_CookedPCConsole : map copied");
-
-}
 
 
 void Pluginx64::onUnload() {}

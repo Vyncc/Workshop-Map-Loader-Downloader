@@ -358,8 +358,8 @@ void Pluginx64::Render()
 			ImGui::SameLine();
 
 
-			CenterNexIMGUItItem(65.f);
-			ImGui::Image(imgTest->GetImGuiTex(), ImVec2(65.f, 65.f)); //Steam Logo
+			CenterNexIMGUItItem(63.f);
+			ImGui::Image(SteamLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //Steam Logo
 
 			ImGui::SameLine();
 
@@ -368,12 +368,12 @@ void Pluginx64::Render()
 				std::string MostPopular_Url = "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=trend&section=readytouseitems";
 
 
-				AlignRightNexIMGUItItem(widthBrowseGroup, 8.f); //180(browse button), 8(gap between 2 imgui component) 142(combo) 41(Sort By :) 8(gap between item and window border
+				AlignRightNexIMGUItItem(widthBrowseGroup, 8.f); 
 				ImGui::BeginGroup();
 				{
 					if (browsing)
 					{
-						widthBrowseGroup = 385.f;
+						widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
 						
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
 						ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
@@ -598,6 +598,7 @@ void Pluginx64::Render()
 
 			ImGui::BeginChild("##SteamSearchWorkshopMapsResults");
 			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
 				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
 
 				ImGui::SameLine();
@@ -858,7 +859,7 @@ void Pluginx64::renderMaps()
 
 					if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 					{
-						if (ImGui::Button("Solo", ImVec2(100.f, 25.f)))
+						if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
 						{
 							gameWrapper->Execute([&, curMap](GameWrapper* gw)
 								{
@@ -871,7 +872,7 @@ void Pluginx64::renderMaps()
 
 						ImGui::SameLine();
 
-						if (ImGui::Button("Host Multiplayer", ImVec2(100.f, 25.f)))
+						if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
 						{
 							gameWrapper->Execute([&, curMap](GameWrapper* gw)
 								{
@@ -881,51 +882,195 @@ void Pluginx64::renderMaps()
 							ImGui::CloseCurrentPopup();
 						}
 
-						ImGui::SameLine();
 
-						if(ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+						if(ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
 						{
 							ImGui::OpenPopup("JoinServerPopup");
 						}
 
-						if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+
+						std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
+						if (!Directory_Or_File_Exists(modsDirPath))
 						{
-							ImGui::Text("IP :");
-							ImGui::SameLine();
-							static char IP[200] = "";
-							ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-							ImGui::Text("PORT :");
-							ImGui::SameLine();
-							static char PORT[200] = "";
-							ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-							std::string str_IP = std::string(IP);
-							std::string str_PORT = std::string(PORT);
-
-							if (ImGui::Button("Join Server"))
+							renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
+								fs::create_directory(modsDirPath);
+								});
+						}
+						else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
+						{
+							renderYesNoPopup("JoinServerPopup", ("%s doesn't exist in mods/. Paste the map to mods/ ?", curMap.UpkFile.filename().string().c_str()), [this, modsDirPath, curMap]() {
+								fs::copy(curMap.UpkFile, modsDirPath); //ca freeze quand ca copy(enfin je crois ca crash apres)
+								});
+						}
+						else
+						{
+							if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 							{
-								CopyMapTo_CookedPCConsole(curMap);
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
+								ImGui::Text("IP :");
+								ImGui::SameLine();
+								static char IP[200] = "";
+								ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
 
-								gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+								ImGui::Text("PORT :");
+								ImGui::SameLine();
+								static char PORT[200] = "";
+								ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+								std::string str_IP = std::string(IP);
+								std::string str_PORT = std::string(PORT);
+
+
+								CenterNexIMGUItItem(208.f);
+								ImGui::BeginGroup();
+								{
+									if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
 									{
-										cvarManager->log("IP : " + str_IP);
-										cvarManager->log("PORT : " + str_PORT);
-										gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");  //si ca marche pas c'est peut etre a cause du / a coté de ?Lan
-									});
+										gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+											{
+												cvarManager->log("IP : " + str_IP);
+												cvarManager->log("PORT : " + str_PORT);
+												gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
+											});
 
-								ImGui::CloseCurrentPopup();
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::SameLine();
+
+									if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+									{
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::EndGroup();
+								}
 							}
-
-							if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-							{
-								ImGui::CloseCurrentPopup();
-							}
-
-							ImGui::EndPopup();
 						}
 
-						if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+						/*
+						if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+						{
+							std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
+
+							if (!Directory_Or_File_Exists(modsDirPath))
+							{
+								cvarManager->log("CopyMapTo_CookedPCConsole : mods doesn't exist");
+								ImGui::Text("The directory \"mods\" doesn't exist. Create it?");
+
+								ImGui::NewLine();
+
+								CenterNexIMGUItItem(208.f);
+								ImGui::BeginGroup();
+								{
+									if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
+									{
+										try
+										{
+											fs::create_directory(modsDirPath);
+										}
+										catch (const std::exception& ex)
+										{
+											cvarManager->log(ex.what());
+											ImGui::OpenPopup("CreateModsDir");
+											renderErrorPopup("CreateModsDir", ex.what());
+										}
+									}
+									ImGui::SameLine();
+									if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
+									{
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::EndGroup();
+								}
+							}
+							else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
+							{
+								ImGui::Text("%s doesn't exist in mods/. Paste the map to mods/ ?", curMap.UpkFile.filename().string().c_str());
+
+								ImGui::NewLine();
+
+								CenterNexIMGUItItem(208.f);
+								ImGui::BeginGroup();
+								{
+									if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
+									{
+										try
+										{
+											fs::copy(curMap.UpkFile, modsDirPath);
+										}
+										catch (const std::exception& ex)
+										{
+											cvarManager->log(ex.what());
+											ImGui::OpenPopup("PasteMap");
+											renderErrorPopup("PasteMap", ex.what());
+										}
+
+									}
+									ImGui::SameLine();
+									if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
+									{
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::EndGroup();
+								}
+							}
+							else
+							{
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
+								ImGui::Text("IP :");
+								ImGui::SameLine();
+								static char IP[200] = "";
+								ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+
+								ImGui::Text("PORT :");
+								ImGui::SameLine();
+								static char PORT[200] = "";
+								ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+								std::string str_IP = std::string(IP);
+								std::string str_PORT = std::string(PORT);
+
+
+								CenterNexIMGUItItem(208.f);
+								ImGui::BeginGroup();
+								{
+									if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+									{
+										gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+											{
+												cvarManager->log("IP : " + str_IP);
+												cvarManager->log("PORT : " + str_PORT);
+												gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
+											});
+
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::SameLine();
+
+									if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+									{
+										ImGui::CloseCurrentPopup();
+									}
+
+									ImGui::EndGroup();
+								}
+								
+							}
+
+							
+
+
+
+							ImGui::EndPopup();
+						}*/
+
+						ImGui::SameLine();
+
+						if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
 						{
 							ImGui::CloseCurrentPopup();
 						}
@@ -1005,6 +1150,58 @@ void Pluginx64::renderMaps()
 		}
 	}
 	ImGui::EndChild();
+}
+
+void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> func)
+{
+	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(label);
+		ImGui::NewLine();
+		
+		CenterNexIMGUItItem(208.f);
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
+			{
+				try
+				{
+					func();
+				}
+				catch (const std::exception& ex)
+				{
+					cvarManager->log(ex.what());
+					ImGui::OpenPopup("PasteMap");
+					renderErrorPopup("PasteMap", ex.what());
+				}
+
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndGroup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderErrorPopup(const char* popupName, const char* label)
+{
+	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(label);
+		ImGui::NewLine();
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
 }
 
 

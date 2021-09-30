@@ -52,13 +52,13 @@ public:
 	int widthTest;
 	int heightTest;
 
-	void CopyMapTo_CookedPCConsole(Map map);
 
 	void TextCenter(std::string text);
 	void CenterNexIMGUItItem(float itemWidth);
 	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
 
-	std::shared_ptr<ImageWrapper> imgTest;
+	std::shared_ptr<ImageWrapper> SteamLogoImage;
+	std::shared_ptr<ImageWrapper> RLMAPSLogoImage;
 
 	std::string UdkInDirectory(std::string dirPath);
 
@@ -148,6 +148,10 @@ public:
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
 	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13";
+
+
+	void renderErrorPopup(const char* popupName, const char* label);
+	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> func);
 
 	void Render() override;
 	void renderMaps();

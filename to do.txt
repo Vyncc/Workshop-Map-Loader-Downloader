@@ -2,18 +2,29 @@ tester le join(lancer un deuxieme rl sur le pc)
 faire la fenetre quand on appuie sur host multiplayer avec tous les mutators etc
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
 
-changer la localisation du logo steam, le mettre dans data/img
+/changer la localisation du logo steam, le mettre dans data/
 
-mettre le boutton cancel au millieu de la popup
+/mettre le boutton cancel au millieu de la popup
 
 faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
 
-peut etre baisser un peu les bouttons autres pages
+/peut etre baisser un peu les bouttons autres pages
+
+rlmaps.us : coder le workshop found : machin / truc (truc marche pas, c'est normal)
 
 
 quand on appuie sur join server :
 ca vérifie si la map est déja dans le dossier ou non,
 si non :
 -boutton copier la map to CookedPCConsole/mods
+(quand j'appuie pour copier je crois que ca fais freeze le thread du jeu, donc peut etre tester de call la copy dans un thread)
 si oui :
 -on affiche les inputtext pour IP et PORT plus un boutton join
+
+
+
+
+avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a meme pas de preview sur steam) ca crash jsp faut que je test
+
+
+je peux peut etre améliorer comment je faire spawn les popup (peut etre mieux en utilisant renderErrorPopup(popupName, label))
