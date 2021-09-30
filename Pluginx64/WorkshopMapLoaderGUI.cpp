@@ -240,7 +240,7 @@ void Pluginx64::Render()
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing ;)");
-			ImGui::Text("Thanks to JetFox");
+			ImGui::Text("Thanks to JetFox for help");
 
 			ImGui::EndMenu();
 		}
@@ -343,11 +343,13 @@ void Pluginx64::Render()
 				std::string get_full_url = steam_base_url + replace(std::string(keyWord), *" ", *"+");
 				//ImGui::Text(get_full_url.c_str());
 
-				//CenterNexIMGUItItem(300.f);
 				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(300.f, 25.f)) && isSearching == false) // "Search"
 				{
 					std::thread t2(&Pluginx64::StartSearchRequest, this, get_full_url);
 					t2.detach();
+
+					browsing = false;
+					MostPopularSelected = false;
 				}
 
 				ImGui::EndGroup();
@@ -366,43 +368,52 @@ void Pluginx64::Render()
 				std::string MostPopular_Url = "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=trend&section=readytouseitems";
 
 
-				AlignRightNexIMGUItItem(385.f, 8.f); //180(browse button), 8(gap between 2 imgui component) 142(combo) 41(Sort By :) 8(gap between item and window border
+				AlignRightNexIMGUItItem(widthBrowseGroup, 8.f); //180(browse button), 8(gap between 2 imgui component) 142(combo) 41(Sort By :) 8(gap between item and window border
 				ImGui::BeginGroup();
 				{
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-					ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
-					//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
-					ImGui::SameLine();
-
-
-					ImGui::SetNextItemWidth(142.f);
-					if (ImGui::BeginCombo("##comboMost", combo_selected_most))
+					if (browsing)
 					{
-						if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
-						{
-							std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
-							t6.detach();
-							combo_selected_most = SortByText[1].c_str(); // "Most Popular"
-							MostPopularSelected = true;
-						}
+						widthBrowseGroup = 385.f;
+						
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
+						ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
+						//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
+						ImGui::SameLine();
 
-						if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
+						ImGui::SetNextItemWidth(142.f);
+						if (ImGui::BeginCombo("##comboMost", combo_selected_most))
 						{
-							std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
-							t6.detach();
-							combo_selected_most = SortByText[2].c_str(); // "Most Recent"
-							MostPopularSelected = false;
-						}
+							if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
+							{
+								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
+								t6.detach();
+								combo_selected_most = SortByText[1].c_str(); // "Most Popular"
+								MostPopularSelected = true;
+							}
 
-						if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
-						{
-							std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
-							t6.detach();
-							combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
-							MostPopularSelected = false;
+							if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
+							{
+								std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
+								t6.detach();
+								combo_selected_most = SortByText[2].c_str(); // "Most Recent"
+								MostPopularSelected = false;
+							}
+
+							if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
+							{
+								std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
+								t6.detach();
+								combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
+								MostPopularSelected = false;
+							}
+							ImGui::EndCombo();
 						}
-						ImGui::EndCombo();
 					}
+					else
+					{
+						widthBrowseGroup = 186.f;
+					}
+					
 
 
 					if (MostPopularSelected)
@@ -479,6 +490,7 @@ void Pluginx64::Render()
 
 					combo_selected_most = SortByText[1].c_str(); //"Most Popular"
 					MostPopularSelected = true;
+					browsing = true;
 				}
 
 
@@ -574,42 +586,48 @@ void Pluginx64::Render()
 				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)).c_str(),
 					convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
 			}
-
+			/*
 			ImGui::Separator();
 
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
-
-			
-
-
+			*/
 			
 
 			ImGui::Separator();
 
-			ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
-
-			if (OtherPagesList.size() > 0) //if there is other pages of wokshop maps
+			ImGui::BeginChild("##SteamSearchWorkshopMapsResults");
 			{
-				for (int i = 0; i < OtherPagesList.size(); i++)
+				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
+
+				ImGui::SameLine();
+
+				AlignRightNexIMGUItItem((55.f + 8.f) * OtherPagesList.size(), 27.f); //50.f(width of one buttonPage)
+				ImGui::BeginGroup();
 				{
-					ImGui::SameLine();
-
-					//std::string PageButtonName = "Page " + OtherPagesList.at(i).substr(OtherPagesList.at(i).length() - 1, 1);
-					std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
-
-					if (ImGui::Button(PageButtonName.c_str()) && isSearching == false)
+					for (int i = 0; i < OtherPagesList.size(); i++)
 					{
-						std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
-						Page_Thread.detach();
+						//std::string PageButtonName = "Page " + OtherPagesList.at(i).substr(OtherPagesList.at(i).length() - 1, 1);
+						std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
+
+
+						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)) && isSearching == false)
+						{
+							std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
+							Page_Thread.detach();
+						}
+						ImGui::SameLine();
 					}
+					ImGui::EndGroup();
 				}
+
+				ImGui::NewLine();
+				ImGui::NewLine();
+
+				Steam_renderSearchWorkshopResults(MapsFolderPathBuf);
+
+				ImGui::EndChild();
 			}
-			ImGui::NewLine();
-			ImGui::NewLine();
-
-			Steam_renderSearchWorkshopResults(MapsFolderPathBuf);
-
 			ImGui::EndTabItem();
 		}
 
@@ -734,12 +752,18 @@ void Pluginx64::Render()
 
 			ImGui::Separator();
 
+			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
+			
+
 			ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
 
 			ImGui::NewLine();
 			ImGui::NewLine();
 
 			RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
+
+			ImGui::EndChild();
+			
 
 			ImGui::EndTabItem();
 		}
@@ -990,36 +1014,32 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 	Steam_SearchWorkshopDisplayed = 0;
 
 
-	if (ImGui::BeginChild("#SteamSearchWorkshopMapsResults"))
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+
+	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
-		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-
-		for (int i = 0; i < Steam_MapResultList.size(); i++)
+		if (LinesNb < 4)
 		{
-			if (LinesNb < 4)
-			{
-				ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
 
-				Steam_RenderAResult(i, draw_list, mapspath);
+			Steam_RenderAResult(i, draw_list, mapspath);
 
-				ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
-				LinesNb++;
-			}
-			else
-			{
-				ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
-				Steam_RenderAResult(i, draw_list, mapspath);
-
-				ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
-				LinesNb = 0;
-			}
-			
-			Steam_SearchWorkshopDisplayed++;
+			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
+			LinesNb++;
 		}
+		else
+		{
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+
+			Steam_RenderAResult(i, draw_list, mapspath);
+
+			ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
+			LinesNb = 0;
+		}
+			
+		Steam_SearchWorkshopDisplayed++;
 	}
-	ImGui::EndChild();
 }
 
 
@@ -1160,37 +1180,32 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 	int LinesNb = 0;
 	RLMAPS_SearchWorkshopDisplayed = 0;
 
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	if (ImGui::BeginChild("#RLMAPSSearchWorkshopMapsResults"))
+
+	for (int i = 0; i < RLMAPS_MapResultList.size(); i++)
 	{
-		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-
-		for (int i = 0; i < RLMAPS_MapResultList.size(); i++)
+		if (LinesNb < 4)
 		{
-			if (LinesNb < 4)
-			{
-				ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
 
-				RLMAPS_RenderAResult(i, draw_list, mapspath);
+			RLMAPS_RenderAResult(i, draw_list, mapspath);
 
-				ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
-				LinesNb++;
-			}
-			else
-			{
-				ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
-				RLMAPS_RenderAResult(i, draw_list, mapspath);
-
-				ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
-				LinesNb = 0;
-			}
-
-			RLMAPS_SearchWorkshopDisplayed++;
+			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
+			LinesNb++;
 		}
+		else
+		{
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+
+			RLMAPS_RenderAResult(i, draw_list, mapspath);
+
+			ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
+			LinesNb = 0;
+		}
+
+		RLMAPS_SearchWorkshopDisplayed++;
 	}
-	ImGui::EndChild();
 }
 
 void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200])

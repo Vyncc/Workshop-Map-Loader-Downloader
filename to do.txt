@@ -1,3 +1,19 @@
 tester le join(lancer un deuxieme rl sur le pc)
 faire la fenetre quand on appuie sur host multiplayer avec tous les mutators etc
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
+
+changer la localisation du logo steam, le mettre dans data/img
+
+mettre le boutton cancel au millieu de la popup
+
+faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
+
+peut etre baisser un peu les bouttons autres pages
+
+
+quand on appuie sur join server :
+ca vérifie si la map est déja dans le dossier ou non,
+si non :
+-boutton copier la map to CookedPCConsole/mods
+si oui :
+-on affiche les inputtext pour IP et PORT plus un boutton join

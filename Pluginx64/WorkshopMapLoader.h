@@ -62,6 +62,9 @@ public:
 
 	std::string UdkInDirectory(std::string dirPath);
 
+	bool browsing;
+
+	float widthBrowseGroup;
 
 	std::vector<std::string> MapsNamesList;
 
