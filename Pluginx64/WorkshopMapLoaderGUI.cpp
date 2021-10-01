@@ -338,7 +338,7 @@ void Pluginx64::Render()
 					std::thread t2(&Pluginx64::StartSearchRequest, this, get_full_url);
 					t2.detach();
 
-					browsing = false;
+					STEAM_browsing = false;
 					MostPopularSelected = false;
 				}
 
@@ -368,7 +368,7 @@ void Pluginx64::Render()
 
 					combo_selected_most = SortByText[1].c_str(); //"Most Popular"
 					MostPopularSelected = true;
-					browsing = true;
+					STEAM_browsing = true;
 				}
 
 				ImGui::EndGroup();
@@ -483,6 +483,8 @@ void Pluginx64::Render()
 				{
 					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
 					t2.detach();
+
+					RLMAPS_browsing = false;
 				}
 				ImGui::EndGroup();
 			}
@@ -497,8 +499,11 @@ void Pluginx64::Render()
 			AlignRightNexIMGUItItem(180.f, 8.f);
 			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)))
 			{
-				std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), "");
+				CurrentPage = 0;
+				std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
 				t2.detach();
+
+				RLMAPS_browsing = true;
 			}
 
 
@@ -533,9 +538,38 @@ void Pluginx64::Render()
 
 			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
 			{
+				ImGui::Text("Page : %d", CurrentPage);
+
 				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, RLMAPS_NumberOfMapsFound); // "Workshops Found : 0 / 0"
 
 				ImGui::SameLine();
+
+				if (RLMAPS_browsing)
+				{
+					ImGui::BeginGroup();
+					{
+						if (CurrentPage > 0)
+						{
+							if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)))
+							{
+								CurrentPage -= 1;
+								std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
+								t2.detach();
+							}
+						}
+
+						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
+						if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)))
+						{
+							CurrentPage++;
+							std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
+							t2.detach();
+						}
+
+						ImGui::EndGroup();
+					}
+				}
+				
 
 
 				ImGui::NewLine();
@@ -715,7 +749,7 @@ void Pluginx64::renderSortByCombos(std::string mostPopular_url)
 	AlignRightNexIMGUItItem(widthBrowseGroup, 8.f);
 	ImGui::BeginGroup();
 	{
-		if (browsing)
+		if (STEAM_browsing)
 		{
 			widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
 
@@ -887,7 +921,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 
 
-		std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
+		std::string modsDirPath = "D:\\Jeux\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
 			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {

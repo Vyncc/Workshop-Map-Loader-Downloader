@@ -35,7 +35,9 @@ void Pluginx64::onLoad()
 	std::string RLMAPSLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\rlmapslogo.png";
 	RLMAPSLogoImage = std::make_shared<ImageWrapper>(RLMAPSLogoPath, false, true);
 
-	browsing = false;
+	STEAM_browsing = false;
+	RLMAPS_browsing = false;
+	CurrentPage = 0; //starts at 0
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
@@ -778,6 +780,71 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 }
 
 
+void Pluginx64::GetResultsBrowseMaps(int offset)
+{
+	RLMAPS_MapResultList.clear();
+
+	std::string request_url = rlmaps_offset_url + std::to_string(offset);
+	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
+
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+
+	reader.parse(request_response.text, actualJson);
+
+	const Json::Value maps = actualJson["body"];
+
+	for (int index = 0; index < maps.size(); ++index)
+	{
+		std::string resultMapID = maps[index]["mapid"].asString();
+		std::string resultMapName = maps[index]["mapName"].asString();
+		std::string resultMapPreviewUrl = maps[index]["mapPicture"].asString();
+
+
+		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + resultMapID + ".jfif";
+		std::shared_ptr<ImageWrapper> resultImage;
+		bool resultisImageLoaded;
+
+
+
+		cvarManager->log(resultMapName);
+
+		if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
+		{
+			IsDownloadingPreview = true;
+			DownloadPreviewImage(resultMapPreviewUrl, resultImagePath.string());
+		}
+
+		while (IsDownloadingPreview == true)
+		{
+			Sleep(10);
+		}
+
+
+		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
+		resultisImageLoaded = true;
+
+		RLMAPS_MapResult result;
+		result.ID = resultMapID;
+		result.Name = resultMapName;
+		result.ZipName = maps[index]["mapZipName"].asString();
+		result.Size = maps[index]["filesize"].asString();
+		result.Author = maps[index]["creator"].asString();
+		result.ShortDescription = maps[index]["mapShortDescription"].asString();
+		result.Description = maps[index]["mapDescription"].asString();
+		result.PreviewUrl = resultMapPreviewUrl;
+		result.ImagePath = resultImagePath;
+		result.Image = resultImage;
+		result.isImageLoaded = resultisImageLoaded;
+
+		RLMAPS_MapResultList.push_back(result);
+		
+	}
+}
+
+
 void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult)
 {
 
@@ -919,6 +986,7 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 	else
 		cvarManager->log("File renamed successfully");
 }
+
 
 
 
