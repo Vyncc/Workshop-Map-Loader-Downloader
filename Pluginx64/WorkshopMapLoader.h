@@ -67,6 +67,8 @@ public:
 	bool STEAM_browsing;
 	bool RLMAPS_browsing;
 
+	bool RLMAPS_Searching;
+
 	float widthBrowseGroup;
 
 	int STEAM_NumberOfMapsFound;
@@ -103,7 +105,7 @@ public:
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	void CreateJSONSearchWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapSize, std::string mapDescription);
 	std::vector<std::string> GetJSONSearchMapInfos(std::string jsonFilePath);
-	bool isSearching = false;
+	bool STEAM_Searching = false;
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	void GetResults(std::string searchType, std::string keyWord);
@@ -203,6 +205,7 @@ public:
 	std::string DownloadButtonText;
 	std::string Label3Text;
 	std::string SearchButtonText;
+	std::string SearchingText;
 	std::string RetrievingFilesText;
 	std::string DownloadingText;
 	std::string WorkshopsFoundText;

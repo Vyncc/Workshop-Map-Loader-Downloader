@@ -55,6 +55,7 @@ void Pluginx64::Render()
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
 		SearchButtonText = "Search";
+		SearchingText = "Searching...";
 		RetrievingFilesText = "Retrieving workshop files for download...";
 		DownloadingText = "Downloading  :";
 		WorkshopsFoundText = "Workshops Found :";
@@ -107,6 +108,7 @@ void Pluginx64::Render()
 		DownloadButtonText = "Telecharger";
 		Label3Text = "Rechercher Un Workshop :";
 		SearchButtonText = "Rechercher";
+		SearchingText = "Recherche en cours...";
 		RetrievingFilesText = "Recuperation des fichiers du workshop pour le telechargement...";
 		DownloadingText = "Telechargement :";
 		WorkshopsFoundText = "Workshops Trouves :";
@@ -333,7 +335,12 @@ void Pluginx64::Render()
 				std::string get_full_url = steam_base_url + replace(std::string(keyWord), *" ", *"+");
 				//ImGui::Text(get_full_url.c_str());
 
-				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(300.f, 25.f)) && isSearching == false) // "Search"
+				if (STEAM_Searching)
+				{
+					SearchButtonText = SearchingText;
+				}
+
+				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(300.f, 25.f)) && !STEAM_Searching) // "Search"
 				{
 					std::thread t2(&Pluginx64::StartSearchRequest, this, get_full_url);
 					t2.detach();
@@ -432,7 +439,7 @@ void Pluginx64::Render()
 					{
 						std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
 
-						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)) && isSearching == false)
+						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)) && STEAM_Searching == false)
 						{
 							std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
 							Page_Thread.detach();
@@ -458,7 +465,7 @@ void Pluginx64::Render()
 			{
 				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
 
-				ImGui::SetNextItemWidth(300.f);
+				ImGui::SetNextItemWidth(200.f);
 				static char keyWord[200] = "";
 				ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 
@@ -479,7 +486,12 @@ void Pluginx64::Render()
 					ImGui::EndCombo();
 				}
 
-				if (ImGui::Button("Search##2", ImVec2(408.f, 25.f)) && isSearching == false) // "Search"
+				if (RLMAPS_Searching)
+				{
+					SearchButtonText = SearchingText;
+				}
+
+				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching) // "Search"
 				{
 					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
 					t2.detach();
@@ -538,7 +550,8 @@ void Pluginx64::Render()
 
 			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
 			{
-				ImGui::Text("Page : %d", CurrentPage);
+				//ImGui::Text("Page : %d", CurrentPage);
+
 
 				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, RLMAPS_NumberOfMapsFound); // "Workshops Found : 0 / 0"
 
@@ -557,6 +570,8 @@ void Pluginx64::Render()
 								t2.detach();
 							}
 						}
+
+						ImGui::SameLine();
 
 						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
 						if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)))

@@ -37,6 +37,7 @@ void Pluginx64::onLoad()
 
 	STEAM_browsing = false;
 	RLMAPS_browsing = false;
+	RLMAPS_Searching = false;
 	CurrentPage = 0; //starts at 0
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
@@ -411,7 +412,7 @@ std::vector<std::string> Pluginx64::FindAllSubstringInAString(std::string texte,
 
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
-	isSearching = true;
+	STEAM_Searching = true;
 	Steam_MapResultList.clear();
 
 	cpr::Response request_response = cpr::Get(cpr::Url{fullurl});
@@ -502,7 +503,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		cvarManager->log("");
 	}
 	*/
-	isSearching = false;
+	STEAM_Searching = false;
 }
 
 void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePath)
@@ -675,6 +676,7 @@ void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvar
 
 void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 {
+	RLMAPS_Searching = true;
 	RLMAPS_MapResultList.clear();
 
 	std::string request_url = rlmaps_url;
@@ -777,11 +779,14 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 			RLMAPS_MapResultList.push_back(result);
 		}
 	}
+
+	RLMAPS_Searching = false;
 }
 
 
 void Pluginx64::GetResultsBrowseMaps(int offset)
 {
+	RLMAPS_Searching = true;
 	RLMAPS_MapResultList.clear();
 
 	std::string request_url = rlmaps_offset_url + std::to_string(offset);
@@ -842,6 +847,8 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 		RLMAPS_MapResultList.push_back(result);
 		
 	}
+
+	RLMAPS_Searching = false;
 }
 
 
