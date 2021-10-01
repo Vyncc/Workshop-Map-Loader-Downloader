@@ -1131,31 +1131,10 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 	std::string mapAuthor = mapResult.Author;
 
 	//Popup if is a downlaod is in progress and user wants to start a new download
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (ImGui::BeginPopupModal("Downloading?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(IsDownloadDingWarningText.c_str()); // "A download is already running !\nYou cannot download 2 workshops at the same time."
-		ImGui::SameLine();
-		ImGui::NewLine();
-
-		ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 65.f, ImGui::GetCursorScreenPos().y));
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f))) { ImGui::CloseCurrentPopup(); }
-		ImGui::EndPopup();
-	}
-
+	renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
 
 	//Popup if maps directory doesn't exist
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (ImGui::BeginPopupModal("Exists?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(DirNotExistText.c_str()); // "The directory you entered does not exist !"
-		ImGui::SameLine();
-		ImGui::NewLine();
-
-		ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 65.f, ImGui::GetCursorScreenPos().y));
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f))) { ImGui::CloseCurrentPopup(); }
-		ImGui::EndPopup();
-	}
+	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
 
 	ImGui::BeginGroup();
@@ -1295,31 +1274,10 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 	std::string mapAuthor = mapResult.Author;
 
 	//Popup if is a downlaod is in progress and user wants to start a new download
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (ImGui::BeginPopupModal("Downloading?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(IsDownloadDingWarningText.c_str()); // "A download is already running !\nYou cannot download 2 workshops at the same time."
-		ImGui::SameLine();
-		ImGui::NewLine();
-
-		ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 65.f, ImGui::GetCursorScreenPos().y));
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f))) { ImGui::CloseCurrentPopup(); }
-		ImGui::EndPopup();
-	}
-
+	renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
 
 	//Popup if maps directory doesn't exist
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (ImGui::BeginPopupModal("Exists?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(DirNotExistText.c_str()); // "The directory you entered does not exist !"
-		ImGui::SameLine();
-		ImGui::NewLine();
-
-		ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 65.f, ImGui::GetCursorScreenPos().y));
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f))) { ImGui::CloseCurrentPopup(); }
-		ImGui::EndPopup();
-	}
+	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
 
 	ImGui::BeginGroup();

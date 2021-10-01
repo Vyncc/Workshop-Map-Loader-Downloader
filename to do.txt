@@ -5,16 +5,15 @@ faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on cho
 avant de publier la maj, faut que je change le changelog dans le plugin (lastUpdate)
 			 faut que je fasse les traductions
 
-mettre un indicateur pour savoir si la recherche est en cours
 
-changer les popups dans les renderAResult
 
-ya une map que j'avais téléchargée un coup et elle me faisait crash pcq dans le json yavait un retour à la ligne
 
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 avant de dl une map regarder si on l'a deja
+
+changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
@@ -37,6 +36,12 @@ faut que tri les fonctions et mettre bien en page le code
 Fait :
 
 /faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
+
+/changer les popups dans les renderAResult
+
+/ya une map que j'avais téléchargée un coup et elle me faisait crash pcq dans le json yavait un retour à la ligne
+
+/mettre un indicateur pour savoir si la recherche est en cours
 
 /rlmaps.us : coder le workshop found : machin / truc (truc marche pas, c'est normal)
 

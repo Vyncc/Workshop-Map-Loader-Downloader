@@ -829,6 +829,8 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 
 	const Json::Value maps = actualJson["body"];
 
+	RLMAPS_NumberOfMapsFound = maps.size();
+
 	for (int index = 0; index < maps.size(); ++index)
 	{
 		std::string resultMapID = maps[index]["mapid"].asString();
