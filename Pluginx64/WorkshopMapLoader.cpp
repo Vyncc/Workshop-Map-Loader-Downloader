@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WorkshopMapLoader.h"
+#include <regex>
 
 
 BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.13", 0)
@@ -576,6 +577,7 @@ bool Pluginx64::Directory_Or_File_Exists(const fs::path& p, fs::file_status s)
 std::vector<std::string> Pluginx64::GetJSONLocalMapInfos(std::string jsonFilePath)
 {
 	std::vector<std::string> Infos;
+	std::string Text;
 	std::string line;
 	std::ifstream myfile(jsonFilePath);
 
@@ -583,16 +585,28 @@ std::vector<std::string> Pluginx64::GetJSONLocalMapInfos(std::string jsonFilePat
 	{
 		while (std::getline(myfile, line))
 		{
-			//std::string MapTitle = line.substr(line.find("\"Title\":\"") + 9, line.find("\",\"Author\":\"") - 9);
-			std::string MapTitle = FindAllSubstringInAString(line, "\"Title\":\"", "\",\"").at(0);
-			std::string MapDescription = FindAllSubstringInAString(line, "\"Description\":\"", "\",\"").at(0);
-			std::string MapAuthor = FindAllSubstringInAString(line, "\"Author\":\"", "\",\"").at(0);
-			Infos.push_back(MapTitle);
-			Infos.push_back(MapDescription);
-			Infos.push_back(MapAuthor);
+			Text += line;
 		}
 		myfile.close();
 	}
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+
+	reader.parse(Text, actualJson);
+
+	std::string MapTitle = actualJson["Title"].asString();
+	std::string MapDescription = actualJson["Description"].asString();
+	std::string MapAuthor = actualJson["Author"].asString();
+
+	MapTitle.erase(std::remove(MapTitle.begin(), MapTitle.end(), '\n'), MapTitle.end()); //remove newlines
+	MapDescription.erase(std::remove(MapDescription.begin(), MapDescription.end(), '\n'), MapDescription.end()); //remove newlines
+	MapAuthor.erase(std::remove(MapAuthor.begin(), MapAuthor.end(), '\n'), MapAuthor.end()); //remove newlines
+
+	Infos.push_back(MapTitle);
+	Infos.push_back(MapDescription);
+	Infos.push_back(MapAuthor);
 
 	//{\"Title\":\"" + Title + "\",\"Author\":\"" + Author + "\",\"Description\":\"" + Description + "\",\"PreviewUrl\":\"" + PreviewUrl + "\"}
 
@@ -603,6 +617,7 @@ std::vector<std::string> Pluginx64::GetJSONLocalMapInfos(std::string jsonFilePat
 std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePath)
 {
 	std::vector<std::string> Infos;
+	std::string Text;
 	std::string line;
 	std::ifstream myfile(jsonFilePath);
 
@@ -610,15 +625,28 @@ std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePa
 	{
 		while (std::getline(myfile, line))
 		{
-			std::string MapSize = FindAllSubstringInAString(line, "\"Size\":\"", "\",\"").at(0);
-			std::string MapDescription = FindAllSubstringInAString(line, "\"Description\":\"", "\",\"").at(0);
-			Infos.push_back(MapSize);
-			Infos.push_back(MapDescription);
+			Text += line;
 		}
 		myfile.close();
 	}
 
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+
+	reader.parse(Text, actualJson);
+
+	std::string MapSize = actualJson["Size"].asString();
+	std::string MapDescription = actualJson["Description"].asString();
+
+	MapSize.erase(std::remove(MapSize.begin(), MapSize.end(), '\n'), MapSize.end()); //remove newlines
+	MapDescription.erase(std::remove(MapDescription.begin(), MapDescription.end(), '\n'), MapDescription.end()); //remove newlines
+
+	Infos.push_back(MapSize);
+	Infos.push_back(MapDescription);
+
 	//"{\"Size\":\"" + Size + "\",\"Description\":\"" + Description + "\"}"
+
 	return Infos;
 }
 
@@ -896,10 +924,8 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 		return;
 	}
 
-	std::string GoodDescription = mapResult.Description;
-	GoodDescription.erase(std::remove(GoodDescription.begin(), GoodDescription.end(), '\n'), GoodDescription.end()); //marche pas, ya toujours les retour a la ligne dans le json
 
-	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, GoodDescription, mapResult.PreviewUrl);
+	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
 	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 
 	fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory
