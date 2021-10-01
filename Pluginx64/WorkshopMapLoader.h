@@ -68,6 +68,7 @@ public:
 
 	int STEAM_NumberOfMapsFound;
 	int RLMAPS_NumberOfMapsFound;
+	int RLMAPS_NumberOfPagesFound;
 
 	//Variables
 	std::string BakkesmodPath;
@@ -102,6 +103,7 @@ public:
 	bool isSearching = false;
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
+	int GetNbOfPages(int nbMapsFound);
 	void GetResults(std::string searchType, std::string keyWord);
 
 

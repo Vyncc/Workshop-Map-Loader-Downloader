@@ -688,7 +688,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	const Json::Value maps = actualJson["body"];
 
 	//get the number of maps found
-	int mapsFound = 0;
+	int nbMapsFound = 0;
 	for (int index = 0; index < maps.size(); ++index)
 	{
 		std::string searchingTypeValueToLower;
@@ -705,12 +705,12 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 
 		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
 		{
-			mapsFound++;
+			nbMapsFound++;
 		}
 	}
-	RLMAPS_NumberOfMapsFound = mapsFound;
+	RLMAPS_NumberOfMapsFound = nbMapsFound;
 
-
+	RLMAPS_NumberOfPagesFound = GetNbOfPages(nbMapsFound);
 
 
 	for (int index = 0; index < maps.size(); ++index)
@@ -775,6 +775,21 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 
 			RLMAPS_MapResultList.push_back(result);
 		}
+	}
+}
+
+
+int Pluginx64::GetNbOfPages(int nbMapsFound)
+{
+	double nbPages = double(nbMapsFound) / 30.0;
+	double rest = double(nbPages) - int(nbPages);
+	if (rest > 0)
+	{
+		return int(nbPages) + 1;
+	}
+	else
+	{
+		return nbPages;
 	}
 }
 

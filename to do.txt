@@ -10,12 +10,7 @@ mettre un indicateur pour savoir si la recherche est en cours
 ya une map que j'avais téléchargée un coup et elle me faisait crash pcq dans le json yavait un retour à la ligne
 
 pour les results de rlmpas.us, faut que je change le design
-
-pour les results de rlmpas.us, faut que je fasse le system de pages (avec les offsets que JetFox a fait)
-
-faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
-
-rlmaps.us : coder le workshop found : machin / truc (truc marche pas, c'est normal)
+			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 avant de dl une map regarder si on l'a deja
 
@@ -23,11 +18,17 @@ avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a me
 
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
 
-faut que je fasse un meilleur truc pour ca : retrieving workshop files et aussi pour download : 10MB/100MB
+faut que je fasse un meilleur truc pour retrieving workshop files et aussi pour download : 10MB/100MB
 
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/
+
+faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+/faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
+
+/rlmaps.us : coder le workshop found : machin / truc (truc marche pas, c'est normal)
 
 /changer la localisation du logo steam, le mettre dans data/
 
