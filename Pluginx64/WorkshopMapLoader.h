@@ -43,6 +43,7 @@ struct RLMAPS_MapResult
 };
 
 
+
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
 public:
@@ -51,6 +52,7 @@ public:
 
 	int widthTest;
 	int heightTest;
+
 
 
 	void TextCenter(std::string text);
@@ -68,7 +70,6 @@ public:
 
 	int STEAM_NumberOfMapsFound;
 	int RLMAPS_NumberOfMapsFound;
-	int RLMAPS_NumberOfPagesFound;
 
 	//Variables
 	std::string BakkesmodPath;
@@ -103,7 +104,6 @@ public:
 	bool isSearching = false;
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
-	int GetNbOfPages(int nbMapsFound);
 	void GetResults(std::string searchType, std::string keyWord);
 
 

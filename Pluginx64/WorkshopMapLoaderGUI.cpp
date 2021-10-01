@@ -537,21 +537,6 @@ void Pluginx64::Render()
 
 				ImGui::SameLine();
 
-				ImGui::BeginGroup();
-				{
-					for (int i = 0; i < RLMAPS_NumberOfPagesFound - 1; i++)
-					{
-						std::string PageButtonName = "Page " + i;
-
-						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)))
-						{
-							std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
-							Page_Thread.detach();
-						}
-						ImGui::SameLine();
-					}
-					ImGui::EndGroup();
-				}
 
 				ImGui::NewLine();
 				ImGui::NewLine();
