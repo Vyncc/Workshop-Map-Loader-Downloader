@@ -896,8 +896,10 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 		return;
 	}
 
+	std::string GoodDescription = mapResult.Description;
+	GoodDescription.erase(std::remove(GoodDescription.begin(), GoodDescription.end(), '\n'), GoodDescription.end()); //marche pas, ya toujours les retour a la ligne dans le json
 
-	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
+	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, GoodDescription, mapResult.PreviewUrl);
 	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 
 	fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory

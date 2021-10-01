@@ -7,12 +7,16 @@ avant de publier la maj, faut que je change le changelog dans le plugin (lastUpd
 
 mettre un indicateur pour savoir si la recherche est en cours
 
+changer les popups dans les renderAResult
+
 ya une map que j'avais téléchargée un coup et elle me faisait crash pcq dans le json yavait un retour à la ligne
 
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 avant de dl une map regarder si on l'a deja
+
+dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
 avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a meme pas de preview sur steam) ca crash jsp faut que je test
 

@@ -368,7 +368,7 @@ void Pluginx64::Render()
 				
 				ImGui::SameLine();
 
-				if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)))
+				if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)) && !STEAM_Searching)
 				{
 					std::thread t2(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
 					t2.detach();
@@ -509,7 +509,7 @@ void Pluginx64::Render()
 			ImGui::SameLine();
 
 			AlignRightNexIMGUItItem(180.f, 8.f);
-			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)))
+			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)) && !RLMAPS_Searching)
 			{
 				CurrentPage = 0;
 				std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
@@ -563,7 +563,7 @@ void Pluginx64::Render()
 					{
 						if (CurrentPage > 0)
 						{
-							if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)))
+							if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
 							{
 								CurrentPage -= 1;
 								std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
@@ -574,7 +574,7 @@ void Pluginx64::Render()
 						ImGui::SameLine();
 
 						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
-						if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)))
+						if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
 						{
 							CurrentPage++;
 							std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
