@@ -22,9 +22,15 @@ si oui :
 -on affiche les inputtext pour IP et PORT plus un boutton join
 
 
-
+avant de dl une map regarder si on l'a deja
 
 avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a meme pas de preview sur steam) ca crash jsp faut que je test
 
 
 je peux peut etre améliorer comment je faire spawn les popup (peut etre mieux en utilisant renderErrorPopup(popupName, label))
+
+pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
+
+faut que je fasse un meilleur truc pour ca : retrieving workshop files et aussi pour download : 10MB/100MB
+
+peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/

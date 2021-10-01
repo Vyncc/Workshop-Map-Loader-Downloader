@@ -150,8 +150,13 @@ public:
 	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13";
 
 
-	void renderErrorPopup(const char* popupName, const char* label);
-	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> func);
+	void renderInfoPopup(const char* popupName, const char* label);
+	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc);
+
+	void renderFolderErrorPopup();
+	void renderLaunchModePopup(Map curMap);
+	void renderAcceptDownload();
+	void renderDownloadFailedPopup();
 
 	void Render() override;
 	void renderMaps();

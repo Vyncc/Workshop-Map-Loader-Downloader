@@ -295,22 +295,13 @@ void Pluginx64::Render()
 					RefreshMapsFunct(MapsFolderPathBuf);
 				}
 			}
+			renderInfoPopup("Exists?", DirNotExistText.c_str());
 
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("Exists?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text(DirNotExistText.c_str()); //"The directory you entered does not exist !"
-				ImGui::SameLine();
-				ImGui::NewLine();
-				ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 65.f, ImGui::GetCursorScreenPos().y));
-				if (ImGui::Button("OK", ImVec2(100.f, 25.f))) { ImGui::CloseCurrentPopup(); }
-				ImGui::EndPopup();
-			}
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
 
-
 			renderMaps();
+
 			ImGui::EndTabItem();
 		}
 
@@ -508,77 +499,22 @@ void Pluginx64::Render()
 			{
 				ImGui::OpenPopup("FolderError");
 			}
-
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("FolderError", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("Error : ");
-				ImGui::Text(FolderErrorText.c_str()); // error message
-				ImGui::NewLine();
-				ImGui::NewLine();
-				ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
-				ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
-				ImGui::NewLine();
-
-				if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-				{
-					FolderErrorBool = false;
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
+			renderFolderErrorPopup();
 
 
 			if (DownloadFailed)
 			{
 				ImGui::OpenPopup("DownloadFailed");
 			}
-
-
-			if (ImGui::BeginPopupModal("DownloadFailed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text(DownloadFailedText.c_str());
-				ImGui::NewLine();
-				if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-				{
-					DownloadFailed = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
+			renderDownloadFailedPopup();
 
 
 			if (UserIsChoosingYESorNO)
 			{
 				ImGui::OpenPopup("Download?");
 			}
+			renderAcceptDownload();
 
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("Download?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text(WantToDawnloadText.c_str()); // "Do you really want to download?\nYou'll not be able to cancel if you start it."
-				ImGui::NewLine();
-				ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 25.f, ImGui::GetCursorScreenPos().y));
-
-				if (ImGui::Button(YESButtonText.c_str(), ImVec2(100.f, 25.f))) // "YES"
-				{
-					AcceptTheDownload = true;
-					UserIsChoosingYESorNO = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button(NOButtonText.c_str(), ImVec2(100.f, 25.f))) // "NO"
-				{
-					AcceptTheDownload = false;
-					UserIsChoosingYESorNO = false;
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
 
 
 			if (STEAM_IsDownloadingWorkshop == true)
@@ -672,77 +608,21 @@ void Pluginx64::Render()
 			{
 				ImGui::OpenPopup("FolderError");
 			}
-
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("FolderError", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("Error : ");
-				ImGui::Text(FolderErrorText.c_str()); // error message
-				ImGui::NewLine();
-				ImGui::NewLine();
-				ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
-				ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
-				ImGui::NewLine();
-
-				if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-				{
-					FolderErrorBool = false;
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
+			renderFolderErrorPopup();
 
 
 			if (DownloadFailed)
 			{
 				ImGui::OpenPopup("DownloadFailed");
 			}
-
-
-			if (ImGui::BeginPopupModal("DownloadFailed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text(DownloadFailedText.c_str());
-				ImGui::NewLine();
-				if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-				{
-					DownloadFailed = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
+			renderDownloadFailedPopup();
 
 
 			if (UserIsChoosingYESorNO)
 			{
 				ImGui::OpenPopup("Download?");
 			}
-
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("Download?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text(WantToDawnloadText.c_str()); // "Do you really want to download?\nYou'll not be able to cancel if you start it."
-				ImGui::NewLine();
-				ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x + 25.f, ImGui::GetCursorScreenPos().y));
-
-				if (ImGui::Button(YESButtonText.c_str(), ImVec2(100.f, 25.f))) // "YES"
-				{
-					AcceptTheDownload = true;
-					UserIsChoosingYESorNO = false;
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button(NOButtonText.c_str(), ImVec2(100.f, 25.f))) // "NO"
-				{
-					AcceptTheDownload = false;
-					UserIsChoosingYESorNO = false;
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
+			renderAcceptDownload();
 
 
 			if (RLMAPS_IsDownloadingWorkshop == true)
@@ -856,229 +736,8 @@ void Pluginx64::renderMaps()
 					{
 						ImGui::OpenPopup("LaunchMode");
 					}
-
-					if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-					{
-						if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
-						{
-							gameWrapper->Execute([&, curMap](GameWrapper* gw)
-								{
-									cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
-								});
-							cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
-
-							ImGui::CloseCurrentPopup();
-						}
-
-						ImGui::SameLine();
-
-						if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
-						{
-							gameWrapper->Execute([&, curMap](GameWrapper* gw)
-								{
-									//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-									gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
-								});
-							ImGui::CloseCurrentPopup();
-						}
-
-
-						if(ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
-						{
-							ImGui::OpenPopup("JoinServerPopup");
-						}
-
-
-						std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
-						if (!Directory_Or_File_Exists(modsDirPath))
-						{
-							renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
-								fs::create_directory(modsDirPath);
-								});
-						}
-						else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
-						{
-							renderYesNoPopup("JoinServerPopup", ("%s doesn't exist in mods/. Paste the map to mods/ ?", curMap.UpkFile.filename().string().c_str()), [this, modsDirPath, curMap]() {
-								fs::copy(curMap.UpkFile, modsDirPath); //ca freeze quand ca copy(enfin je crois ca crash apres)
-								});
-						}
-						else
-						{
-							if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-							{
-								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
-								ImGui::Text("IP :");
-								ImGui::SameLine();
-								static char IP[200] = "";
-								ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-								ImGui::Text("PORT :");
-								ImGui::SameLine();
-								static char PORT[200] = "";
-								ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-								std::string str_IP = std::string(IP);
-								std::string str_PORT = std::string(PORT);
-
-
-								CenterNexIMGUItItem(208.f);
-								ImGui::BeginGroup();
-								{
-									if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
-									{
-										gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-											{
-												cvarManager->log("IP : " + str_IP);
-												cvarManager->log("PORT : " + str_PORT);
-												gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
-											});
-
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::SameLine();
-
-									if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-									{
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::EndGroup();
-								}
-							}
-						}
-
-						/*
-						if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-						{
-							std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
-
-							if (!Directory_Or_File_Exists(modsDirPath))
-							{
-								cvarManager->log("CopyMapTo_CookedPCConsole : mods doesn't exist");
-								ImGui::Text("The directory \"mods\" doesn't exist. Create it?");
-
-								ImGui::NewLine();
-
-								CenterNexIMGUItItem(208.f);
-								ImGui::BeginGroup();
-								{
-									if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
-									{
-										try
-										{
-											fs::create_directory(modsDirPath);
-										}
-										catch (const std::exception& ex)
-										{
-											cvarManager->log(ex.what());
-											ImGui::OpenPopup("CreateModsDir");
-											renderErrorPopup("CreateModsDir", ex.what());
-										}
-									}
-									ImGui::SameLine();
-									if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
-									{
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::EndGroup();
-								}
-							}
-							else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
-							{
-								ImGui::Text("%s doesn't exist in mods/. Paste the map to mods/ ?", curMap.UpkFile.filename().string().c_str());
-
-								ImGui::NewLine();
-
-								CenterNexIMGUItItem(208.f);
-								ImGui::BeginGroup();
-								{
-									if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
-									{
-										try
-										{
-											fs::copy(curMap.UpkFile, modsDirPath);
-										}
-										catch (const std::exception& ex)
-										{
-											cvarManager->log(ex.what());
-											ImGui::OpenPopup("PasteMap");
-											renderErrorPopup("PasteMap", ex.what());
-										}
-
-									}
-									ImGui::SameLine();
-									if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
-									{
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::EndGroup();
-								}
-							}
-							else
-							{
-								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
-								ImGui::Text("IP :");
-								ImGui::SameLine();
-								static char IP[200] = "";
-								ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-								ImGui::Text("PORT :");
-								ImGui::SameLine();
-								static char PORT[200] = "";
-								ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-								std::string str_IP = std::string(IP);
-								std::string str_PORT = std::string(PORT);
-
-
-								CenterNexIMGUItItem(208.f);
-								ImGui::BeginGroup();
-								{
-									if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
-									{
-										gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-											{
-												cvarManager->log("IP : " + str_IP);
-												cvarManager->log("PORT : " + str_PORT);
-												gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
-											});
-
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::SameLine();
-
-									if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-									{
-										ImGui::CloseCurrentPopup();
-									}
-
-									ImGui::EndGroup();
-								}
-								
-							}
-
-							
-
-
-
-							ImGui::EndPopup();
-						}*/
-
-						ImGui::SameLine();
-
-						if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
-						{
-							ImGui::CloseCurrentPopup();
-						}
-
-						ImGui::EndPopup();
-					}
-
-
+					renderLaunchModePopup(curMap);
+					
 
 					ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 					ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
@@ -1152,7 +811,141 @@ void Pluginx64::renderMaps()
 	ImGui::EndChild();
 }
 
-void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> func)
+void Pluginx64::renderDownloadFailedPopup()
+{
+	if (ImGui::BeginPopupModal("DownloadFailed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(DownloadFailedText.c_str());
+		ImGui::NewLine();
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			DownloadFailed = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderAcceptDownload()
+{
+	renderYesNoPopup("Download?", WantToDawnloadText.c_str(), [this]() {
+		AcceptTheDownload = true;
+		UserIsChoosingYESorNO = false;
+		ImGui::CloseCurrentPopup();
+		}, [this]() {
+			AcceptTheDownload = false;
+			UserIsChoosingYESorNO = false;
+			ImGui::CloseCurrentPopup();
+		});
+}
+
+void Pluginx64::renderLaunchModePopup(Map curMap)
+{
+	if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
+		{
+			gameWrapper->Execute([&, curMap](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
+				});
+			cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
+
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
+		{
+			gameWrapper->Execute([&, curMap](GameWrapper* gw)
+				{
+					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
+					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+				});
+			ImGui::CloseCurrentPopup();
+		}
+
+
+		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
+		{
+			ImGui::OpenPopup("JoinServerPopup");
+		}
+
+
+		std::string modsDirPath = "C:\\Program Files\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
+		if (!Directory_Or_File_Exists(modsDirPath))
+		{
+			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
+				fs::create_directory(modsDirPath);
+				}, [this]() {ImGui::CloseCurrentPopup(); });
+		}
+		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
+		{
+			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " doesn't exist in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
+				fs::copy(curMap.UpkFile, modsDirPath);
+				}, [this]() {ImGui::CloseCurrentPopup(); });
+		}
+		else
+		{
+			if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
+				ImGui::Text("IP :");
+				ImGui::SameLine();
+				static char IP[200] = "";
+				ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+
+				ImGui::Text("PORT :");
+				ImGui::SameLine();
+				static char PORT[200] = "";
+				ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+				std::string str_IP = std::string(IP);
+				std::string str_PORT = std::string(PORT);
+
+
+				CenterNexIMGUItItem(208.f);
+				ImGui::BeginGroup();
+				{
+					if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+					{
+						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+							{
+								cvarManager->log("IP : " + str_IP);
+								cvarManager->log("PORT : " + str_PORT);
+								gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
+							});
+
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndGroup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc)
 {
 	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
@@ -1166,20 +959,20 @@ void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::
 			{
 				try
 				{
-					func();
+					yesFunc();
 				}
 				catch (const std::exception& ex)
 				{
 					cvarManager->log(ex.what());
 					ImGui::OpenPopup("PasteMap");
-					renderErrorPopup("PasteMap", ex.what());
+					renderInfoPopup("PasteMap", ex.what());
 				}
 
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
 			{
-				ImGui::CloseCurrentPopup();
+				noFunc();
 			}
 
 			ImGui::EndGroup();
@@ -1189,7 +982,30 @@ void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::
 	}
 }
 
-void Pluginx64::renderErrorPopup(const char* popupName, const char* label)
+void Pluginx64::renderFolderErrorPopup()
+{
+	if (ImGui::BeginPopupModal("FolderError", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Error : ");
+		ImGui::Text(FolderErrorText.c_str()); // error message
+		ImGui::NewLine();
+		ImGui::NewLine();
+		ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
+		ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			FolderErrorBool = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
 {
 	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
