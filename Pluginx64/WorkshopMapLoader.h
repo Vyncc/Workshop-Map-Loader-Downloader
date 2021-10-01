@@ -66,7 +66,8 @@ public:
 
 	float widthBrowseGroup;
 
-	std::vector<std::string> MapsNamesList;
+	int STEAM_NumberOfMapsFound;
+	int RLMAPS_NumberOfMapsFound;
 
 	//Variables
 	std::string BakkesmodPath;
@@ -157,6 +158,8 @@ public:
 	void renderLaunchModePopup(Map curMap);
 	void renderAcceptDownload();
 	void renderDownloadFailedPopup();
+
+	void renderSortByCombos(std::string mostPopular_url);
 
 	void Render() override;
 	void renderMaps();

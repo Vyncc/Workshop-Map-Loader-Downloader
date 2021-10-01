@@ -327,7 +327,6 @@ void Pluginx64::Render()
 			{
 				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
 
-				//CenterNexIMGUItItem(300.f);
 				ImGui::SetNextItemWidth(300.f);
 				static char keyWord[200] = "";
 				ImGui::InputText("##STEAMworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
@@ -358,120 +357,8 @@ void Pluginx64::Render()
 			{
 				std::string MostPopular_Url = "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=trend&section=readytouseitems";
 
-
-				AlignRightNexIMGUItItem(widthBrowseGroup, 8.f); 
-				ImGui::BeginGroup();
-				{
-					if (browsing)
-					{
-						widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
-						
-						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-						ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
-						//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
-						ImGui::SameLine();
-
-						ImGui::SetNextItemWidth(142.f);
-						if (ImGui::BeginCombo("##comboMost", combo_selected_most))
-						{
-							if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
-								t6.detach();
-								combo_selected_most = SortByText[1].c_str(); // "Most Popular"
-								MostPopularSelected = true;
-							}
-
-							if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
-								t6.detach();
-								combo_selected_most = SortByText[2].c_str(); // "Most Recent"
-								MostPopularSelected = false;
-							}
-
-							if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
-								t6.detach();
-								combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
-								MostPopularSelected = false;
-							}
-							ImGui::EndCombo();
-						}
-					}
-					else
-					{
-						widthBrowseGroup = 186.f;
-					}
-					
-
-
-					if (MostPopularSelected)
-					{
-						ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-						ImGui::Text("%s : ", PeriodText[7].c_str()); // "Period :"
-						ImGui::SameLine();
-
-
-						ImGui::SetNextItemWidth(142.f);
-						if (ImGui::BeginCombo("##comboPeriod", combo_selected_period))
-						{
-							if (ImGui::Selectable(PeriodText[0].c_str())) // "Today"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=1");
-								t6.detach();
-								combo_selected_period = PeriodText[0].c_str(); // "Today"
-							}
-
-							if (ImGui::Selectable(PeriodText[1].c_str())) // "1 Week"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=7");
-								t6.detach();
-								combo_selected_period = PeriodText[1].c_str(); // "1 Week"
-							}
-
-							if (ImGui::Selectable(PeriodText[2].c_str())) // "1 Months"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=30");
-								t6.detach();
-								combo_selected_period = PeriodText[2].c_str(); // "1 Months"
-							}
-
-							if (ImGui::Selectable(PeriodText[3].c_str())) // "3 Months"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=90");
-								t6.detach();
-								combo_selected_period = PeriodText[3].c_str(); // "3 Months"
-							}
-
-							if (ImGui::Selectable(PeriodText[4].c_str())) // "6 Months"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=180");
-								t6.detach();
-								combo_selected_period = PeriodText[4].c_str(); // "6 Months"
-							}
-
-							if (ImGui::Selectable(PeriodText[5].c_str())) // "1 Year"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=365");
-								t6.detach();
-								combo_selected_period = PeriodText[5].c_str(); // "1 Year"
-							}
-
-							if (ImGui::Selectable(PeriodText[6].c_str())) // "Since the begining"
-							{
-								std::thread t6(&Pluginx64::StartSearchRequest, this, MostPopular_Url + "&actualsort=trend&p=1&days=-1");
-								t6.detach();
-								combo_selected_period = PeriodText[6].c_str(); // "Since the begining"
-							}
-							ImGui::EndCombo();
-						}
-					}
-					ImGui::EndGroup();
-				}
-
-
+				renderSortByCombos(MostPopular_Url);
+				
 				ImGui::SameLine();
 
 				if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)))
@@ -483,7 +370,6 @@ void Pluginx64::Render()
 					MostPopularSelected = true;
 					browsing = true;
 				}
-
 
 				ImGui::EndGroup();
 			}
@@ -535,18 +421,16 @@ void Pluginx64::Render()
 			ImGui::BeginChild("##SteamSearchWorkshopMapsResults");
 			{
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
+				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, STEAM_NumberOfMapsFound); // "Workshops Found : 0 / 0"
 
 				ImGui::SameLine();
 
-				AlignRightNexIMGUItItem((55.f + 8.f) * OtherPagesList.size(), 27.f); //50.f(width of one buttonPage)
+				AlignRightNexIMGUItItem((55.f + 8.f) * OtherPagesList.size(), 27.f); //55.f(width of one buttonPage)
 				ImGui::BeginGroup();
 				{
 					for (int i = 0; i < OtherPagesList.size(); i++)
 					{
-						//std::string PageButtonName = "Page " + OtherPagesList.at(i).substr(OtherPagesList.at(i).length() - 1, 1);
 						std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
-
 
 						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)) && isSearching == false)
 						{
@@ -570,39 +454,53 @@ void Pluginx64::Render()
 
 		if (ImGui::BeginTabItem("Search Workshop(rocketleaguemaps.us)"))
 		{
-			ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
-			static char keyWord[200] = "";
-			ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(100.f);
-			if (ImGui::BeginCombo("##searchingType", combo_selected_searchingType))
+			ImGui::BeginGroup();
 			{
-				if (ImGui::Selectable("Creator"))
+				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
+
+				ImGui::SetNextItemWidth(300.f);
+				static char keyWord[200] = "";
+				ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
+
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(100.f);
+				if (ImGui::BeginCombo("##searchingType", combo_selected_searchingType))
 				{
-					combo_selected_searchingType = "Creator";
+					if (ImGui::Selectable("Creator"))
+					{
+						combo_selected_searchingType = "Creator";
+					}
+
+					if (ImGui::Selectable("Maps"))
+					{
+						combo_selected_searchingType = "Maps";
+					}
+					ImGui::EndCombo();
 				}
 
-				if (ImGui::Selectable("Maps"))
+				if (ImGui::Button("Search##2", ImVec2(408.f, 25.f)) && isSearching == false) // "Search"
 				{
-					combo_selected_searchingType = "Maps";
+					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
+					t2.detach();
 				}
-				ImGui::EndCombo();
+				ImGui::EndGroup();
 			}
 
-			//ImGui::Text(get_full_url.c_str());
+			ImGui::SameLine();
 
-			if (ImGui::Button("Search##2") && isSearching == false) // "Search"
+			CenterNexIMGUItItem(63.f);
+			ImGui::Image(RLMAPSLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //rocketleaguemaps.us Logo
+
+			ImGui::SameLine();
+
+			AlignRightNexIMGUItItem(180.f, 8.f);
+			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)))
 			{
-				std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
+				std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), "");
 				t2.detach();
 			}
 
-
-			if (IsRetrievingWorkshopFiles == true)
-			{
-				ImGui::TextColored(ImVec4(255, 155, 0, 1), RetrievingFilesText.c_str()); // "Retrieving workshop files for download..."
-			}
 
 			if (FolderErrorBool)
 			{
@@ -634,18 +532,15 @@ void Pluginx64::Render()
 			ImGui::Separator();
 
 			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
+			{
+				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, RLMAPS_NumberOfMapsFound); // "Workshops Found : 0 / 0"
+				ImGui::NewLine();
+				ImGui::NewLine();
+				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
+
+				ImGui::EndChild();
+			}
 			
-
-			ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, MapsNamesList.size()); // "Workshops Found : 0 / 0"
-
-			ImGui::NewLine();
-			ImGui::NewLine();
-
-			RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
-
-			ImGui::EndChild();
-			
-
 			ImGui::EndTabItem();
 		}
 
@@ -809,6 +704,121 @@ void Pluginx64::renderMaps()
 		}
 	}
 	ImGui::EndChild();
+}
+
+void Pluginx64::renderSortByCombos(std::string mostPopular_url)
+{
+	AlignRightNexIMGUItItem(widthBrowseGroup, 8.f);
+	ImGui::BeginGroup();
+	{
+		if (browsing)
+		{
+			widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
+			ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
+			//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(142.f);
+			if (ImGui::BeginCombo("##comboMost", combo_selected_most))
+			{
+				if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url);
+					t6.detach();
+					combo_selected_most = SortByText[1].c_str(); // "Most Popular"
+					MostPopularSelected = true;
+				}
+
+				if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
+					t6.detach();
+					combo_selected_most = SortByText[2].c_str(); // "Most Recent"
+					MostPopularSelected = false;
+				}
+
+				if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
+					t6.detach();
+					combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
+					MostPopularSelected = false;
+				}
+				ImGui::EndCombo();
+			}
+		}
+		else
+		{
+			widthBrowseGroup = 186.f;
+		}
+
+
+
+		if (MostPopularSelected)
+		{
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
+			ImGui::Text("%s : ", PeriodText[7].c_str()); // "Period :"
+			ImGui::SameLine();
+
+
+			ImGui::SetNextItemWidth(142.f);
+			if (ImGui::BeginCombo("##comboPeriod", combo_selected_period))
+			{
+				if (ImGui::Selectable(PeriodText[0].c_str())) // "Today"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=1");
+					t6.detach();
+					combo_selected_period = PeriodText[0].c_str(); // "Today"
+				}
+
+				if (ImGui::Selectable(PeriodText[1].c_str())) // "1 Week"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=7");
+					t6.detach();
+					combo_selected_period = PeriodText[1].c_str(); // "1 Week"
+				}
+
+				if (ImGui::Selectable(PeriodText[2].c_str())) // "1 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=30");
+					t6.detach();
+					combo_selected_period = PeriodText[2].c_str(); // "1 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[3].c_str())) // "3 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=90");
+					t6.detach();
+					combo_selected_period = PeriodText[3].c_str(); // "3 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[4].c_str())) // "6 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=180");
+					t6.detach();
+					combo_selected_period = PeriodText[4].c_str(); // "6 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[5].c_str())) // "1 Year"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=365");
+					t6.detach();
+					combo_selected_period = PeriodText[5].c_str(); // "1 Year"
+				}
+
+				if (ImGui::Selectable(PeriodText[6].c_str())) // "Since the begining"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=-1");
+					t6.detach();
+					combo_selected_period = PeriodText[6].c_str(); // "Since the begining"
+				}
+				ImGui::EndCombo();
+			}
+		}
+		ImGui::EndGroup();
+	}
 }
 
 void Pluginx64::renderDownloadFailedPopup()

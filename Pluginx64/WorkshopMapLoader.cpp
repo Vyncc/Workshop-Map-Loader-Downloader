@@ -414,7 +414,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 
 	cpr::Response request_response = cpr::Get(cpr::Url{fullurl});
 	
-	MapsNamesList = FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>"); //get how many maps there is on the page
+	STEAM_NumberOfMapsFound = FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>").size(); //get number of maps there is on the page
 
 	for (int i = 0; i < FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>").size(); i++)
 	{
@@ -686,6 +686,32 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	reader.parse(request_response.text, actualJson);
 
 	const Json::Value maps = actualJson["body"];
+
+	//get the number of maps found
+	int mapsFound = 0;
+	for (int index = 0; index < maps.size(); ++index)
+	{
+		std::string searchingTypeValueToLower;
+		if (searchType == "Maps")
+		{
+			searchingTypeValueToLower = maps[index]["mapName"].asString();
+		}
+		else
+		{
+			searchingTypeValueToLower = maps[index]["creator"].asString();
+		}
+		std::transform(searchingTypeValueToLower.begin(), searchingTypeValueToLower.end(), searchingTypeValueToLower.begin(), ::tolower); //transform a string to lowercase
+		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
+
+		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
+		{
+			mapsFound++;
+		}
+	}
+	RLMAPS_NumberOfMapsFound = mapsFound;
+
+
+
 
 	for (int index = 0; index < maps.size(); ++index)
 	{

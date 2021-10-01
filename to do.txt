@@ -2,35 +2,45 @@ tester le join(lancer un deuxieme rl sur le pc)
 faire la fenetre quand on appuie sur host multiplayer avec tous les mutators etc
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
 
-/changer la localisation du logo steam, le mettre dans data/
+avant de publier la maj, faut que je change le changelog dans le plugin (lastUpdate)
+			 faut que je fasse les traductions
 
-/mettre le boutton cancel au millieu de la popup
+mettre un indicateur pour savoir si la recherche est en cours
+
+ya une map que j'avais téléchargée un coup et elle me faisait crash pcq dans le json yavait un retour à la ligne
+
+pour les results de rlmpas.us, faut que je change le design
+
+pour les results de rlmpas.us, faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
 
-/peut etre baisser un peu les bouttons autres pages
-
 rlmaps.us : coder le workshop found : machin / truc (truc marche pas, c'est normal)
-
-
-quand on appuie sur join server :
-ca vérifie si la map est déja dans le dossier ou non,
-si non :
--boutton copier la map to CookedPCConsole/mods
-(quand j'appuie pour copier je crois que ca fais freeze le thread du jeu, donc peut etre tester de call la copy dans un thread)
-si oui :
--on affiche les inputtext pour IP et PORT plus un boutton join
-
 
 avant de dl une map regarder si on l'a deja
 
 avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a meme pas de preview sur steam) ca crash jsp faut que je test
-
-
-je peux peut etre améliorer comment je faire spawn les popup (peut etre mieux en utilisant renderErrorPopup(popupName, label))
 
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
 
 faut que je fasse un meilleur truc pour ca : retrieving workshop files et aussi pour download : 10MB/100MB
 
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Fait :
+
+/changer la localisation du logo steam, le mettre dans data/
+
+/mettre le boutton cancel au millieu de la popup du lauchmode
+
+/peut etre baisser un peu les bouttons autres pages (steam tab)
+
+/je peux peut etre améliorer comment je faire spawn les popup (peut etre mieux en utilisant renderErrorPopup(popupName, label))
+
+/quand on appuie sur join server :
+/ca vérifie si la map est déja dans le dossier ou non,
+/si non :
+/-boutton copier la map to CookedPCConsole/mods
+/(quand j'appuie pour copier je crois que ca fais freeze le thread du jeu, donc peut etre tester de call la copy dans un thread)
+/si oui :
+/-on affiche les inputtext pour IP et PORT plus un boutton join
