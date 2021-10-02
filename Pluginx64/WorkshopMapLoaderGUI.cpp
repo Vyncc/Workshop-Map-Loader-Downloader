@@ -417,19 +417,32 @@ void Pluginx64::Render()
 
 
 			}
-			float ProgressPercent = (100.f * STEAM_WorkshopDownload_ProgressString) / STEAM_WorkshopDownload_FileSizeString;
+
 			std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)) + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString));
-			ImGui::ProgressBar(ProgressPercent, ImVec2(((ImGui::GetWindowWidth() - 14.f) / 100.f)* ProgressPercent, 25.f), ProgressBar_Label.c_str());
+			float ProgressPercent = (100.f * STEAM_WorkshopDownload_ProgressString) / STEAM_WorkshopDownload_FileSizeString;
+			ImGui::ProgressBar(ProgressPercent, ImVec2(((ImGui::GetWindowWidth() - 14.f) / 100.f)* ProgressPercent, 25.f), "test");
 			ImGui::Text("percent : %f", ProgressPercent);
+
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			float windowWidth = ImGui::GetWindowWidth();
+			auto textWidth = ImGui::CalcTextSize("wsh gros").x;
+
+
+
+			draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + heightTest), ImColor(255, 255, 255, 255), "wsh gros");
+
+
+			renderProgressBar(STEAM_WorkshopDownload_ProgressString, STEAM_WorkshopDownload_FileSizeString, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 50.f), ImColor(255, 255, 255, 255), ImColor(255, 0, 0, 255), "test");
+
 
 			//ImGui::ProgressBar(100.f, ImVec2((ImGui::GetWindowWidth() - widthTest / 100.f) * 1.f, 25.f), "test");
 
-			/*
+			
 			ImGui::Separator();
 			
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
-			*/
+			
 			
 
 			ImGui::Separator();
@@ -648,26 +661,21 @@ void Pluginx64::Render()
 }
 
 
-//https://stackoverflow.com/questions/64653747/how-to-center-align-text-horizontally
-void Pluginx64::TextCenter(std::string text) {
-	auto windowWidth = ImGui::GetWindowSize().x;
-	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
-
-	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-	ImGui::Text(text.c_str());
-}
-
-void Pluginx64::CenterNexIMGUItItem(float itemWidth)
+void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
 {
-	auto windowWidth = ImGui::GetWindowSize().x;
-	ImGui::SetCursorPosX((windowWidth - itemWidth) * 0.5f);
-}
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	float percent = ((value * 100) / maxValue) / 100.f;
 
-void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
-{
-	auto windowWidth = ImGui::GetWindowSize().x;
-	float totalWidth = itemWidth + borderGap;
-	ImGui::SetCursorPosX(windowWidth - totalWidth);
+	ImGui::BeginChild("##ProgessBar", size);
+	{
+		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 2.f, 15);
+		if (value != 0)
+		{
+			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 2.f, 15);
+		}
+
+		ImGui::EndChild();
+	}
 }
 
 
@@ -767,6 +775,30 @@ void Pluginx64::renderMaps()
 	}
 	ImGui::EndChild();
 }
+
+
+//https://stackoverflow.com/questions/64653747/how-to-center-align-text-horizontally
+void Pluginx64::TextCenter(std::string text) {
+	auto windowWidth = ImGui::GetWindowSize().x;
+	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
+
+	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+	ImGui::Text(text.c_str());
+}
+
+void Pluginx64::CenterNexIMGUItItem(float itemWidth)
+{
+	auto windowWidth = ImGui::GetWindowSize().x;
+	ImGui::SetCursorPosX((windowWidth - itemWidth) * 0.5f);
+}
+
+void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
+{
+	auto windowWidth = ImGui::GetWindowSize().x;
+	float totalWidth = itemWidth + borderGap;
+	ImGui::SetCursorPosX(windowWidth - totalWidth);
+}
+
 
 void Pluginx64::renderSortByCombos(std::string mostPopular_url)
 {

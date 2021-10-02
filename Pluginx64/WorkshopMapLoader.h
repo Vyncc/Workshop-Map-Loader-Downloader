@@ -158,6 +158,7 @@ public:
 	bool isMinimized_ = false;
 	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13";
 
+	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
 
 	void renderInfoPopup(const char* popupName, const char* label);
 	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc);
