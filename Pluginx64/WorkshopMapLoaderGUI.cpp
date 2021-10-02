@@ -693,24 +693,7 @@ void Pluginx64::renderMaps()
 				{
 					ImGui::OpenPopup("ExtractMapFiles");
 				}
-
-				if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					std::string message = "Couldn't find : " + curMap.Folder.filename().string() + ".upk\n" + "Do you want to extract " + curMap.Folder.filename().string() + ".zip ?";
-					ImGui::Text(message.c_str());
-					ImGui::NewLine();
-					if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
-					{
-						ImGui::CloseCurrentPopup();
-						CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
-					}
-
-					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-					{
-						ImGui::CloseCurrentPopup();
-					}
-					ImGui::EndPopup();
-				}
+				renderExtractMapFilesPopup(curMap);
 
 
 				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
@@ -1133,6 +1116,27 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 			ImGui::CloseCurrentPopup();
 		}
 
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderExtractMapFilesPopup(Map curMap)
+{
+	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		std::string message = "Couldn't find the map : " + curMap.Folder.filename().string() + "\n" + "Do you want to extract " + curMap.ZipFile.filename().string() + " ?";
+		ImGui::Text(message.c_str());
+		ImGui::NewLine();
+		if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
 	}
 }

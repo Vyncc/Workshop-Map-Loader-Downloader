@@ -166,6 +166,7 @@ public:
 
 	void renderFolderErrorPopup();
 	void renderLaunchModePopup(Map curMap);
+	void renderExtractMapFilesPopup(Map curMap);
 	void renderAcceptDownload();
 	void renderDownloadFailedPopup();
 
