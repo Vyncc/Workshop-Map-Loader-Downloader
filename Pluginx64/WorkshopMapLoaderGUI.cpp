@@ -656,193 +656,209 @@ void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec
 
 void Pluginx64::renderMaps()
 {
+	std::vector<Map> NoUpk_MapList;
+	std::vector<Map> Good_MapList;
+
+	int ID = 0;
+
 	if (ImGui::BeginChild("#MapsLauncherButtons"))
 	{
-		for (int i = 0; i < MapList.size(); i++)
+		for (auto map : MapList)
 		{
-			Map curMap = MapList.at(i);
-
-			if (curMap.UpkFile != "NoUpkFound") //needed to avoid problems if a folder is not containing a .udk
+			if (map.UpkFile == "NoUpkFound")
 			{
-				ImGui::PushID(i); //needed to make the button work
-				ImGui::BeginGroup();
+				NoUpk_MapList.push_back(map);
+			}
+
+			if (map.UpkFile != "NoUpkFound")
+			{
+				Good_MapList.push_back(map);
+			}
+		}
+
+		if (NoUpk_MapList.size() > 0)
+		{
+			ImGui::TextColored(ImVec4(255, 0, 0, 255), "These maps wont work, and will need to be extracted :");
+		}
+		for (auto curMap : NoUpk_MapList)
+		{
+			ImGui::PushID(ID); //needed to make the button work
+			ImGui::BeginGroup();
+			{
+				ImDrawList* draw_list = ImGui::GetWindowDrawList();
+				ImFont* fontA = ImGui::GetDefaultFont();
+
+
+				if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
 				{
-					ImDrawList* draw_list = ImGui::GetWindowDrawList();
-					ImFont* fontA = ImGui::GetDefaultFont();
+					ImGui::OpenPopup("ExtractMapFiles");
+				}
 
-
-					if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+				if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					std::string message = "Couldn't find : " + curMap.Folder.filename().string() + ".upk\n" + "Do you want to extract " + curMap.Folder.filename().string() + ".zip ?";
+					ImGui::Text(message.c_str());
+					ImGui::NewLine();
+					if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
 					{
-						ImGui::OpenPopup("LaunchMode");
-					}
-					renderLaunchModePopup(curMap);
-					
-
-					ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
-					ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
-					ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
-					ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
-
-
-					draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
-					if (curMap.isPreviewImageLoaded == true)
-					{
-						try
-						{
-							draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
-						}
-						catch (const std::exception& ex)
-						{
-							cvarManager->log(ex.what());
-						}
+						ImGui::CloseCurrentPopup();
+						CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.Folder.string() + "/" + curMap.Folder.filename().string() + ".zip");
 					}
 
-					if (curMap.JsonFile == "NoInfos")
+					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
 					{
-						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
-							replace(curMap.Folder.filename().string(), *"_", *" ").c_str());
+						ImGui::CloseCurrentPopup();
 					}
-					else
+					ImGui::EndPopup();
+				}
+
+
+				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
+				ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
+				ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
+				ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
+
+
+				draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
+				if (curMap.isPreviewImageLoaded == true)
+				{
+					try
 					{
-						std::string GoodDescription = GetJSONLocalMapInfos(curMap.JsonFile).at(1);
-						if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 150)
-						{
-							GoodDescription.insert(145, "\n");
-
-							if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 280)
-							{
-								GoodDescription.erase(280);
-								GoodDescription.append("...");
-							}
-						}
-
-						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
-							GetJSONLocalMapInfos(curMap.JsonFile).at(0).c_str()); //Map title
-						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
-						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
-							std::string(ResultByText.c_str() + GetJSONLocalMapInfos(curMap.JsonFile).at(2)).c_str()); // "By " Map Author
+						draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
 					}
-
-					ImGui::EndGroup();
-
-					if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+					catch (const std::exception& ex)
 					{
-						if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
-						{
-							std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
-							LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-
-							ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
-						}
-
-						if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
-						{
-							fs::remove_all(curMap.Folder);
-							RefreshMapsFunct(MapsFolderPathBuf);
-						}
-						ImGui::EndPopup();
+						cvarManager->log(ex.what());
 					}
 				}
-				ImGui::PopID();
-			}
-			else
-			{
-				ImGui::PushID(i); //needed to make the button work
-				ImGui::BeginGroup();
+
+				std::string mapName;
+				if (curMap.JsonFile == "NoInfos")
 				{
-					ImDrawList* draw_list = ImGui::GetWindowDrawList();
-					ImFont* fontA = ImGui::GetDefaultFont();
+					mapName = replace(curMap.Folder.filename().string(), *"_", *" ");
+				}
+				else
+				{
+					mapName = GetJSONLocalMapInfos(curMap.JsonFile).at(0);
+				}
 
 
-					if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+				draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
+					mapName.c_str());
+
+				draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(255, 0, 0, 255),
+					"This map wont work because the map isn't extracted, click to fix.");
+
+				ImGui::EndGroup();
+
+				if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+				{
+					if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
 					{
-						ImGui::OpenPopup("ExtractMapFiles");
-					}
-					if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-					{
-						std::string message = "Couldn't find : " + curMap.Folder.filename().string() + ".upk\n" + "Do you want to extract " + curMap.Folder.filename().string() + ".zip ?";
-						ImGui::Text(message.c_str());
-						ImGui::NewLine();
-						if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
-						{
-							CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.Folder.string() + "/" + curMap.Folder.filename().string() + ".zip");
-						}
+						std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+						LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
 
-						if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-						{
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::EndPopup();
-					}
-
-
-					ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
-					ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
-					ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
-					ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
-
-
-					draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
-					if (curMap.isPreviewImageLoaded == true)
-					{
-						try
-						{
-							draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
-						}
-						catch (const std::exception& ex)
-						{
-							cvarManager->log(ex.what());
-						}
+						ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
 					}
 
-					if (curMap.JsonFile == "NoInfos")
+					if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
 					{
-						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
-							replace(curMap.Folder.filename().string(), *"_", *" ").c_str());
+						fs::remove_all(curMap.Folder);
+						RefreshMapsFunct(MapsFolderPathBuf);
 					}
-					else
+					ImGui::EndPopup();
+				}
+			}
+
+			ImGui::PopID();
+			ID++;
+		}
+
+
+		for (auto curMap : Good_MapList)
+		{
+			ImGui::PushID(ID); //needed to make the button work
+			ImGui::BeginGroup();
+			{
+				ImDrawList* draw_list = ImGui::GetWindowDrawList();
+				ImFont* fontA = ImGui::GetDefaultFont();
+
+
+				if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+				{
+					ImGui::OpenPopup("LaunchMode");
+				}
+				renderLaunchModePopup(curMap);
+
+
+				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
+				ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
+				ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
+				ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
+
+
+				draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
+				if (curMap.isPreviewImageLoaded == true)
+				{
+					try
 					{
-						std::string GoodDescription = GetJSONLocalMapInfos(curMap.JsonFile).at(1);
-						if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 150)
-						{
-							GoodDescription.insert(145, "\n");
-
-							if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 280)
-							{
-								GoodDescription.erase(280);
-								GoodDescription.append("...");
-							}
-						}
-
-						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
-							GetJSONLocalMapInfos(curMap.JsonFile).at(0).c_str()); //Map title
-						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
-						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
-							std::string(ResultByText.c_str() + GetJSONLocalMapInfos(curMap.JsonFile).at(2)).c_str()); // "By " Map Author
+						draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
 					}
-
-					ImGui::EndGroup();
-
-					if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+					catch (const std::exception& ex)
 					{
-						if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
-						{
-							std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
-							LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-
-							ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
-						}
-
-						if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
-						{
-							fs::remove_all(curMap.Folder);
-							RefreshMapsFunct(MapsFolderPathBuf);
-						}
-						ImGui::EndPopup();
+						cvarManager->log(ex.what());
 					}
 				}
-				ImGui::PopID();
+
+				if (curMap.JsonFile == "NoInfos")
+				{
+					draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
+						replace(curMap.Folder.filename().string(), *"_", *" ").c_str());
+				}
+				else
+				{
+					std::string GoodDescription = GetJSONLocalMapInfos(curMap.JsonFile).at(1);
+					if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 150)
+					{
+						GoodDescription.insert(145, "\n");
+
+						if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 280)
+						{
+							GoodDescription.erase(280);
+							GoodDescription.append("...");
+						}
+					}
+
+					draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
+						GetJSONLocalMapInfos(curMap.JsonFile).at(0).c_str()); //Map title
+					draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
+					draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
+						std::string(ResultByText.c_str() + GetJSONLocalMapInfos(curMap.JsonFile).at(2)).c_str()); // "By " Map Author
+				}
+
+				ImGui::EndGroup();
+
+				if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+				{
+					if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
+					{
+						std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+						LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+
+						ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+					}
+
+					if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
+					{
+						fs::remove_all(curMap.Folder);
+						RefreshMapsFunct(MapsFolderPathBuf);
+					}
+					ImGui::EndPopup();
+				}
 			}
+
+			ImGui::PopID();
+			ID++;
 		}
 	}
 	ImGui::EndChild();
