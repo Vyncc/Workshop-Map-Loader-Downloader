@@ -745,6 +745,104 @@ void Pluginx64::renderMaps()
 				}
 				ImGui::PopID();
 			}
+			else
+			{
+				ImGui::PushID(i); //needed to make the button work
+				ImGui::BeginGroup();
+				{
+					ImDrawList* draw_list = ImGui::GetWindowDrawList();
+					ImFont* fontA = ImGui::GetDefaultFont();
+
+
+					if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+					{
+						ImGui::OpenPopup("ExtractMapFiles");
+					}
+					if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						std::string message = "Couldn't find : " + curMap.Folder.filename().string() + ".upk\n" + "Do you want to extract " + curMap.Folder.filename().string() + ".zip ?";
+						ImGui::Text(message.c_str());
+						ImGui::NewLine();
+						if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
+						{
+							CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.Folder.string() + "/" + curMap.Folder.filename().string() + ".zip");
+						}
+
+						if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+						{
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::EndPopup();
+					}
+
+
+					ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
+					ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
+					ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
+					ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
+
+
+					draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
+					if (curMap.isPreviewImageLoaded == true)
+					{
+						try
+						{
+							draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+						}
+						catch (const std::exception& ex)
+						{
+							cvarManager->log(ex.what());
+						}
+					}
+
+					if (curMap.JsonFile == "NoInfos")
+					{
+						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
+							replace(curMap.Folder.filename().string(), *"_", *" ").c_str());
+					}
+					else
+					{
+						std::string GoodDescription = GetJSONLocalMapInfos(curMap.JsonFile).at(1);
+						if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 150)
+						{
+							GoodDescription.insert(145, "\n");
+
+							if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 280)
+							{
+								GoodDescription.erase(280);
+								GoodDescription.append("...");
+							}
+						}
+
+						draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
+							GetJSONLocalMapInfos(curMap.JsonFile).at(0).c_str()); //Map title
+						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
+						draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
+							std::string(ResultByText.c_str() + GetJSONLocalMapInfos(curMap.JsonFile).at(2)).c_str()); // "By " Map Author
+					}
+
+					ImGui::EndGroup();
+
+					if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+					{
+						if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
+						{
+							std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+							LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+
+							ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+						}
+
+						if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
+						{
+							fs::remove_all(curMap.Folder);
+							RefreshMapsFunct(MapsFolderPathBuf);
+						}
+						ImGui::EndPopup();
+					}
+				}
+				ImGui::PopID();
+			}
 		}
 	}
 	ImGui::EndChild();
@@ -1375,6 +1473,8 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 {
 	MapList.clear();
 
+	std::vector<Map> NoUpk_MapList;
+
 	std::vector<std::filesystem::path> MapsDirectories;
 
 	for (const auto& dir : fs::directory_iterator(mapsfolders))
@@ -1418,20 +1518,6 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				nbFiles++;
 
 
-				if (!hasFoundUPK && fileExtension == ".upk")
-				{
-					map.UpkFile = file.path();
-					hasFoundUPK = true;
-				}
-				else
-				{
-					if (nbFiles == nbFilesInDirectory && hasFoundUPK == false)
-					{
-						map.UpkFile = "NoUpkFound";
-						cvarManager->log("No upk found in this folder : " + CurrentMapDirectory.string());
-						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
-					}
-				}
 
 				if (!hasFoundJSON && fileExtension == ".json")
 				{
@@ -1468,6 +1554,24 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 						cvarManager->log("No preview found in this folder");
 					}
 				}
+
+
+				if (!hasFoundUPK && fileExtension == ".upk")
+				{
+					map.UpkFile = file.path();
+					hasFoundUPK = true;
+				}
+				else
+				{
+					if (nbFiles == nbFilesInDirectory && hasFoundUPK == false)
+					{
+						map.UpkFile = "NoUpkFound";
+						cvarManager->log("No upk found in this folder : " + CurrentMapDirectory.string());
+						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
+
+						NoUpk_MapList.push_back(map);
+					}
+				}
 			}
 		}
 		else       //if the folder is empty
@@ -1481,6 +1585,37 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 
 		MapList.push_back(map);
 		cvarManager->log("");
+	}
+
+	//faut que je le retire
+	for (auto item : NoUpk_MapList)
+	{
+		cvarManager->log("NNNNAAAAAAAMMMMMMMEE : " + item.Folder.filename().string());
+		cvarManager->log("foldersssssssssssssssssssss : " + item.Folder.string());
+		cvarManager->log("----------------------------------------------------");
+		
+		std::string popupName = item.Folder.filename().string();
+
+		ImGui::OpenPopup(popupName.c_str());
+
+
+		if (ImGui::BeginPopupModal(popupName.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string message = "Couldn't find : " + item.Folder.filename().string() + ".upk\n" + "Do you want to extract " + item.Folder.filename().string() + ".zip ?";
+			ImGui::Text(message.c_str());
+			ImGui::NewLine();
+			if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
+			{
+				CreateUnzipBatchFile(item.Folder.string() + "/", item.Folder.string() + "/" + item.Folder.filename().string() + ".zip");
+			}
+
+			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		
 	}
 }
 

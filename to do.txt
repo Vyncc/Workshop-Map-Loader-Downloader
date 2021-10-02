@@ -13,6 +13,8 @@ pour les results de rlmpas.us, faut que je change le design
 
 avant de dl une map regarder si on l'a deja
 
+quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell, pareil quand le maps folder est vide
+
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
