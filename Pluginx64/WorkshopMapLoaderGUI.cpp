@@ -414,10 +414,19 @@ void Pluginx64::Render()
 			{
 				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)).c_str(),
 					convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
+
+
 			}
+			float ProgressPercent = (100.f * STEAM_WorkshopDownload_ProgressString) / STEAM_WorkshopDownload_FileSizeString;
+			std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)) + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString));
+			ImGui::ProgressBar(ProgressPercent, ImVec2(((ImGui::GetWindowWidth() - 14.f) / 100.f)* ProgressPercent, 25.f), ProgressBar_Label.c_str());
+			ImGui::Text("percent : %f", ProgressPercent);
+
+			//ImGui::ProgressBar(100.f, ImVec2((ImGui::GetWindowWidth() - widthTest / 100.f) * 1.f, 25.f), "test");
+
 			/*
 			ImGui::Separator();
-
+			
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
 			*/
@@ -1164,7 +1173,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
 			std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
 		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
-		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
+		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"
 		{
 			if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 			{
