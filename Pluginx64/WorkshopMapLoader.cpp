@@ -349,8 +349,8 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		{
 			cvarManager->log("downloading...............");
 
-			STEAM_WorkshopDownload_ProgressString = STEAM_Download_Progress;
-			STEAM_WorkshopDownload_FileSizeString = std::stoi(Workshop_filesize);
+			STEAM_WorkshopDownload_Progress = STEAM_Download_Progress;
+			STEAM_WorkshopDownload_FileSize = std::stoi(Workshop_filesize);
 			Sleep(500);
 		}
 		
@@ -969,8 +969,8 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	{
 		cvarManager->log("downloading...............");
 
-		RLMAPS_WorkshopDownload_ProgressString = RLMAPS_Download_Progress;
-		RLMAPS_WorkshopDownload_FileSizeString = std::stoi(mapResult.Size);
+		RLMAPS_WorkshopDownload_Progress = RLMAPS_Download_Progress;
+		RLMAPS_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
 		Sleep(500);
 	}
 

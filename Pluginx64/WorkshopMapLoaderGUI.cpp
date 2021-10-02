@@ -412,37 +412,30 @@ void Pluginx64::Render()
 
 			if (STEAM_IsDownloadingWorkshop == true)
 			{
+				/*
 				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)).c_str(),
 					convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
+				*/
 
+				ImGui::Separator();
 
+				std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSize));
+				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
 
-			std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)) + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString));
+
+			/*
 			float ProgressPercent = (100.f * STEAM_WorkshopDownload_ProgressString) / STEAM_WorkshopDownload_FileSizeString;
-			ImGui::ProgressBar(ProgressPercent, ImVec2(((ImGui::GetWindowWidth() - 14.f) / 100.f)* ProgressPercent, 25.f), "test");
 			ImGui::Text("percent : %f", ProgressPercent);
+			*/
 
-			ImDrawList* draw_list = ImGui::GetWindowDrawList();
-			float windowWidth = ImGui::GetWindowWidth();
-			auto textWidth = ImGui::CalcTextSize("wsh gros").x;
-
-
-
-			draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + heightTest), ImColor(255, 255, 255, 255), "wsh gros");
-
-
-			renderProgressBar(STEAM_WorkshopDownload_ProgressString, STEAM_WorkshopDownload_FileSizeString, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 50.f), ImColor(255, 255, 255, 255), ImColor(255, 0, 0, 255), "test");
-
-
-			//ImGui::ProgressBar(100.f, ImVec2((ImGui::GetWindowWidth() - widthTest / 100.f) * 1.f, 25.f), "test");
-
-			
+			/*
 			ImGui::Separator();
 			
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
-			
+			*/
 			
 
 			ImGui::Separator();
@@ -564,8 +557,16 @@ void Pluginx64::Render()
 
 			if (RLMAPS_IsDownloadingWorkshop == true)
 			{
+				/*
 				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(RLMAPS_WorkshopDownload_ProgressString)).c_str(),
 					convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
+				*/
+
+				ImGui::Separator();
+
+				std::string ProgressBar_Label = convertToMB(std::to_string(RLMAPS_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSize));
+				renderProgressBar(RLMAPS_WorkshopDownload_Progress, RLMAPS_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
 
 			ImGui::Separator();
@@ -608,7 +609,6 @@ void Pluginx64::Render()
 				}
 				
 
-
 				ImGui::NewLine();
 				ImGui::NewLine();
 				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
@@ -616,35 +616,6 @@ void Pluginx64::Render()
 				ImGui::EndChild();
 			}
 			
-			ImGui::EndTabItem();
-		}
-
-
-		if (ImGui::BeginTabItem("Join Multiplayer Server"))
-		{
-			ImGui::Text("IP :");
-			ImGui::SameLine();
-			static char IP[200] = "";
-			ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-			
-			ImGui::Text("PORT :");
-			ImGui::SameLine();
-			static char PORT[200] = "";
-			ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-			std::string str_IP = std::string(IP);
-			std::string str_PORT = std::string(PORT);
-
-			if (ImGui::Button("Join Server"))
-			{
-				gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-					{
-						cvarManager->log("IP : " + str_IP);
-						cvarManager->log("PORT : " + str_PORT);
-						gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");  //si ca marche pas c'est peut etre a cause du / a coté de ?Lan
-					});
-			}
-
 			ImGui::EndTabItem();
 		}
 
@@ -664,15 +635,18 @@ void Pluginx64::Render()
 void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
 {
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	float windowWidth = ImGui::GetWindowWidth();
+	auto textWidth = ImGui::CalcTextSize(label).x;
 	float percent = ((value * 100) / maxValue) / 100.f;
 
 	ImGui::BeginChild("##ProgessBar", size);
 	{
-		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 2.f, 15);
+		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 15.f, 15.f);
 		if (value != 0)
 		{
-			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 2.f, 15);
+			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 15.f, 15.f);
 		}
+		draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + 5.f), ImColor(255, 255, 255, 255), label);
 
 		ImGui::EndChild();
 	}

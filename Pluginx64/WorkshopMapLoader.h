@@ -126,15 +126,15 @@ public:
 	bool STEAM_IsDownloadingWorkshop = false;
 	bool AcceptTheDownload = false;
 	int STEAM_Download_Progress;
-	int STEAM_WorkshopDownload_ProgressString;
-	int STEAM_WorkshopDownload_FileSizeString;
+	int STEAM_WorkshopDownload_Progress;
+	int STEAM_WorkshopDownload_FileSize;
 	bool IsDownloadingPreview;
 
 	//rocketleaguemaps.us
 	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult);
 	int RLMAPS_Download_Progress;
-	int RLMAPS_WorkshopDownload_ProgressString;
-	int RLMAPS_WorkshopDownload_FileSizeString;
+	int RLMAPS_WorkshopDownload_Progress;
+	int RLMAPS_WorkshopDownload_FileSize;
 	bool RLMAPS_IsDownloadingWorkshop = false;
 
 
