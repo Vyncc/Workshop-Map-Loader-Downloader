@@ -702,7 +702,7 @@ void Pluginx64::renderMaps()
 					if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
 					{
 						ImGui::CloseCurrentPopup();
-						CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.Folder.string() + "/" + curMap.Folder.filename().string() + ".zip");
+						CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
 					}
 
 					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
@@ -1489,8 +1489,6 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 {
 	MapList.clear();
 
-	std::vector<Map> NoUpk_MapList;
-
 	std::vector<std::filesystem::path> MapsDirectories;
 
 	for (const auto& dir : fs::directory_iterator(mapsfolders))
@@ -1528,6 +1526,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 			bool hasFoundUPK = false;
 			bool hasFoundPreview = false;
 			bool hasFoundJSON = false;
+			bool hasFoundZIP = false;
 			for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
 			{
 				std::string fileExtension = file.path().filename().extension().string();
@@ -1571,6 +1570,20 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 					}
 				}
 
+				if (!hasFoundZIP && fileExtension == ".zip")
+				{
+					map.ZipFile = file.path();
+					hasFoundZIP = true;
+				}
+				else
+				{
+					if (nbFiles == nbFilesInDirectory && hasFoundZIP == false)
+					{
+						map.ZipFile = "NoZipFound";
+						cvarManager->log("No .zip file found in this folder : " + CurrentMapDirectory.string());
+					}
+				}
+
 
 				if (!hasFoundUPK && fileExtension == ".upk")
 				{
@@ -1584,8 +1597,6 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 						map.UpkFile = "NoUpkFound";
 						cvarManager->log("No upk found in this folder : " + CurrentMapDirectory.string());
 						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
-
-						NoUpk_MapList.push_back(map);
 					}
 				}
 			}
@@ -1601,37 +1612,6 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 
 		MapList.push_back(map);
 		cvarManager->log("");
-	}
-
-	//faut que je le retire
-	for (auto item : NoUpk_MapList)
-	{
-		cvarManager->log("NNNNAAAAAAAMMMMMMMEE : " + item.Folder.filename().string());
-		cvarManager->log("foldersssssssssssssssssssss : " + item.Folder.string());
-		cvarManager->log("----------------------------------------------------");
-		
-		std::string popupName = item.Folder.filename().string();
-
-		ImGui::OpenPopup(popupName.c_str());
-
-
-		if (ImGui::BeginPopupModal(popupName.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			std::string message = "Couldn't find : " + item.Folder.filename().string() + ".upk\n" + "Do you want to extract " + item.Folder.filename().string() + ".zip ?";
-			ImGui::Text(message.c_str());
-			ImGui::NewLine();
-			if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
-			{
-				CreateUnzipBatchFile(item.Folder.string() + "/", item.Folder.string() + "/" + item.Folder.filename().string() + ".zip");
-			}
-
-			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-		
 	}
 }
 
