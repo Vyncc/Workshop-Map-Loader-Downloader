@@ -383,10 +383,6 @@ void Pluginx64::Render()
 			
 
 
-			if (IsRetrievingWorkshopFiles == true)
-			{
-				ImGui::TextColored(ImVec4(255, 155, 0, 1), RetrievingFilesText.c_str()); // "Retrieving workshop files for download..."
-			}
 
 			if (FolderErrorBool)
 			{
@@ -401,6 +397,12 @@ void Pluginx64::Render()
 			}
 			renderDownloadFailedPopup();
 
+
+			if (IsRetrievingWorkshopFiles == true)
+			{
+				ImGui::Separator();
+				ImGui::TextColored(ImVec4(255, 155, 0, 1), RetrievingFilesText.c_str()); // "Retrieving workshop files for download..."
+			}
 
 			if (UserIsChoosingYESorNO)
 			{
@@ -676,10 +678,6 @@ void Pluginx64::renderMaps()
 			}
 		}
 
-		if (NoUpk_MapList.size() > 0)
-		{
-			ImGui::TextColored(ImVec4(255, 0, 0, 255), "These maps wont work, and will need to be extracted :");
-		}
 		for (auto curMap : NoUpk_MapList)
 		{
 			ImGui::PushID(ID); //needed to make the button work
@@ -746,6 +744,7 @@ void Pluginx64::renderMaps()
 
 					if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
 					{
+						MapList.clear();
 						fs::remove_all(curMap.Folder);
 						RefreshMapsFunct(MapsFolderPathBuf);
 					}
@@ -1057,7 +1056,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " doesn't exist in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
+			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?\n/!\\You need to restart the game to join the server !").c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
@@ -1108,14 +1107,12 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 			}
 		}
 
-
 		ImGui::SameLine();
 
 		if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
-
 		ImGui::EndPopup();
 	}
 }
@@ -1124,7 +1121,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 {
 	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		std::string message = "The map " + curMap.Folder.filename().string() + " isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method :";
+		std::string message = "The map isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method (you need to click on refresh maps after extracting) :";
 		ImGui::Text(message.c_str());
 		ImGui::NewLine();
 
@@ -1145,10 +1142,10 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 		ImGui::SameLine();
 		if (ImGui::Button("Still doesn't work", ImVec2(110.f, 25.f)))
 		{
-			ImGui::OpenPopup("Tutorial");
+			ImGui::OpenPopup("ExtractManually");
 		}
 
-		if (ImGui::BeginPopupModal("Tutorial", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("ExtractManually", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			std::string txt = "If both of the extract methods didn't work, you need to extract the files manually of %s" + curMap.ZipFile.filename().string();
 			ImGui::Text(txt.c_str());
@@ -1161,7 +1158,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 				if (ImGui::IsMouseClicked(0))
 				{
-					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW);
+					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW); //open the video tutorial in browser
 				}
 				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
 			}
@@ -1172,7 +1169,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 			{
 				std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
 				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT); //open the map directory in file explorer
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
@@ -1414,8 +1411,6 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 		ImGui::PopID();
 	}
 }
-
-
 
 
 
