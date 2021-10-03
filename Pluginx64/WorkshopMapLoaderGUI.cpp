@@ -254,6 +254,14 @@ void Pluginx64::Render()
 	{
 		if (ImGui::BeginTabItem(Tab1MapLoaderText.c_str())) // "Map Loader"
 		{
+			if (ImGui::Button("Test"))
+			{
+				//D:\Jeux\Epic Games\rocketleague\Binaries\Win64
+				std::string pathtest = std::filesystem::current_path().string();
+				std::string rlPath = pathtest.substr(0, pathtest.length() - 14) + "TAGame\\CookedPCConsole";
+				cvarManager->log("THE PATH MON POTE : " + rlPath);
+			}
+
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
 
 			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
@@ -1047,7 +1055,9 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 
 
-		std::string modsDirPath = "D:\\Jeux\\Epic Games\\rocketleague\\TAGame\\CookedPCConsole\\mods";
+		std::string RLWin64_Path = std::filesystem::current_path().string();
+		std::string RLCookedPCConsole_Path = RLWin64_Path.substr(0, RLWin64_Path.length() - 14) + "TAGame\\CookedPCConsole";
+		std::string modsDirPath = RLCookedPCConsole_Path + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
 			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
