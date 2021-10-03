@@ -6,41 +6,35 @@ avant de publier la maj, faut que je change le changelog dans le plugin (lastUpd
 			 faut que je fasse les traductions
 
 
-
-
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
-avant de dl une map regarder si on l'a deja
+avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si on veut vraiment la télécharger
 
-pour floating rings ca marche pas pour le extract dans refresh maps pcq le nom du .zip est different de celui que je met en parametre avec la fonction createUnzipBatchFile
-
-quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell,
-pareil quand le maps folder est vide, faut que je change quand ya empty folder faut que je mette curMap.UPKFile = "EmptyFolder";
-
-quand ca copy la map dans mods/ apres faut que je fasse une popup qui dit de relancer le jeu
 
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
-avec steam, peut etre que si je dl une map sans preview(genre le workshop n'a meme pas de preview sur steam) ca crash jsp faut que je test
-
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
 
-faut que je fasse un meilleur truc pour retrieving workshop files et aussi pour download : 10MB/100MB
-
-peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/
+peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 
 si je detecte que ya beaucoup de resultats dans une recherche je mets une popup qui dit de ne pas bouger la souris pour eviter de faire crash le jeu
 
-faut que je récupere le CookedPCConsole
 
 dans StartSearchRequest, je peux utiliser json cpp pour récupérer les infos dedans au lieu de le faire avec la fonction dégueulace que j'ai fait
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+/faut que je récupere le CookedPCConsole
+
+/quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell,
+/pareil quand le maps folder est vide, faut que je change quand ya empty folder faut que je mette curMap.UPKFile = "EmptyFolder";
+
+/pour floating rings ca marche pas pour le extract dans refresh maps pcq le nom du .zip est different de celui que je met en parametre avec la fonction createUnzipBatchFile
 
 /faire la même chose que l'onglet steam pour l'onglet rocketleaguemaps.us
 

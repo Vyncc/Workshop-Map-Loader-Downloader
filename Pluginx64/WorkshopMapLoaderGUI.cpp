@@ -254,14 +254,6 @@ void Pluginx64::Render()
 	{
 		if (ImGui::BeginTabItem(Tab1MapLoaderText.c_str())) // "Map Loader"
 		{
-			if (ImGui::Button("Test"))
-			{
-				//D:\Jeux\Epic Games\rocketleague\Binaries\Win64
-				std::string pathtest = std::filesystem::current_path().string();
-				std::string rlPath = pathtest.substr(0, pathtest.length() - 14) + "TAGame\\CookedPCConsole";
-				cvarManager->log("THE PATH MON POTE : " + rlPath);
-			}
-
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
 
 			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
