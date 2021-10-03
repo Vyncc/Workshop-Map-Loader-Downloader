@@ -1124,13 +1124,12 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 {
 	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		std::string message = "The map " + curMap.Folder.filename().string() + " isn't extracted from " + curMap.ZipFile.filename().string() + " \n" + "Choose an extract method :";
+		std::string message = "The map " + curMap.Folder.filename().string() + " isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method :";
 		ImGui::Text(message.c_str());
 		ImGui::NewLine();
 
-		float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
 
-		CenterNexIMGUItItem(216.f + buttonWidth);
+		CenterNexIMGUItItem(326.f);
 		if (ImGui::Button("Powershell", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
@@ -1144,20 +1143,61 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
 		}
 		ImGui::SameLine();
-		if (ImGui::Button(OpenMapDirText.c_str(), ImVec2(120.f, 25.f)))
+		if (ImGui::Button("Still doesn't work", ImVec2(110.f, 25.f)))
 		{
-			std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
-			LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-
-			ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+			ImGui::OpenPopup("Tutorial");
 		}
-		CenterNexIMGUItItem(216.f + buttonWidth);
-		if (ImGui::Button("Cancel", ImVec2(316.f, 25.f)))
+
+		if (ImGui::BeginPopupModal("Tutorial", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string txt = "If both of the extract methods didn't work, you need to extract the files manually of %s" + curMap.ZipFile.filename().string();
+			ImGui::Text(txt.c_str());
+			ImGui::Text("Tutorial : ");
+			ImGui::SameLine();
+			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://youtu.be/mI2PqkissiQ?t=124");
+			renderUnderLine(ImColor(3, 94, 252, 255));
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				if (ImGui::IsMouseClicked(0))
+				{
+					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW);
+				}
+				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+			}
+			ImGui::NewLine();
+			float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
+			CenterNexIMGUItItem(buttonWidth + 100.f);
+			if (ImGui::Button(OpenMapDirText.c_str(), ImVec2(buttonWidth, 25.f)))
+			{
+				std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+
+		CenterNexIMGUItItem(326.f);
+		if (ImGui::Button("Cancel", ImVec2(326.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
 	}
+}
+
+void Pluginx64::renderUnderLine(ImColor col_)
+{
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	min.y = max.y;
+	ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
 }
 
 void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc)

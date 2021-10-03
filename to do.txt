@@ -18,6 +18,8 @@ pour floating rings ca marche pas pour le extract dans refresh maps pcq le nom d
 quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell,
 pareil quand le maps folder est vide, faut que je change quand ya empty folder faut que je mette curMap.UPKFile = "EmptyFolder";
 
+quand ca copy la map dans mods/ apres faut que je fasse une popup qui dit de relancer le jeu
+
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
