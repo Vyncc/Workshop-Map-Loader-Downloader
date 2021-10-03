@@ -665,12 +665,12 @@ void Pluginx64::renderMaps()
 	{
 		for (auto map : MapList)
 		{
-			if (map.UpkFile == "NoUpkFound")
+			if (map.UpkFile == "NoUpkFound" && map.ZipFile != "EmptyFolder" && map.ZipFile != "NoZipFound")
 			{
 				NoUpk_MapList.push_back(map);
 			}
 
-			if (map.UpkFile != "NoUpkFound")
+			if (map.UpkFile != "NoUpkFound" && map.UpkFile != "EmptyFolder")
 			{
 				Good_MapList.push_back(map);
 			}
@@ -1124,16 +1124,35 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 {
 	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		std::string message = "Couldn't find the map : " + curMap.Folder.filename().string() + "\n" + "Do you want to extract " + curMap.ZipFile.filename().string() + " ?";
+		std::string message = "The map " + curMap.Folder.filename().string() + " isn't extracted from " + curMap.ZipFile.filename().string() + " \n" + "Choose an extract method :";
 		ImGui::Text(message.c_str());
 		ImGui::NewLine();
+
+		float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
+
+		CenterNexIMGUItItem(216.f + buttonWidth);
+		if (ImGui::Button("Powershell", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + curMap.ZipFile.string() + " -DestinationPath " + curMap.Folder.string() + "/";
+			system(extractCommand.c_str());
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+		if (ImGui::Button(OpenMapDirText.c_str(), ImVec2(120.f, 25.f)))
+		{
+			std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+			LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+
+			ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+		}
+		CenterNexIMGUItItem(216.f + buttonWidth);
+		if (ImGui::Button("Cancel", ImVec2(316.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
@@ -1608,8 +1627,9 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		else       //if the folder is empty
 		{
 			cvarManager->log("Empty folder !");
-			map.UpkFile = "NoUpkFound";
-			map.JsonFile = "NoInfos";
+			map.UpkFile = "EmptyFolder";
+			map.ZipFile = "EmptyFolder";
+			map.JsonFile = "EmptyFolder";
 			map.PreviewImage = std::make_shared<ImageWrapper>(IfNoPreviewImagePath, false, true); //if there is no preview image, it will load a red cross image
 			map.isPreviewImageLoaded = true;
 		}

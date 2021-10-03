@@ -15,7 +15,8 @@ avant de dl une map regarder si on l'a deja
 
 pour floating rings ca marche pas pour le extract dans refresh maps pcq le nom du .zip est different de celui que je met en parametre avec la fonction createUnzipBatchFile
 
-quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell, pareil quand le maps folder est vide
+quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell,
+pareil quand le maps folder est vide, faut que je change quand ya empty folder faut que je mette curMap.UPKFile = "EmptyFolder";
 
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
