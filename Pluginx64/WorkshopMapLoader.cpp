@@ -930,8 +930,15 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
 	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 
-	fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory
-	cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + Workshop_filename + ".jfif");
+	if (Directory_Or_File_Exists(mapResult.ImagePath))
+	{
+		fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory
+		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + Workshop_filename + ".jfif");
+	}
+	else
+	{
+		cvarManager->log("Couldn't find preview to paste");
+	}
 
 	
 	std::string download_url = "http://rocketleaguemaps.b-cdn.net/" + mapResult.Author + "/Maps/" + mapResult.ZipName;
@@ -985,11 +992,17 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 
-
+	int checkTime = 0; //this isn't good but I don't care
 	while(UdkInDirectory(Workshop_Dl_Path) == "Null")
 	{
 		cvarManager->log("Extracting zip file");
-		Sleep(10);
+		if (checkTime > 10)
+		{
+			cvarManager->log("Failed extracting the map zip file");
+			return;
+		}
+		Sleep(1000);
+		checkTime++;
 	}
 
 

@@ -11,6 +11,7 @@ pour les results de rlmpas.us, faut que je change le design
 
 avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si on veut vraiment la télécharger
 
+quand on refresh une map ca verifie si on a les textures si non popup pour les télécgarger
 
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
