@@ -30,6 +30,9 @@ void Pluginx64::onLoad()
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
 	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
+	std::string RLWin64_Path = std::filesystem::current_path().string();
+	RLCookedPCConsole_Path = RLWin64_Path.substr(0, RLWin64_Path.length() - 14) + "TAGame\\CookedPCConsole";
+
 	std::string SteamLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\steamlogo.png";
 	SteamLogoImage = std::make_shared<ImageWrapper>(SteamLogoPath, false, true);
 
@@ -1038,6 +1041,67 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 }
 
 
+void Pluginx64::DownloadWorkshopTextures()
+{
+	//download
+	/*
+	CurlRequest req;
+	req.url = "http://rocketleaguemaps.b-cdn.net/Textures/Textures.zip";
+	req.progress_function = [this](double file_size, double downloaded, ...)
+	{
+		//cvarManager->log("Download progress : " + std::to_string(downloaded));
+		Download_Textrures_Progress = downloaded;
+	};
+
+	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
+		{
+			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
+			if (out_file)
+			{
+				out_file.write(data, size);
+
+				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
+				RLMAPS_IsDownloadingWorkshop = false;
+			}
+		});
+
+
+	while (RLMAPS_IsDownloadingWorkshop == true)
+	{
+		cvarManager->log("downloading...............");
+
+		RLMAPS_WorkshopDownload_Progress = RLMAPS_Download_Progress;
+		RLMAPS_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
+		Sleep(500);
+	}
+
+	if (unzipMethod == "Bat")
+	{
+		CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
+	}
+	else
+	{
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
+		system(extractCommand.c_str());
+	}
+
+
+	int checkTime = 0; //this isn't good but I don't care
+	while (UdkInDirectory(Workshop_Dl_Path) == "Null")
+	{
+		cvarManager->log("Extracting zip file");
+		if (checkTime > 10)
+		{
+			cvarManager->log("Failed extracting the map zip file");
+			return;
+		}
+		Sleep(1000);
+		checkTime++;
+	}
+
+
+	cvarManager->log("File Extracted");*/
+}
 
 
 

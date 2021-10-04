@@ -254,6 +254,11 @@ void Pluginx64::Render()
 	{
 		if (ImGui::BeginTabItem(Tab1MapLoaderText.c_str())) // "Map Loader"
 		{
+			if (ImGui::Button("Test", ImVec2(100.f, 25.f)))
+			{
+
+			}
+
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
 
 			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
@@ -1047,9 +1052,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 
 
-		std::string RLWin64_Path = std::filesystem::current_path().string();
-		std::string RLCookedPCConsole_Path = RLWin64_Path.substr(0, RLWin64_Path.length() - 14) + "TAGame\\CookedPCConsole";
-		std::string modsDirPath = RLCookedPCConsole_Path + "\\mods";
+		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
 			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {

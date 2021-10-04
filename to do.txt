@@ -15,6 +15,8 @@ quand on refresh une map ca verifie si on a les textures si non popup pour les t
 
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
 
+faut que je fasse pareil (failed extracting files, dans les fonctions download) que ce que j'ai fais pour rlmaps et steam
+
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp

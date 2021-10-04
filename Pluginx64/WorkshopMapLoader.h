@@ -54,7 +54,16 @@ public:
 	int widthTest;
 	int heightTest;
 
+	std::vector<std::string> WorkshopTexturesFilesList = 
+	{ 
+		"EditorLandscapeResources.upk", "EditorMaterials.upk", "EditorMeshes.upk", "EditorResources.upk", "Engine_MI_Shaders.upk", "EngineBuildings.upk", "EngineDebugMaterials.upk",
+		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
+	};
 
+	std::filesystem::path RLCookedPCConsole_Path;
+
+	void DownloadWorkshopTextures();
+	int Download_Textrures_Progress;
 
 	void TextCenter(std::string text);
 	void CenterNexIMGUItItem(float itemWidth);
