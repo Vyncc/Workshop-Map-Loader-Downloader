@@ -60,10 +60,13 @@ public:
 		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
 	};
 
+	bool IsDownloading_WorkshopTextures;
+
 	std::filesystem::path RLCookedPCConsole_Path;
 
 	void DownloadWorkshopTextures();
 	int Download_Textrures_Progress;
+	int DownloadTextrures_ProgressDisplayed;
 
 	void TextCenter(std::string text);
 	void CenterNexIMGUItItem(float itemWidth);

@@ -256,7 +256,28 @@ void Pluginx64::Render()
 		{
 			if (ImGui::Button("Test", ImVec2(100.f, 25.f)))
 			{
+				ImGui::OpenPopup("DownloadTextures");
+			}
 
+			if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("t as pas les texture frero, telecharges les");
+				if (IsDownloading_WorkshopTextures)
+				{
+					ImGui::Text("Progress : %d", DownloadTextrures_ProgressDisplayed);
+				}
+
+				if (ImGui::Button("Download"))
+				{
+					std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
+					t2.detach();
+				}
+				if (ImGui::Button("Cancel"))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
 			}
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
@@ -614,8 +635,6 @@ void Pluginx64::Render()
 						ImGui::EndGroup();
 					}
 				}
-				
-
 				ImGui::NewLine();
 				ImGui::NewLine();
 				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
@@ -1061,7 +1080,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?\n/!\\You need to restart the game to join the server !").c_str(), [this, modsDirPath, curMap]() {
+			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?\n/!\\You need to restart the game begore to be able to join the server !").c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}

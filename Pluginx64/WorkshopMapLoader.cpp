@@ -1043,8 +1043,12 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 
 void Pluginx64::DownloadWorkshopTextures()
 {
+	
+	IsDownloading_WorkshopTextures = true;
+
+	cvarManager->log("Starting download : Workshop Textures");
+
 	//download
-	/*
 	CurlRequest req;
 	req.url = "http://rocketleaguemaps.b-cdn.net/Textures/Textures.zip";
 	req.progress_function = [this](double file_size, double downloaded, ...)
@@ -1053,54 +1057,45 @@ void Pluginx64::DownloadWorkshopTextures()
 		Download_Textrures_Progress = downloaded;
 	};
 
-	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
+	std::string ZipFilePath = BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip";
+	HttpWrapper::SendCurlRequest(req, [this, ZipFilePath](int code, char* data, size_t size)
 		{
-			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
+			std::ofstream out_file{ ZipFilePath, std::ios_base::binary };
 			if (out_file)
 			{
 				out_file.write(data, size);
 
-				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
-				RLMAPS_IsDownloadingWorkshop = false;
+				cvarManager->log("Textures downloaded : " + ZipFilePath);
+				IsDownloading_WorkshopTextures = false;
 			}
 		});
 
 
-	while (RLMAPS_IsDownloadingWorkshop == true)
+	while (IsDownloading_WorkshopTextures)
 	{
-		cvarManager->log("downloading...............");
+		cvarManager->log("downloading textures.......");
 
-		RLMAPS_WorkshopDownload_Progress = RLMAPS_Download_Progress;
-		RLMAPS_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
+		DownloadTextrures_ProgressDisplayed = Download_Textrures_Progress;
 		Sleep(500);
 	}
+	
+
 
 	if (unzipMethod == "Bat")
 	{
-		CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
+		CreateUnzipBatchFile(RLCookedPCConsole_Path.string() + "\\mods", ZipFilePath);
 	}
 	else
 	{
-		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + ZipFilePath + " -DestinationPath " + RLCookedPCConsole_Path.string() + "\\mods";
 		system(extractCommand.c_str());
 	}
 
 
-	int checkTime = 0; //this isn't good but I don't care
-	while (UdkInDirectory(Workshop_Dl_Path) == "Null")
-	{
-		cvarManager->log("Extracting zip file");
-		if (checkTime > 10)
-		{
-			cvarManager->log("Failed extracting the map zip file");
-			return;
-		}
-		Sleep(1000);
-		checkTime++;
-	}
+	
 
 
-	cvarManager->log("File Extracted");*/
+	cvarManager->log("File Extracted");
 }
 
 
