@@ -1099,5 +1099,20 @@ void Pluginx64::DownloadWorkshopTextures()
 }
 
 
+std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
+{
+	std::vector<std::string> missingFiles;
+	for (auto textureFile : WorkshopTexturesFilesList)
+	{
+		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + textureFile))
+		{
+			missingFiles.push_back(textureFile);
+		}
+	}
+
+	return missingFiles;
+}
+
+
 
 void Pluginx64::onUnload() {}

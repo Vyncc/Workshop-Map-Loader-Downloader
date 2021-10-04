@@ -64,6 +64,8 @@ public:
 
 	std::filesystem::path RLCookedPCConsole_Path;
 
+	std::vector<std::string> CheckExist_TexturesFiles();
+
 	void DownloadWorkshopTextures();
 	int Download_Textrures_Progress;
 	int DownloadTextrures_ProgressDisplayed;

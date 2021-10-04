@@ -266,6 +266,15 @@ void Pluginx64::Render()
 				{
 					ImGui::Text("Progress : %d", DownloadTextrures_ProgressDisplayed);
 				}
+				
+				std::vector<std::string> missingFiles = CheckExist_TexturesFiles();
+				if (missingFiles.size() > 0)
+				{
+					for (auto missingFile : missingFiles)
+					{
+						ImGui::Text(missingFile.c_str()); //je fais ca actuellement
+					}
+				}
 
 				if (ImGui::Button("Download"))
 				{
