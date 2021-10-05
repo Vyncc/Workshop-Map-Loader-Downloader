@@ -1385,15 +1385,28 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+	int widthResults = (Steam_MapResultList.size() * (190 + 80));
+	float windowWidth = ImGui::GetWindowWidth() - 21;
+	int nbOfLines = widthResults / windowWidth;
+	widthResults -= 80 * nbOfLines;
+	int widthOfOneResult;
+	int nbResultsPerLine = 1;
+
+	if (Steam_MapResultList.size() > 0)
+	{
+		widthOfOneResult = widthResults / Steam_MapResultList.size();
+		nbResultsPerLine = windowWidth / widthOfOneResult;
+		cvarManager->log("nbresultperline = " + std::to_string(widthOfOneResult));
+	}
 
 	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
-		if (LinesNb < 4)
+		if (LinesNb < nbResultsPerLine - 1)
 		{
 			Steam_RenderAResult(i, draw_list, mapspath);
 
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
 			LinesNb++;
 		}
 		else
@@ -1542,7 +1555,7 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 			RLMAPS_RenderAResult(i, draw_list, mapspath);
 
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
 			LinesNb++;
 		}
 		else
