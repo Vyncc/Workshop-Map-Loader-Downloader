@@ -9,8 +9,8 @@ struct Map
 {
 	std::filesystem::path Folder; //Map folder
 	std::filesystem::path UpkFile; //Map(.upk) in the map directory
-	std::filesystem::path ZipFile; //Map(.upk) in the map directory
-	std::string JsonFile; //.json file found in your map directory
+	std::filesystem::path ZipFile; //Map(.zip) in the map directory
+	std::string JsonFile; //.json file found in the map directory
 	std::shared_ptr<ImageWrapper> PreviewImage;
 	bool isPreviewImageLoaded;
 };
@@ -65,6 +65,8 @@ public:
 	std::filesystem::path RLCookedPCConsole_Path;
 
 	std::vector<std::string> CheckExist_TexturesFiles();
+	std::vector<std::filesystem::path> MapsAlreadyInCPCC; //CPCC = CookedPCConsole
+	bool MapWasAlreadyInCPCC(Map map);
 
 	void DownloadWorkshopTextures();
 	int Download_Textrures_Progress;

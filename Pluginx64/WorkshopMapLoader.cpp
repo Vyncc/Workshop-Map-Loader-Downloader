@@ -44,6 +44,12 @@ void Pluginx64::onLoad()
 	RLMAPS_Searching = false;
 	CurrentPage = 0; //starts at 0
 
+	for (const auto& file : fs::directory_iterator(RLCookedPCConsole_Path.string() + "\\mods"))
+	{
+		MapsAlreadyInCPCC.push_back(file.path());
+		cvarManager->log("Map already in cpcc : " + file.path().filename().string());
+	}
+
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
 		cvarManager->log("Workshop Maps Folder : " + GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(0));
@@ -1104,7 +1110,7 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 	std::vector<std::string> missingFiles;
 	for (auto textureFile : WorkshopTexturesFilesList)
 	{
-		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + textureFile))
+		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods\\" + textureFile))
 		{
 			missingFiles.push_back(textureFile);
 		}
@@ -1113,6 +1119,21 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 	return missingFiles;
 }
 
+bool Pluginx64::MapWasAlreadyInCPCC(Map map)
+{
+	for (auto item : MapsAlreadyInCPCC)
+	{
+		if (map.UpkFile.filename().string() == item.filename().string())
+		{
+			cvarManager->log(map.UpkFile.filename().string() + " : was already in mods");
+			return true;
+		}
+	}
+
+	cvarManager->log(map.UpkFile.filename().string() + " : wasn't in mods");
+	return false;
+
+}
 
 
 void Pluginx64::onUnload() {}
