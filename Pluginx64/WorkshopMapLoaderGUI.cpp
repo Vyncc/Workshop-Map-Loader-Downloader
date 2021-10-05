@@ -28,7 +28,7 @@ void Pluginx64::Render()
 
 
 
-	ImGui::SetNextWindowSizeConstraints(ImVec2(1320.f, 690.f), ImVec2(1920.f, 1080.f));
+	ImGui::SetNextWindowSizeConstraints(ImVec2(1326.f, 690.f), ImVec2(1920.f, 1080.f));
 
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_MenuBar))
 	{
@@ -1382,7 +1382,6 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 	int LinesNb = 0;
 	Steam_SearchWorkshopDisplayed = 0;
 
-
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 	int widthResults = (Steam_MapResultList.size() * (190 + 81));
@@ -1396,10 +1395,7 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 	{
 		widthOfOneResult = widthResults / Steam_MapResultList.size();
 		nbResultsPerLine = windowWidth / widthOfOneResult;
-		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
 	}
-
-	ImGui::Text("window width : %f", ImGui::GetContentRegionAvailWidth());
 
 	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
@@ -1549,16 +1545,16 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	int widthResults = (Steam_MapResultList.size() * (190 + 80));
-	float windowWidth = ImGui::GetWindowWidth() - 21;
+	int widthResults = (RLMAPS_MapResultList.size() * (190 + 81));
+	float windowWidth = ImGui::GetContentRegionAvailWidth();
 	int nbOfLines = widthResults / windowWidth;
-	widthResults -= 80 * nbOfLines;
+	widthResults -= 81 * nbOfLines;
 	int widthOfOneResult;
 	int nbResultsPerLine = 1;
 
-	if (Steam_MapResultList.size() > 0)
+	if (RLMAPS_MapResultList.size() > 0)
 	{
-		widthOfOneResult = widthResults / Steam_MapResultList.size();
+		widthOfOneResult = widthResults / RLMAPS_MapResultList.size();
 		nbResultsPerLine = windowWidth / widthOfOneResult;
 		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
 	}
@@ -1601,87 +1597,91 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 	//Popup if maps directory doesn't exist
 	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
-
-	ImGui::BeginGroup();
+	ImGui::BeginChild("##RlmapsResult", ImVec2(190.f, 260.f));
 	{
-		std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
-
-		ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-		ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
-		ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
-		ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
-
-		drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle
-		drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
-
-		if (mapResult.isImageLoaded == true)
+		ImGui::BeginGroup();
 		{
-			try
-			{
-				drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
-			}
-			catch (const std::exception& ex)
-			{
-				cvarManager->log(ex.what());
-			}
-		}
+			std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
 
-		std::string GoodMapName = mapName.substr(0, 29);
-		if (mapName.length() > 31)
-		{
-			GoodMapName.append("...");
-		}
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
-			std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
-		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
-		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
-		{
-			if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
+			ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
+			ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
+
+			drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle
+			drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
+
+			if (mapResult.isImageLoaded == true)
 			{
-				std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, mapspath, mapResult);
-				t2.detach();
-			}
-			else
-			{
-				if (!Directory_Or_File_Exists(fs::path(mapspath)))
+				try
 				{
-					ImGui::OpenPopup("Exists?");
+					drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
 				}
-
-				if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+				catch (const std::exception& ex)
 				{
-					ImGui::OpenPopup("Downloading?");
-				}
-			}
-		}
-		ImGui::EndGroup();
-
-		if (ImGui::IsItemHovered())
-		{
-			std::string GoodDescription = mapDescription;
-
-			if (mapDescription.length() > 150)
-			{
-				GoodDescription.insert(150, "\n");
-
-				if (mapDescription.length() > 280)
-				{
-					GoodDescription.erase(280);
-					GoodDescription.append("...");
+					cvarManager->log(ex.what());
 				}
 			}
 
+			std::string GoodMapName = mapName.substr(0, 29);
+			if (mapName.length() > 31)
+			{
+				GoodMapName.append("...");
+			}
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
+				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
+			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
+			if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
+			{
+				if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+				{
+					std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, mapspath, mapResult);
+					t2.detach();
+				}
+				else
+				{
+					if (!Directory_Or_File_Exists(fs::path(mapspath)))
+					{
+						ImGui::OpenPopup("Exists?");
+					}
 
-			ImGui::BeginTooltip();
-			ImGui::Text("Title : %s", mapName.c_str());
-			ImGui::Text("By : %s", mapAuthor.c_str());
-			ImGui::Text("Description : \n%s", GoodDescription.c_str());
-			ImGui::EndTooltip();
+					if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+					{
+						ImGui::OpenPopup("Downloading?");
+					}
+				}
+			}
+			ImGui::EndGroup();
+
+			if (ImGui::IsItemHovered())
+			{
+				std::string GoodDescription = mapDescription;
+
+				if (mapDescription.length() > 150)
+				{
+					GoodDescription.insert(150, "\n");
+
+					if (mapDescription.length() > 280)
+					{
+						GoodDescription.erase(280);
+						GoodDescription.append("...");
+					}
+				}
+
+
+				ImGui::BeginTooltip();
+				ImGui::Text("Title : %s", mapName.c_str());
+				ImGui::Text("By : %s", mapAuthor.c_str());
+				ImGui::Text("Description : \n%s", GoodDescription.c_str());
+				ImGui::EndTooltip();
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
+		ImGui::EndChild();
 	}
+	
 }
 
 
