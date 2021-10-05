@@ -1385,10 +1385,10 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	int widthResults = (Steam_MapResultList.size() * (190 + 80));
-	float windowWidth = ImGui::GetWindowWidth() - 21;
+	int widthResults = (Steam_MapResultList.size() * (190 + 81));
+	float windowWidth = ImGui::GetContentRegionAvailWidth();
 	int nbOfLines = widthResults / windowWidth;
-	widthResults -= 80 * nbOfLines;
+	widthResults -= 81 * nbOfLines;
 	int widthOfOneResult;
 	int nbResultsPerLine = 1;
 
@@ -1398,6 +1398,8 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 		nbResultsPerLine = windowWidth / widthOfOneResult;
 		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
 	}
+
+	ImGui::Text("window width : %f", ImGui::GetContentRegionAvailWidth());
 
 	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
