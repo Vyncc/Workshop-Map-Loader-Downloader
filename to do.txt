@@ -5,19 +5,12 @@ faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on cho
 avant de publier la maj, faut que je change le changelog dans le plugin (lastUpdate)
 			 faut que je fasse les traductions
 
-
-JE SUIS EN TRAIN DE FAIRE EN SORTE DE FAIRE APPARAITRE LA POPUP DOWNLOADTEXTURES QUAND JAPPUIE SUR REFRESH MAPS
-
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si on veut vraiment la télécharger
 
-quand on refresh une map ca verifie si on a les textures si non popup pour les télécgarger
-
 changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
-
-faut que je fasse pareil (failed extracting files, dans les fonctions download) que ce que j'ai fais pour rlmaps et steam
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
@@ -27,13 +20,19 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 
 si je detecte que ya beaucoup de resultats dans une recherche je mets une popup qui dit de ne pas bouger la souris pour eviter de faire crash le jeu
 
-dans StartSearchRequest, je peux utiliser json cpp pour récupérer les infos dedans au lieu de le faire avec la fonction dégueulace que j'ai fait
+j'ai envie de faire mon plugin responsive
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
 
 /faut que je récupere le CookedPCConsole
+
+/dans StartSearchRequest, je peux utiliser json cpp pour récupérer les infos dedans au lieu de le faire avec la fonction dégueulace que j'ai fait
+
+/faut que je fasse pareil (failed extracting files, dans les fonctions download) que ce que j'ai fais pour rlmaps et steam
+
+/quand on refresh une map ca verifie si on a les textures si non popup pour les télécgarger
 
 /quand on refresh maps, quand ya une map qui est pas extract ya une popup qui s'affiche en disant est ce que vous voulez extract la map avec un bouton batch file et un boutton powershell,
 /pareil quand le maps folder est vide, faut que je change quand ya empty folder faut que je mette curMap.UPKFile = "EmptyFolder";

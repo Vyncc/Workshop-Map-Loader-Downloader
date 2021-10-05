@@ -444,7 +444,7 @@ void Pluginx64::Render()
 				ImGui::Separator();
 
 				std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSize));
-				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorPos(), ImVec2(1305.f, 24.f),
 								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
 
@@ -454,12 +454,12 @@ void Pluginx64::Render()
 			ImGui::Text("percent : %f", ProgressPercent);
 			*/
 
-			/*
+			
 			ImGui::Separator();
 			
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
-			*/
+			
 			
 
 			ImGui::Separator();
@@ -654,25 +654,6 @@ void Pluginx64::Render()
 }
 
 
-void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
-{
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	float windowWidth = ImGui::GetWindowWidth();
-	auto textWidth = ImGui::CalcTextSize(label).x;
-	float percent = ((value * 100) / maxValue) / 100.f;
-
-	ImGui::BeginChild("##ProgessBar", size);
-	{
-		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 15.f, 15.f);
-		if (value != 0)
-		{
-			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 15.f, 15.f);
-		}
-		draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + 5.f), ImColor(255, 255, 255, 255), label);
-
-		ImGui::EndChild();
-	}
-}
 
 
 
@@ -887,6 +868,27 @@ void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
 	auto windowWidth = ImGui::GetWindowSize().x;
 	float totalWidth = itemWidth + borderGap;
 	ImGui::SetCursorPosX(windowWidth - totalWidth);
+}
+
+
+void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
+{
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	float windowWidth = ImGui::GetWindowWidth();
+	auto textWidth = ImGui::CalcTextSize(label).x;
+	float percent = ((value * 100) / maxValue) / 100.f;
+
+	ImGui::BeginChild("##ProgessBar", size);
+	{
+		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 15.f, 15.f);
+		if (value != 0)
+		{
+			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 15.f, 15.f);
+		}
+		draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + 5.f), ImColor(255, 255, 255, 255), label);
+
+		ImGui::EndChild();
+	}
 }
 
 
@@ -1325,7 +1327,7 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			float height = ((missingTextureFiles.size() - 1) * 21) + 60;
 
 			CenterNexIMGUItItem(250.f);
-			ImGui::BeginChild("##test", ImVec2(250.f, height), true);
+			ImGui::BeginChild("##MissingFilesTable", ImVec2(250.f, height), true);
 			{
 				CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
 				ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
@@ -1388,20 +1390,17 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 	{
 		if (LinesNb < 4)
 		{
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
 			Steam_RenderAResult(i, draw_list, mapspath);
 
-			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results
 			LinesNb++;
 		}
 		else
 		{
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
 			Steam_RenderAResult(i, draw_list, mapspath);
 
-			ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
+			ImGui::NewLine();
 			LinesNb = 0;
 		}
 			
@@ -1427,94 +1426,103 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 	//Popup if maps directory doesn't exist
 	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
-
-	ImGui::BeginGroup();
+	ImGui::BeginChild("##SteamResult", ImVec2(190.f, 260.f));
 	{
-		std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
-
-		ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-		ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
-		ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
-		ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
-
-		drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle result
-		drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
-
-		if (mapResult.isImageLoaded == true)
+		ImGui::BeginGroup();
 		{
-			drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
-		}
+			std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
 
-		std::string GoodMapName = mapName.substr(0, 29);
-		if (mapName.length() > 31)
-		{
-			GoodMapName.append("...");
-		}
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
-		drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
-			std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
-		ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
-		if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"
-		{
-			if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
+			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
+			ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
+			ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
+
+			drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle result
+			drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
+
+			if (mapResult.isImageLoaded == true)
 			{
-				std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
-				t2.detach();
-			}
-			else
-			{
-				if (!Directory_Or_File_Exists(fs::path(mapspath)))
+				try
 				{
-					ImGui::OpenPopup("Exists?");
+					drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
 				}
-
-				if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+				catch (const std::exception& ex)
 				{
-					ImGui::OpenPopup("Downloading?");
-				}
-			}
-		}
-		ImGui::EndGroup();
-
-		if (ImGui::IsItemHovered())
-		{
-			std::string GoodDescription = mapDescription;
-
-			if (mapDescription.length() > 150)
-			{
-				GoodDescription.insert(150, "\n");
-
-				if (mapDescription.length() > 280)
-				{
-					GoodDescription.erase(280);
-					GoodDescription.append("...");
+					cvarManager->log(ex.what());
 				}
 			}
 
-
-			ImGui::BeginTooltip();
-			ImGui::Text("Title : %s", mapName.c_str());
-			ImGui::Text(SizeConverted.c_str());
-			ImGui::Text("By : %s", mapAuthor.c_str());
-			ImGui::Text("Description : \n%s", GoodDescription.c_str());
-			ImGui::EndTooltip();
-		}
-		if (ImGui::BeginPopupContextItem("SearchResult context menu"))
-		{
-			if (ImGui::Selectable(GoToUrlSelectableText.c_str())) // "go to url"
+			std::string GoodMapName = mapName.substr(0, 29);
+			if (mapName.length() > 31)
 			{
-				std::wstring w_Workshop_URL = s2ws("https://steamcommunity.com/sharedfiles/filedetails/?id=" + mapID);
-				LPCWSTR L_URL = w_Workshop_URL.c_str();
-				ShellExecute(NULL, L"open", L_URL, NULL, NULL, SW_SHOWNORMAL); //open web browser at workshop url
+				GoodMapName.append("...");
 			}
-			ImGui::EndPopup();
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
+				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
+			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
+			if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"
+			{
+				if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+				{
+					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
+					t2.detach();
+				}
+				else
+				{
+					if (!Directory_Or_File_Exists(fs::path(mapspath)))
+					{
+						ImGui::OpenPopup("Exists?");
+					}
+
+					if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+					{
+						ImGui::OpenPopup("Downloading?");
+					}
+				}
+			}
+			ImGui::EndGroup();
+
+			if (ImGui::IsItemHovered())
+			{
+				std::string GoodDescription = mapDescription;
+
+				if (mapDescription.length() > 150)
+				{
+					GoodDescription.insert(150, "\n");
+
+					if (mapDescription.length() > 280)
+					{
+						GoodDescription.erase(280);
+						GoodDescription.append("...");
+					}
+				}
+
+
+				ImGui::BeginTooltip();
+				ImGui::Text("Title : %s", mapName.c_str());
+				ImGui::Text(SizeConverted.c_str());
+				ImGui::Text("By : %s", mapAuthor.c_str());
+				ImGui::Text("Description : \n%s", GoodDescription.c_str());
+				ImGui::EndTooltip();
+			}
+			if (ImGui::BeginPopupContextItem("SearchResult context menu"))
+			{
+				if (ImGui::Selectable(GoToUrlSelectableText.c_str())) // "go to url"
+				{
+					std::wstring w_Workshop_URL = s2ws("https://steamcommunity.com/sharedfiles/filedetails/?id=" + mapID);
+					LPCWSTR L_URL = w_Workshop_URL.c_str();
+					ShellExecute(NULL, L"open", L_URL, NULL, NULL, SW_SHOWNORMAL); //open web browser at workshop url
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
+		ImGui::EndChild();
 	}
+	
 }
-
-
 
 
 
@@ -1531,20 +1539,17 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 	{
 		if (LinesNb < 4)
 		{
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
 			RLMAPS_RenderAResult(i, draw_list, mapspath);
 
-			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 270.f, TopCornerLeft.y)); //set the cursor next to the result item, the float is the spacing
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results
 			LinesNb++;
 		}
 		else
 		{
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-
 			RLMAPS_RenderAResult(i, draw_list, mapspath);
 
-			ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, TopCornerLeft.y + 280.f)); //set the cursor to a new line, the float is the spacing
+			ImGui::NewLine();
 			LinesNb = 0;
 		}
 
@@ -1578,12 +1583,19 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 		ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
 		ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
 
-		drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle result
+		drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle
 		drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
 
 		if (mapResult.isImageLoaded == true)
 		{
-			drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+			try
+			{
+				drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log(ex.what());
+			}
 		}
 
 		std::string GoodMapName = mapName.substr(0, 29);
