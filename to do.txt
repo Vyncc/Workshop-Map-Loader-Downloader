@@ -25,7 +25,6 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 
 si je detecte que ya beaucoup de resultats dans une recherche je mets une popup qui dit de ne pas bouger la souris pour eviter de faire crash le jeu
 
-
 dans StartSearchRequest, je peux utiliser json cpp pour récupérer les infos dedans au lieu de le faire avec la fonction dégueulace que j'ai fait
 
 faut que tri les fonctions et mettre bien en page le code

@@ -259,35 +259,8 @@ void Pluginx64::Render()
 				ImGui::OpenPopup("DownloadTextures");
 			}
 
-			if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("t as pas les texture frero, telecharges les");
-				if (IsDownloading_WorkshopTextures)
-				{
-					ImGui::Text("Progress : %d", DownloadTextrures_ProgressDisplayed);
-				}
-				
-				std::vector<std::string> missingFiles = CheckExist_TexturesFiles();
-				if (missingFiles.size() > 0)
-				{
-					for (auto missingFile : missingFiles)
-					{
-						ImGui::Text(missingFile.c_str()); //je fais ca actuellement
-					}
-				}
 
-				if (ImGui::Button("Download"))
-				{
-					std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
-					t2.detach();
-				}
-				if (ImGui::Button("Cancel"))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
+			
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
 
@@ -1314,6 +1287,40 @@ void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
 	}
 }
 
+void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles)
+{
+	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("t as pas les texture frero, telecharges les");
+		if (IsDownloading_WorkshopTextures)
+		{
+			std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
+			renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+				ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
+		}
+
+		if (missingTextureFiles.size() > 0)
+		{
+			for (auto missingFile : missingTextureFiles)
+			{
+				ImGui::Text(missingFile.c_str());
+			}
+		}
+
+		if (ImGui::Button("Download"))
+		{
+			std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
+			t2.detach();
+		}
+		if (ImGui::Button("Cancel"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
 
 void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 {
@@ -1715,6 +1722,8 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		MapList.push_back(map);
 		cvarManager->log("");
 	}
+
+
 }
 
 
@@ -1755,8 +1764,6 @@ void Pluginx64::OnOpen()
 {
 	isWindowOpen_ = true;
 
-
-	//RefreshMapsFunct();
 }
 
 // Called when window is closed

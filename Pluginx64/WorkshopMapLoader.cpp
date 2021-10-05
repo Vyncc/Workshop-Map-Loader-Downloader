@@ -1125,12 +1125,12 @@ bool Pluginx64::MapWasAlreadyInCPCC(Map map)
 	{
 		if (map.UpkFile.filename().string() == item.filename().string())
 		{
-			cvarManager->log(map.UpkFile.filename().string() + " : was already in mods");
+			//cvarManager->log(map.UpkFile.filename().string() + " : was already in mods");
 			return true;
 		}
 	}
 
-	cvarManager->log(map.UpkFile.filename().string() + " : wasn't in mods");
+	//cvarManager->log(map.UpkFile.filename().string() + " : wasn't in mods");
 	return false;
 
 }

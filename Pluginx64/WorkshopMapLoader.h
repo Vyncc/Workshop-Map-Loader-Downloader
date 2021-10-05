@@ -187,6 +187,7 @@ public:
 	void renderExtractMapFilesPopup(Map curMap);
 	void renderAcceptDownload();
 	void renderDownloadFailedPopup();
+	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 
 	void renderSortByCombos(std::string mostPopular_url);
 
