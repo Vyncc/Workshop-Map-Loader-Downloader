@@ -373,15 +373,21 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 			system(extractCommand.c_str());
 		}
 
+
+		int checkTime = 0; //this isn't good but I don't care
 		while (UdkInDirectory(Workshop_Dl_Path) == "Null")
 		{
 			cvarManager->log("Extracting zip file");
-			Sleep(10);
+			if (checkTime > 10)
+			{
+				cvarManager->log("Failed extracting the map zip file");
+				return;
+			}
+			Sleep(1000);
+			checkTime++;
 		}
 
-
 		cvarManager->log("File Extracted");
-
 
 		renameFileToUPK(Workshop_Dl_Path);
 	}

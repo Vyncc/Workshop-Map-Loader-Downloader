@@ -310,6 +310,17 @@ void Pluginx64::Render()
 
 			renderDownloadTexturesPopup(missingTexturesFiles);
 
+			if (IsDownloading_WorkshopTextures) //pas testé
+			{
+				ImGui::Separator();
+
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
+
+				ImGui::Separator();
+			}
+
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
 
@@ -1294,55 +1305,69 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 {
 	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
-		if (IsDownloading_WorkshopTextures)
+		if (missingTextureFiles.size())
 		{
-			ImGui::Separator();
-
-			std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
-			renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
-				ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
-
-			ImGui::Separator();
-		}
-
-		ImGui::NewLine();
-
-		float height = ((missingTextureFiles.size() - 1) * 21) + 60;
-
-		CenterNexIMGUItItem(250.f);
-		ImGui::BeginChild("##test", ImVec2(250.f, height), true);
-		{
-			CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
-			ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
-			ImGui::Separator();
-
-			if (missingTextureFiles.size() > 0)
+			ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
+			ImGui::Text("You can still play without the workshop textures but some maps will have some white/weird textures.");
+			if (IsDownloading_WorkshopTextures)
 			{
-				for (auto missingFile : missingTextureFiles)
-				{
-					CenterNexIMGUItItem(ImGui::CalcTextSize(missingFile.c_str()).x);
-					ImGui::Text(missingFile.c_str());
-					ImGui::Separator();
-				}
+				ImGui::Separator();
+
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
+
+				ImGui::Separator();
 			}
 
-			ImGui::EndChild();
-		}
+			ImGui::NewLine();
 
-		ImGui::NewLine();
+			float height = ((missingTextureFiles.size() - 1) * 21) + 60;
 
-		CenterNexIMGUItItem(208.f);
-		if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
-		{
-			std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
-			t2.detach();
+			CenterNexIMGUItItem(250.f);
+			ImGui::BeginChild("##test", ImVec2(250.f, height), true);
+			{
+				CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
+				ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
+				ImGui::Separator();
+
+				if (missingTextureFiles.size() > 0)
+				{
+					for (auto missingFile : missingTextureFiles)
+					{
+						CenterNexIMGUItItem(ImGui::CalcTextSize(missingFile.c_str()).x);
+						ImGui::Text(missingFile.c_str());
+						ImGui::Separator();
+					}
+				}
+
+				ImGui::EndChild();
+			}
+
+			ImGui::NewLine();
+
+			CenterNexIMGUItItem(208.f);
+			if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
+			{
+				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
+				t2.detach();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
 		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+		else
 		{
-			ImGui::CloseCurrentPopup();
+			ImGui::Text("Workshop textures installed !");
+			ImGui::NewLine();
+			CenterNexIMGUItItem(100.f);
+			if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
 		}
 
 		ImGui::EndPopup();
