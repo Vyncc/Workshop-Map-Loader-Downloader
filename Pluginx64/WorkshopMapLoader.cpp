@@ -1049,43 +1049,44 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 
 void Pluginx64::DownloadWorkshopTextures()
 {
-	
-	IsDownloading_WorkshopTextures = true;
-
-	cvarManager->log("Starting download : Workshop Textures");
-
-	//download
-	CurlRequest req;
-	req.url = "http://rocketleaguemaps.b-cdn.net/Textures/Textures.zip";
-	req.progress_function = [this](double file_size, double downloaded, ...)
-	{
-		//cvarManager->log("Download progress : " + std::to_string(downloaded));
-		Download_Textrures_Progress = downloaded;
-	};
-
 	std::string ZipFilePath = BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip";
-	HttpWrapper::SendCurlRequest(req, [this, ZipFilePath](int code, char* data, size_t size)
-		{
-			std::ofstream out_file{ ZipFilePath, std::ios_base::binary };
-			if (out_file)
-			{
-				out_file.write(data, size);
-
-				cvarManager->log("Textures downloaded : " + ZipFilePath);
-				IsDownloading_WorkshopTextures = false;
-			}
-		});
-
-
-	while (IsDownloading_WorkshopTextures)
-	{
-		cvarManager->log("downloading textures.......");
-
-		DownloadTextrures_ProgressDisplayed = Download_Textrures_Progress;
-		Sleep(500);
-	}
 	
+	if (!Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip")) //le if peut causer des problemes
+	{
+		IsDownloading_WorkshopTextures = true;
 
+		cvarManager->log("Starting download : Workshop Textures");
+
+		//download
+		CurlRequest req;
+		req.url = "http://rocketleaguemaps.b-cdn.net/Textures/Textures.zip";
+		req.progress_function = [this](double file_size, double downloaded, ...)
+		{
+			//cvarManager->log("Download progress : " + std::to_string(downloaded));
+			Download_Textrures_Progress = downloaded;
+		};
+
+		HttpWrapper::SendCurlRequest(req, [this, ZipFilePath](int code, char* data, size_t size)
+			{
+				std::ofstream out_file{ ZipFilePath, std::ios_base::binary };
+				if (out_file)
+				{
+					out_file.write(data, size);
+
+					cvarManager->log("Textures downloaded : " + ZipFilePath);
+					IsDownloading_WorkshopTextures = false;
+				}
+			});
+
+
+		while (IsDownloading_WorkshopTextures)
+		{
+			cvarManager->log("downloading textures.......");
+
+			DownloadTextrures_ProgressDisplayed = Download_Textrures_Progress;
+			Sleep(500);
+		}
+	}
 
 	if (unzipMethod == "Bat")
 	{
@@ -1096,10 +1097,6 @@ void Pluginx64::DownloadWorkshopTextures()
 		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + ZipFilePath + "' -DestinationPath '" + RLCookedPCConsole_Path.string() + "\\mods'";
 		system(extractCommand.c_str());
 	}
-
-
-	
-
 
 	cvarManager->log("File Extracted");
 }

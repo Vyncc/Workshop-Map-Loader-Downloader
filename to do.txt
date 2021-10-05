@@ -6,6 +6,8 @@ avant de publier la maj, faut que je change le changelog dans le plugin (lastUpd
 			 faut que je fasse les traductions
 
 
+JE SUIS EN TRAIN DE FAIRE EN SORTE DE FAIRE APPARAITRE LA POPUP DOWNLOADTEXTURES QUAND JAPPUIE SUR REFRESH MAPS
+
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 

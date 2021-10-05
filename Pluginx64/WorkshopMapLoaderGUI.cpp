@@ -254,14 +254,6 @@ void Pluginx64::Render()
 	{
 		if (ImGui::BeginTabItem(Tab1MapLoaderText.c_str())) // "Map Loader"
 		{
-			if (ImGui::Button("Test", ImVec2(100.f, 25.f)))
-			{
-				ImGui::OpenPopup("DownloadTextures");
-			}
-
-
-			
-
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.f);
 
 			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
@@ -288,11 +280,16 @@ void Pluginx64::Render()
 				if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\"))
 				{
 					SaveInCFG(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg", MapsFolderPathBuf, std::to_string(FR), unzipMethod, std::to_string(HasSeeNewUpdateAlert));
+					ImGui::OpenPopup("SavePath");
 				}
 			}
-			ImGui::CalcItemWidth();
+			renderInfoPopup("SavePath", "Path saved successfully !");
+
+			ImGui::CalcItemWidth(); //I think it's useless
 
 			ImGui::SameLine();
+
+			std::vector<std::string> missingTexturesFiles = CheckExist_TexturesFiles();
 
 			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(306.f, 32.f))) // "Refresh Maps"
 			{
@@ -303,9 +300,15 @@ void Pluginx64::Render()
 				else
 				{
 					RefreshMapsFunct(MapsFolderPathBuf);
+					if (missingTexturesFiles.size() > 0)
+					{
+						ImGui::OpenPopup("DownloadTextures");
+					}
 				}
 			}
 			renderInfoPopup("Exists?", DirNotExistText.c_str());
+
+			renderDownloadTexturesPopup(missingTexturesFiles);
 
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
@@ -1291,28 +1294,53 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 {
 	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("t as pas les texture frero, telecharges les");
+		ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
 		if (IsDownloading_WorkshopTextures)
 		{
+			ImGui::Separator();
+
 			std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
 			renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 				ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
+
+			ImGui::Separator();
 		}
 
-		if (missingTextureFiles.size() > 0)
+		ImGui::NewLine();
+
+		float height = ((missingTextureFiles.size() - 1) * 21) + 60;
+
+		CenterNexIMGUItItem(250.f);
+		ImGui::BeginChild("##test", ImVec2(250.f, height), true);
 		{
-			for (auto missingFile : missingTextureFiles)
+			CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
+			ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
+			ImGui::Separator();
+
+			if (missingTextureFiles.size() > 0)
 			{
-				ImGui::Text(missingFile.c_str());
+				for (auto missingFile : missingTextureFiles)
+				{
+					CenterNexIMGUItItem(ImGui::CalcTextSize(missingFile.c_str()).x);
+					ImGui::Text(missingFile.c_str());
+					ImGui::Separator();
+				}
 			}
+
+			ImGui::EndChild();
 		}
 
-		if (ImGui::Button("Download"))
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(208.f);
+		if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
 		{
 			std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
 			t2.detach();
 		}
-		if (ImGui::Button("Cancel"))
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
