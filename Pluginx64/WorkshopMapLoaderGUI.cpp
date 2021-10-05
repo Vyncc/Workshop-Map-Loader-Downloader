@@ -1163,7 +1163,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 		if (ImGui::Button("Powershell", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
-			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + curMap.ZipFile.string() + " -DestinationPath " + curMap.Folder.string() + "/";
+			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + curMap.ZipFile.string() + "' -DestinationPath '" + curMap.Folder.string() + "/'";
 			system(extractCommand.c_str());
 		}
 		ImGui::SameLine();

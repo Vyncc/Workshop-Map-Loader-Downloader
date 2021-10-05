@@ -363,7 +363,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		}
 		else
 		{
-			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
+			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + Folder_Path + "' -DestinationPath '" + Workshop_Dl_Path + "'";
 			system(extractCommand.c_str());
 		}
 
@@ -990,7 +990,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 	else
 	{
-		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + Folder_Path + " -DestinationPath " + Workshop_Dl_Path;
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + Folder_Path + "' -DestinationPath '" + Workshop_Dl_Path + "'";
 		system(extractCommand.c_str());
 	}
 
@@ -1087,7 +1087,7 @@ void Pluginx64::DownloadWorkshopTextures()
 	}
 	else
 	{
-		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath " + ZipFilePath + " -DestinationPath " + RLCookedPCConsole_Path.string() + "\\mods";
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + ZipFilePath + "' -DestinationPath '" + RLCookedPCConsole_Path.string() + "\\mods'";
 		system(extractCommand.c_str());
 	}
 
