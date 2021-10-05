@@ -28,7 +28,7 @@ void Pluginx64::Render()
 
 
 
-	ImGui::SetNextWindowSize(ImVec2(1320.f, 690.f));
+	ImGui::SetNextWindowSizeConstraints(ImVec2(1320.f, 690.f), ImVec2(1920.f, 1080.f));
 
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_MenuBar))
 	{
@@ -1396,7 +1396,7 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 	{
 		widthOfOneResult = widthResults / Steam_MapResultList.size();
 		nbResultsPerLine = windowWidth / widthOfOneResult;
-		cvarManager->log("nbresultperline = " + std::to_string(widthOfOneResult));
+		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
 	}
 
 	for (int i = 0; i < Steam_MapResultList.size(); i++)
@@ -1547,10 +1547,23 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+	int widthResults = (Steam_MapResultList.size() * (190 + 80));
+	float windowWidth = ImGui::GetWindowWidth() - 21;
+	int nbOfLines = widthResults / windowWidth;
+	widthResults -= 80 * nbOfLines;
+	int widthOfOneResult;
+	int nbResultsPerLine = 1;
+
+	if (Steam_MapResultList.size() > 0)
+	{
+		widthOfOneResult = widthResults / Steam_MapResultList.size();
+		nbResultsPerLine = windowWidth / widthOfOneResult;
+		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
+	}
 
 	for (int i = 0; i < RLMAPS_MapResultList.size(); i++)
 	{
-		if (LinesNb < 4)
+		if (LinesNb < nbResultsPerLine - 1)
 		{
 			RLMAPS_RenderAResult(i, draw_list, mapspath);
 
