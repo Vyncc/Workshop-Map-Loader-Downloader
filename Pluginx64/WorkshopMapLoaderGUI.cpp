@@ -1081,7 +1081,6 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 
 		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
-		bool upkMapFileExisted = true;
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
 			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
@@ -1090,7 +1089,6 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-			upkMapFileExisted = false;
 
 			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?\n/!\\You need to restart the game begore to be able to join the server !").c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
