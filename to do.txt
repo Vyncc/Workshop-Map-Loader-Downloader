@@ -22,7 +22,7 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 
 si je detecte que ya beaucoup de resultats dans une recherche je mets une popup qui dit de ne pas bouger la souris pour eviter de faire crash le jeu
 
-j'ai envie de faire mon plugin responsive
+j'ai envie de faire mon plugin responsive, faire pour le texte des descriptions des maps
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

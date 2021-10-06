@@ -1068,13 +1068,17 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
 		{
+			//ImGui::OpenPopup("HostGame");
+			
 			gameWrapper->Execute([&, curMap](GameWrapper* gw)
 				{
 					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
 				});
 			ImGui::CloseCurrentPopup();
 		}
+
+		//renderHostGamePopup();
 
 
 		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
@@ -1158,6 +1162,38 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		{
 			ImGui::CloseCurrentPopup();
 		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderHostGamePopup()
+{
+	if (ImGui::BeginPopupModal("HostGame", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Mutators :");
+		ImGui::NewLine();
+		
+
+		for (auto& mutator : mutators)
+		{
+			cvarManager->log(std::to_string(mutator.selectedValue));
+			//const char* selectedItem = 
+			if (ImGui::BeginCombo(mutator.Name.c_str(), mutator.DisplayNames.at(mutator.selectedValue).c_str()))
+			{
+				for (auto& displayName : mutator.DisplayNames)
+				{
+					if (ImGui::Selectable(displayName.c_str()))
+					{
+						int index = std::find(mutator.DisplayNames.begin(), mutator.DisplayNames.end(), displayName) - mutator.DisplayNames.begin();
+						cvarManager->log("index : " + std::to_string(index));
+						mutator.selectedValue = 1;
+					}
+				}
+				ImGui::EndCombo();
+			}
+		}
+
+
 		ImGui::EndPopup();
 	}
 }

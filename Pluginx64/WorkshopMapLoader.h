@@ -43,6 +43,13 @@ struct RLMAPS_MapResult
 	bool isImageLoaded;
 };
 
+struct Mutator
+{
+	std::string Name;
+	int selectedValue;
+	std::vector<std::string> DisplayNames;
+	std::vector<std::string> Values;
+};
 
 
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
@@ -59,6 +66,15 @@ public:
 		"EditorLandscapeResources.upk", "EditorMaterials.upk", "EditorMeshes.upk", "EditorResources.upk", "Engine_MI_Shaders.upk", "EngineBuildings.upk", "EngineDebugMaterials.upk",
 		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
 	};
+
+	std::vector<Mutator> mutators =
+	{
+		{"Free Play", 0, {"Enable Freeplay", "Disable Freeplay"}, {"", "FreePlay"}},
+		{"Match Duration", 0, {"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"}, {"", "10Minutes",  "20Minutes",  "UnlimitedTime"}}
+	};
+
+
+	const char* items[11] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIIIIII", "JJJJ", "KKKKKKK" };
 
 	bool IsDownloading_WorkshopTextures;
 
@@ -190,6 +206,8 @@ public:
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 
 	void renderSortByCombos(std::string mostPopular_url);
+	
+	void renderHostGamePopup();
 
 	void Render() override;
 	void renderMaps();
