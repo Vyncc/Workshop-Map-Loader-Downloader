@@ -377,8 +377,15 @@ void Pluginx64::Render()
 			ImGui::SameLine();
 
 
-			CenterNexIMGUItItem(63.f);
-			ImGui::Image(SteamLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //Steam Logo
+			try
+			{
+				CenterNexIMGUItItem(63.f);
+				ImGui::Image(SteamLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //Steam Logo
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log(ex.what());
+			}
 
 			ImGui::SameLine();
 
@@ -542,8 +549,15 @@ void Pluginx64::Render()
 
 			ImGui::SameLine();
 
-			CenterNexIMGUItItem(63.f);
-			ImGui::Image(RLMAPSLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //rocketleaguemaps.us Logo
+			try
+			{
+				CenterNexIMGUItItem(63.f);
+				ImGui::Image(RLMAPSLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //rocketleaguemaps.us Logo
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log(ex.what());
+			}
 
 			ImGui::SameLine();
 
