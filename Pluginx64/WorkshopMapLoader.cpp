@@ -11,7 +11,7 @@ namespace
 	char dummyChar;
 }
 
-std::string Mutator::GetSelectedValue()
+std::string GameSetting::GetSelectedValue()
 {
 	return Values[selectedValue];
 }

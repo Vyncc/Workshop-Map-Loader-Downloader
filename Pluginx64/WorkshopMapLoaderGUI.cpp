@@ -1172,27 +1172,57 @@ void Pluginx64::renderHostGamePopup()
 	{
 		ImGui::Text("Mutators :");
 		ImGui::NewLine();
+
+		ImGui::SliderInt("width", &widthTest, 100, 1920);
+		ImGui::SliderInt("height", &heightTest, 100, 1920);
+		
 		
 
-		for (auto& mutator : mutators)
+		ImGui::BeginChild("##gameSettings", ImVec2(widthTest, heightTest));
 		{
-			//cvarManager->log(std::to_string(mutator->selectedValue));
+			ImGui::Text("Game Mode :");
 
-			if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
+			if (ImGui::BeginCombo("GameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
 			{
-				for (auto& displayName : mutator->DisplayValuesNames)
+				for (auto& displayName : gameModes->DisplayValuesNames)
 				{
 					if (ImGui::Selectable(displayName.c_str()))
 					{
-						int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
+						int index = std::find(gameModes->DisplayValuesNames.begin(), gameModes->DisplayValuesNames.end(), displayName) - gameModes->DisplayValuesNames.begin();
 						//cvarManager->log("index : " + std::to_string(index));
-						mutator->selectedValue = index;
-						cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
+						gameModes->selectedValue = index;
+						cvarManager->log(gameModes->Name + " | Value : " + gameModes->GetSelectedValue());
 					}
 				}
 				ImGui::EndCombo();
 			}
+
+			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
+			{
+				for (auto& mutator : mutators)
+				{
+					//cvarManager->log(std::to_string(mutator->selectedValue));
+
+					if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
+					{
+						for (auto& displayName : mutator->DisplayValuesNames)
+						{
+							if (ImGui::Selectable(displayName.c_str()))
+							{
+								int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
+								//cvarManager->log("index : " + std::to_string(index));
+								mutator->selectedValue = index;
+								cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
+							}
+						}
+						ImGui::EndCombo();
+					}
+				}
+			}
+
+			ImGui::EndChild();
 		}
+		
 
 		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
 		{
