@@ -318,8 +318,8 @@ void Pluginx64::Render()
 			{
 				ImGui::Separator();
 
-				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
-				renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46900000));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46900000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 
 				ImGui::Separator();
@@ -1073,13 +1073,6 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
 		{
 			ImGui::OpenPopup("HostGame");
-			/*
-			gameWrapper->Execute([&, curMap](GameWrapper* gw)
-				{
-					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
-				});*/
-			//ImGui::CloseCurrentPopup();
 		}
 
 		renderHostGamePopup(curMap);
@@ -1087,33 +1080,33 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
 		{
-			ImGui::OpenPopup("JoinServerPopup");
+			ImGui::OpenPopup("JoinServer");
 		}
 
 
 		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
-			renderYesNoPopup("JoinServerPopup", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
+			renderYesNoPopup("JoinServer", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
 				fs::create_directory(modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
 
-			renderYesNoPopup("JoinServerPopup", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?\n/!\\You need to restart the game begore to be able to join the server !").c_str(), [this, modsDirPath, curMap]() {
+			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
 
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!MapWasAlreadyInCPCC(curMap))
 		{
-			renderInfoPopup("JoinServerPopup", "You need to restart Rocket Legaue first to be able to join a server on this map!");
+			renderInfoPopup("JoinServer", "You need to restart Rocket Legaue first to be able to join a server on this map!");
 		}
 		else
 		{
 			
-			if (ImGui::BeginPopupModal("JoinServerPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
 				ImGui::Text("IP :");
@@ -1239,6 +1232,14 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 								}
 							}
 							ImGui::EndCombo();
+						}
+					}
+
+					if (ImGui::Button("Reset Mutators"))
+					{
+						for (auto& mutator : mutators)
+						{
+							mutator->selectedValue = 0;
 						}
 					}
 
@@ -1456,8 +1457,8 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			{
 				ImGui::Separator();
 
-				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(44));
-				renderProgressBar(DownloadTextrures_ProgressDisplayed, 44.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46900000.f));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46900000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 
 				ImGui::Separator();

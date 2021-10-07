@@ -12,11 +12,12 @@ pour les results de rlmpas.us, faut que je change le design
 
 avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si on veut vraiment la télécharger
 
-changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, faut que fasse un json à la place
+sur les bouttons des maps, peut etre faire des genres de petits bouttons sur le coté en haut a droite (play(icone triangle vert), host server(icone serveur), join (icoene jsp)
 
-ajouter tous les mutators pour host multiplayer
 
 pouvoir ajouter un mot de passe pour le serveur
+
+44 MB quand on télécharge 
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
@@ -28,13 +29,15 @@ faut que je fasse un #define pour la taille des bouttons que j'utilise tout le t
 
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 
-si je detecte que ya beaucoup de resultats dans une recherche je mets une popup qui dit de ne pas bouger la souris pour eviter de faire crash le jeu
 
 j'ai envie de faire mon plugin responsive, faire pour le texte des descriptions des maps
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+
+/ajouter tous les mutators pour host multiplayer
 
 /faut que je récupere le CookedPCConsole
 
