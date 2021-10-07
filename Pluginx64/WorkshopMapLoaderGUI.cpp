@@ -17,6 +17,10 @@ const char* combo_selected_searchingType = "Maps";
 bool MostPopularSelected = false;
 
 
+float heightMutators = 35.f;
+float heightHostGamePopup = 194.f;
+
+
 void Pluginx64::Render()
 {
 	HANDLE clip; //ClipBoard to copy and paste
@@ -1168,21 +1172,25 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 void Pluginx64::renderHostGamePopup()
 {
+
+	//ImGui::SetNextWindowSize(ImVec2(428.f, 583.f));
 	if (ImGui::BeginPopupModal("HostGame", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("Mutators :");
-		ImGui::NewLine();
-
-		ImGui::SliderInt("width", &widthTest, 100, 1920);
-		ImGui::SliderInt("height", &heightTest, 100, 1920);
 		
-		
-
-		ImGui::BeginChild("##gameSettings", ImVec2(widthTest, heightTest));
+		ImGui::BeginChild("##gameSettings", ImVec2(500.f, heightHostGamePopup), true);
 		{
+			CenterNexIMGUItItem(ImGui::CalcTextSize("Game Settings :").x);
+			ImGui::Text("Game Settings :");
+			ImGui::NewLine();
+
+			/*
+			ImGui::SliderInt("width", &widthTest, 0, 1920);
+			ImGui::SliderInt("height", &heightTest, 0, 1920);
+			*/
+
 			ImGui::Text("Game Mode :");
 
-			if (ImGui::BeginCombo("GameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
+			if (ImGui::BeginCombo("##gameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
 			{
 				for (auto& displayName : gameModes->DisplayValuesNames)
 				{
@@ -1197,36 +1205,74 @@ void Pluginx64::renderHostGamePopup()
 				ImGui::EndCombo();
 			}
 
+			ImGui::Text("Number Of Players :");
+			if (ImGui::SliderInt("##nbPlayers", &nbPlayers, 2, 8, "%d players") && nbPlayers < 2)
+			{
+				nbPlayers = 6;
+			}
+
+			ImGui::Separator();
+			
+			
+
 			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
 			{
-				for (auto& mutator : mutators)
-				{
-					//cvarManager->log(std::to_string(mutator->selectedValue));
 
-					if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
+				ImGui::BeginChild("##mutators", ImVec2(widthTest, heightMutators));
+				{
+					heightMutators = 410.f;
+					heightHostGamePopup = 201.f + heightMutators;
+
+					for (auto& mutator : mutators)
 					{
-						for (auto& displayName : mutator->DisplayValuesNames)
+						//cvarManager->log(std::to_string(mutator->selectedValue));
+
+						if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
 						{
-							if (ImGui::Selectable(displayName.c_str()))
+							for (auto& displayName : mutator->DisplayValuesNames)
 							{
-								int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
-								//cvarManager->log("index : " + std::to_string(index));
-								mutator->selectedValue = index;
-								cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
+								if (ImGui::Selectable(displayName.c_str()))
+								{
+									int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
+									//cvarManager->log("index : " + std::to_string(index));
+									mutator->selectedValue = index;
+									cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
+								}
 							}
+							ImGui::EndCombo();
 						}
-						ImGui::EndCombo();
 					}
+
+					ImGui::EndChild();
 				}
+				
+			}
+			else
+			{
+				heightMutators = 35.f;
+				heightHostGamePopup = 197.f;
+			}
+			
+
+
+			ImGui::Separator();
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.f);
+
+			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			AlignRightNexIMGUItItem(100.f, 8.f);
+			if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
+			{
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndChild();
-		}
-		
-
-		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
 		}
 
 

@@ -63,6 +63,8 @@ public:
 	int widthTest;
 	int heightTest;
 
+	int nbPlayers = 2;
+
 	std::vector<std::string> WorkshopTexturesFilesList = 
 	{ 
 		"EditorLandscapeResources.upk", "EditorMaterials.upk", "EditorMeshes.upk", "EditorResources.upk", "Engine_MI_Shaders.upk", "EngineBuildings.upk", "EngineDebugMaterials.upk",
@@ -70,7 +72,7 @@ public:
 	};
 
 	std::shared_ptr<GameSetting> gameModes =
-		std::make_shared<GameSetting>(GameSetting({
+		std::make_shared<GameSetting>(GameSetting( {
 		"GameModes", 0,
 		{ "Soccar", "Hoops", "Snow Day", "Rumble", "Dropshot", "Heatseeker", "Gridiron" },
 		{ "TAGame.GameInfo_Soccar_TA", "TAGame.GameInfo_Basketball_TA", "TAGame.Gameinfo_Hockey_TA", "TAGame.GameInfo_Items_TA", "TAGame.GameInfo_Breakout_TA", "TAGame.GameInfo_GodBall_TA", "TAGame.GameInfo_Football_TA" }}));
