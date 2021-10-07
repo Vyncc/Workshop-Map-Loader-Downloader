@@ -11,6 +11,10 @@ namespace
 	char dummyChar;
 }
 
+std::string Mutator::GetSelectedValue()
+{
+	return Values[selectedValue];
+}
 
 std::wstring Pluginx64::s2ws(const std::string& s)
 {

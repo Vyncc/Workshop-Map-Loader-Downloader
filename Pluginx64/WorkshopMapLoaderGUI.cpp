@@ -1068,17 +1068,17 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
 		{
-			//ImGui::OpenPopup("HostGame");
-			
+			ImGui::OpenPopup("HostGame");
+			/*
 			gameWrapper->Execute([&, curMap](GameWrapper* gw)
 				{
 					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
 					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
-				});
-			ImGui::CloseCurrentPopup();
+				});*/
+			//ImGui::CloseCurrentPopup();
 		}
 
-		//renderHostGamePopup();
+		renderHostGamePopup();
 
 
 		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
@@ -1176,17 +1176,18 @@ void Pluginx64::renderHostGamePopup()
 
 		for (auto& mutator : mutators)
 		{
-			cvarManager->log(std::to_string(mutator.selectedValue));
-			//const char* selectedItem = 
-			if (ImGui::BeginCombo(mutator.Name.c_str(), mutator.DisplayNames.at(mutator.selectedValue).c_str()))
+			//cvarManager->log(std::to_string(mutator->selectedValue));
+
+			if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
 			{
-				for (auto& displayName : mutator.DisplayNames)
+				for (auto& displayName : mutator->DisplayValuesNames)
 				{
 					if (ImGui::Selectable(displayName.c_str()))
 					{
-						int index = std::find(mutator.DisplayNames.begin(), mutator.DisplayNames.end(), displayName) - mutator.DisplayNames.begin();
-						cvarManager->log("index : " + std::to_string(index));
-						mutator.selectedValue = 1;
+						int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
+						//cvarManager->log("index : " + std::to_string(index));
+						mutator->selectedValue = index;
+						cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
 					}
 				}
 				ImGui::EndCombo();

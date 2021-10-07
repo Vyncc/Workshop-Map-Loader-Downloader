@@ -46,9 +46,11 @@ struct RLMAPS_MapResult
 struct Mutator
 {
 	std::string Name;
-	int selectedValue;
-	std::vector<std::string> DisplayNames;
+	int selectedValue = 0;
+	std::vector<std::string> DisplayValuesNames;
 	std::vector<std::string> Values;
+
+	std::string GetSelectedValue();
 };
 
 
@@ -67,10 +69,11 @@ public:
 		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
 	};
 
-	std::vector<Mutator> mutators =
+
+	std::vector<std::shared_ptr<Mutator>> mutators = 
 	{
-		{"Free Play", 0, {"Enable Freeplay", "Disable Freeplay"}, {"", "FreePlay"}},
-		{"Match Duration", 0, {"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"}, {"", "10Minutes",  "20Minutes",  "UnlimitedTime"}}
+		std::make_shared<Mutator>(Mutator({ "Free Play", 0, {"Disable Freeplay", "Enable Freeplay"}, {"", "FreePlay"} })),
+		std::make_shared<Mutator>(Mutator({"Match Duration", 0, {"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"}, {"", "10Minutes",  "20Minutes",  "UnlimitedTime"}}))
 	};
 
 
