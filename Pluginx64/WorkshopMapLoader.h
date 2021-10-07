@@ -63,7 +63,7 @@ public:
 	int widthTest;
 	int heightTest;
 
-	int nbPlayers = 2;
+	int nbPlayers = 6;
 
 	std::vector<std::string> WorkshopTexturesFilesList = 
 	{ 

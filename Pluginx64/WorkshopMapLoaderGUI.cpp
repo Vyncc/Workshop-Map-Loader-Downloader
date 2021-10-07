@@ -1260,15 +1260,17 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 
 			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
 			{
-				/*
 				gameWrapper->Execute([&, curMap](GameWrapper* gw)
 				{
 					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+					//gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
 				});
-				ImGui::CloseCurrentPopup();*/
 
-				cvarManager->log("Mutators command : " + getMutatorsString());
+				cvarManager->log("Command : start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
+				
+
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::SameLine();
