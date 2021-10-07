@@ -1082,7 +1082,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 			//ImGui::CloseCurrentPopup();
 		}
 
-		renderHostGamePopup();
+		renderHostGamePopup(curMap);
 
 
 		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
@@ -1170,7 +1170,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 	}
 }
 
-void Pluginx64::renderHostGamePopup()
+void Pluginx64::renderHostGamePopup(Map curMap)
 {
 
 	//ImGui::SetNextWindowSize(ImVec2(428.f, 583.f));
@@ -1217,7 +1217,6 @@ void Pluginx64::renderHostGamePopup()
 
 			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
 			{
-
 				ImGui::BeginChild("##mutators", ImVec2(widthTest, heightMutators));
 				{
 					heightMutators = 410.f;
@@ -1261,7 +1260,15 @@ void Pluginx64::renderHostGamePopup()
 
 			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
 			{
-				ImGui::CloseCurrentPopup();
+				/*
+				gameWrapper->Execute([&, curMap](GameWrapper* gw)
+				{
+					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
+					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
+				});
+				ImGui::CloseCurrentPopup();*/
+
+				cvarManager->log("Mutators command : " + getMutators());
 			}
 
 			ImGui::SameLine();

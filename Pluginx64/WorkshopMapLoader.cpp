@@ -16,6 +16,26 @@ std::string GameSetting::GetSelectedValue()
 	return Values[selectedValue];
 }
 
+std::string Pluginx64::getMutators()
+{
+	std::string mutatorsCommandString = "";
+
+	for (auto mutator : mutators)
+	{
+		if (mutator->GetSelectedValue() != "")
+		{
+			mutatorsCommandString += mutator->GetSelectedValue() + ",";
+		}
+	}
+
+	if (mutatorsCommandString.back() == ',')
+	{
+		mutatorsCommandString = mutatorsCommandString.substr(0, mutatorsCommandString.size() - 1);
+	}
+
+	return mutatorsCommandString;
+}
+
 std::wstring Pluginx64::s2ws(const std::string& s)
 {
 	int len;

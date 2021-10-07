@@ -16,6 +16,8 @@ changer la maniere de prendre les valeurs dans le cfg et de save dans le cfg, fa
 
 ajouter tous les mutators pour host multiplayer
 
+pouvoir ajouter un mot de passe pour le serveur
+
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp

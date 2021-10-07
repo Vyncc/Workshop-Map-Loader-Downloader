@@ -71,6 +71,8 @@ public:
 		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
 	};
 
+	std::string getMutators();
+
 	std::shared_ptr<GameSetting> gameModes =
 		std::make_shared<GameSetting>(GameSetting( {
 		"GameModes", 0,
@@ -308,7 +310,7 @@ public:
 
 	void renderSortByCombos(std::string mostPopular_url);
 	
-	void renderHostGamePopup();
+	void renderHostGamePopup(Map curMap);
 
 	void Render() override;
 	void renderMaps();
