@@ -16,7 +16,7 @@ std::string GameSetting::GetSelectedValue()
 	return Values[selectedValue];
 }
 
-std::string Pluginx64::getMutators()
+std::string Pluginx64::getMutatorsString()
 {
 	std::string mutatorsCommandString = "";
 

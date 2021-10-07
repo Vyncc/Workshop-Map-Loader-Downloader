@@ -71,7 +71,7 @@ public:
 		"EngineMaterials.upk", "EngineResources.upk", "EngineVolumetrics.upk", "MapTemplateIndex.upk", "MapTemplates.upk", "mods.upk", "NodeBuddies.upk"
 	};
 
-	std::string getMutators();
+	std::string getMutatorsString();
 
 	std::shared_ptr<GameSetting> gameModes =
 		std::make_shared<GameSetting>(GameSetting( {

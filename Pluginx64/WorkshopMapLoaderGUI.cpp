@@ -1268,7 +1268,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 				});
 				ImGui::CloseCurrentPopup();*/
 
-				cvarManager->log("Mutators command : " + getMutators());
+				cvarManager->log("Mutators command : " + getMutatorsString());
 			}
 
 			ImGui::SameLine();
