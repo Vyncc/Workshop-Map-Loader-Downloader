@@ -72,8 +72,98 @@ public:
 
 	std::vector<std::shared_ptr<Mutator>> mutators = 
 	{
-		std::make_shared<Mutator>(Mutator({ "Free Play", 0, {"Disable Freeplay", "Enable Freeplay"}, {"", "FreePlay"} })),
-		std::make_shared<Mutator>(Mutator({"Match Duration", 0, {"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"}, {"", "10Minutes",  "20Minutes",  "UnlimitedTime"}}))
+		std::make_shared<Mutator>(Mutator( { 
+			"Free Play", 0,
+			{"Disable Freeplay", "Enable Freeplay"},
+			{"", "FreePlay"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Match Duration", 0, 
+			{"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"}, 
+			{"", "10Minutes",  "20Minutes",  "UnlimitedTime"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Max Score", 0, 
+			{"Default", "1 Goal", "3 Goals", "5 Goals", "7 Goals", "Unlimited"}, 
+			{"", "Max1", "Max3", "Max5", "Max7", "UnlimitedScore"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Overtime", 0, 
+			{"Unlimited", "+5 Max, First Score", "+5 Max, Random Team"}, 
+			{"", "Overtime5MinutesFirstScore", "Overtime5MinutesRandom"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Max Time Limit", 0, 
+			{"Default", "11 Minutes"}, 
+			{"", "MaxTime11Minutes"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Series Length", 0, 
+			{"Unlimited", "3 Games", "5 Games", "7 Games"}, 
+			{"", "3Games", "5Games", "7Games" } })),
+		std::make_shared<Mutator>(Mutator( {
+			"Game Speed", 0, 
+			{"Default", "Slo-mo", "Time Warp"}, 
+			{"", "SloMoGameSpeed", "SloMoDistanceBall"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Max Speed", 0, 
+			{"Default", "Slow", "Fast", "Super Fast"}, 
+			{"", "SlowBall", "FastBall", "SuperFastBall"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Type", 0, 
+			{"Default", "Cube", "Puck", "BasketBall", "BeachBall", "Anniversary", "HauntedBall"}, 
+			{"", "Ball_CubeBall", "Ball_Puck", "Ball_BasketBall", "Ball_BeachBall", "Ball_Anniversary", "Ball_Haunted"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Gravity", 0, 
+			{"Default", "Low", "High", "Super High"}, 
+			{"", "LowGravityBall", "HighGravityBall", "SuperGravityBall"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Physics", 0, 
+			{ "Default", "Light", "Heavy", "Super Light", "CurveBall", "Beach Ball Curve" }, 
+			{ "", "LightBall", "HeavyBall", "SuperLightBall", "MagnusBall", "MagnusBeachBall" } })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Size", 0, 
+			{ "Default", "Small", "Medium", "Large", "Gigantic"}, 
+			{"", "SmallBall", "MediumBall", "BigBall", "GiantBall"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Ball Bounciness", 0, 
+			{"Default", "Low", "High", "Super High"}, 
+			{"", "LowBounciness", "HighBounciness", "SuperBounciness"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Number Of Ball", 0, 
+			{"One", "Two", "Four", "Six"}, 
+			{"", "TwoBalls", "FourBalls", "SixBalls"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Boosts Amount", 0, 
+			{"Default", "No Boost",  "Unlimited", "Recharge (slow)", "Recharge (fast)"}, 
+			{"", "NoBooster", "UnlimitedBooster", "SlowRecharge",    "RapidRecharge"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Rumble", 0, 
+			{"None", "Default", "Slow", "Civilized", "Destruction Derby", "Spring Loaded", "Spikes Only", "Rugby", "Haunted Ball Beam", "Tactical Rumble"}, 
+			{"", "ItemsMode", "ItemsModeSlow", "ItemsModeBallManipulators", "ItemsModeCarManipulators", "ItemsModeSprings", "ItemsModeSpikes", "ItemsModeRugby", "ItemsModeHauntedBallBeam", "ItemsModeSelection"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Boost Strength", 0, 
+			{"1X", "1.5X", "2X", "10X"}, 
+			{"", "BoostMultiplier1_5x", "BoostMultiplier2x", "BoostMultiplier10x"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Gravity", 0, 
+			{"Default", "Low", "High", "Super High",   "Reverse"}, 
+			{"", "LowGravity", "HighGravity", "SuperGravity", "ReverseGravity"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Demolish", 0, 
+			{"Default", "Disabled", "Friendly Fire", "On Contact", "On Contact (FF)"}, 
+			{"", "NoDemolish", "DemolishAll", "AlwaysDemolishOpposing", "AlwaysDemolish"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Respawn Time", 0, 
+			{"3 Seconds", "2 Seconds", "1 Second", "Disable Goal Reset"}, 
+			{"", "TwoSecondsRespawn", "OneSecondsRespawn", "DisableGoalDelay"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Bot Loadouts", 0, 
+			{"Default", "Random"}, 
+			{"", "RandomizedBotLoadouts"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Audio", 0, 
+			{"Default", "Haunted"}, 
+			{"", "HauntedAudio"} })),
+		std::make_shared<Mutator>(Mutator( {
+			"Game Event", 0, 
+			{"Default", "Haunted", "Rugby"}, 
+			{"", "HauntedGameEventRules", "RugbyGameEventRules"} }))
 	};
 
 

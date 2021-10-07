@@ -4,6 +4,7 @@ faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on cho
 
 avant de publier la maj, faut que je change le changelog dans le plugin (lastUpdate)
 			 faut que je fasse les traductions
+			 faut que je change la version du plugin
 
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
@@ -17,6 +18,8 @@ ajouter tous les mutators pour host multiplayer
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
 pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
+
+ya #include <regex> dans .cpp je crois qu'il sert a rien
 
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 

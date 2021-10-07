@@ -1194,6 +1194,11 @@ void Pluginx64::renderHostGamePopup()
 			}
 		}
 
+		if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
 
 		ImGui::EndPopup();
 	}
