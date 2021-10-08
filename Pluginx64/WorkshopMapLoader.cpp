@@ -11,43 +11,6 @@ namespace
 	char dummyChar;
 }
 
-std::string GameSetting::GetSelectedValue()
-{
-	return Values[selectedValue];
-}
-
-std::string Pluginx64::getMutatorsCommandString()
-{
-	std::string mutatorsCommandString = "";
-
-	for (auto mutator : mutators)
-	{
-		if (mutator->GetSelectedValue() != "")
-		{
-			mutatorsCommandString += mutator->GetSelectedValue() + ",";
-		}
-	}
-
-	if (mutatorsCommandString.back() == ',')
-	{
-		mutatorsCommandString = mutatorsCommandString.substr(0, mutatorsCommandString.size() - 1);
-	}
-
-	return mutatorsCommandString;
-}
-
-std::wstring Pluginx64::s2ws(const std::string& s)
-{
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}
-
 
 void Pluginx64::onLoad()
 {
@@ -68,11 +31,26 @@ void Pluginx64::onLoad()
 	RLMAPS_Searching = false;
 	CurrentPage = 0; //starts at 0
 
-	for (const auto& file : fs::directory_iterator(RLCookedPCConsole_Path.string() + "\\mods"))
+	try
 	{
-		MapsAlreadyInCPCC.push_back(file.path());
-		cvarManager->log("Map already in cpcc : " + file.path().filename().string());
+		if (Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods"))
+		{
+			for (const auto& file : fs::directory_iterator(RLCookedPCConsole_Path.string() + "\\mods"))
+			{
+				MapsAlreadyInCPCC.push_back(file.path());
+				cvarManager->log("Map already in cpcc : " + file.path().filename().string());
+			}
+		}
+		else
+		{
+			cvarManager->log("The mods directory doesn't exist !");
+		}
 	}
+	catch (const std::exception& ex)
+	{
+		cvarManager->log("error : verifying MapsAlreadyInCPCC : " + std::string(ex.what()));
+	}
+	
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
@@ -109,8 +87,45 @@ void Pluginx64::onLoad()
 
 	strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 
-	//cvarManager->executeCommand("cl_settings_refreshplugins");
 	cvarManager->log("The bakkesmod path : " + BakkesmodPath);
+}
+
+
+std::string GameSetting::GetSelectedValue()
+{
+	return Values[selectedValue];
+}
+
+std::string Pluginx64::getMutatorsCommandString()
+{
+	std::string mutatorsCommandString = "";
+
+	for (auto mutator : mutators)
+	{
+		if (mutator->GetSelectedValue() != "")
+		{
+			mutatorsCommandString += mutator->GetSelectedValue() + ",";
+		}
+	}
+
+	if (mutatorsCommandString.back() == ',')
+	{
+		mutatorsCommandString = mutatorsCommandString.substr(0, mutatorsCommandString.size() - 1);
+	}
+
+	return mutatorsCommandString;
+}
+
+std::wstring Pluginx64::s2ws(const std::string& s)
+{
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	std::wstring r(buf);
+	delete[] buf;
+	return r;
 }
 
 
@@ -1120,11 +1135,11 @@ void Pluginx64::DownloadWorkshopTextures()
 
 	if (unzipMethod == "Bat")
 	{
-		CreateUnzipBatchFile(RLCookedPCConsole_Path.string() + "\\mods", ZipFilePath);
+		CreateUnzipBatchFile(RLCookedPCConsole_Path.string(), ZipFilePath);
 	}
 	else
 	{
-		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + ZipFilePath + "' -DestinationPath '" + RLCookedPCConsole_Path.string() + "\\mods'";
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + ZipFilePath + "' -DestinationPath '" + RLCookedPCConsole_Path.string() + "'";
 		system(extractCommand.c_str());
 	}
 
@@ -1137,7 +1152,7 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 	std::vector<std::string> missingFiles;
 	for (auto textureFile : WorkshopTexturesFilesList)
 	{
-		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods\\" + textureFile))
+		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\" + textureFile))
 		{
 			missingFiles.push_back(textureFile);
 		}

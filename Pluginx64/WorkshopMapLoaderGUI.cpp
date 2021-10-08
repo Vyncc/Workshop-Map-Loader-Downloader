@@ -314,17 +314,17 @@ void Pluginx64::Render()
 
 			renderDownloadTexturesPopup(missingTexturesFiles);
 
-			/*
+			
 			if (IsDownloading_WorkshopTextures) //pas testé
 			{
 				ImGui::Separator();
 
-				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46900000));
-				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46900000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46970000));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46970000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 
 				ImGui::Separator();
-			}*/
+			}
 
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
@@ -460,18 +460,12 @@ void Pluginx64::Render()
 								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
 
-
 			/*
-			float ProgressPercent = (100.f * STEAM_WorkshopDownload_ProgressString) / STEAM_WorkshopDownload_FileSizeString;
-			ImGui::Text("percent : %f", ProgressPercent);
-			*/
-
-			
 			ImGui::Separator();
 			
 			ImGui::SliderInt("width", &widthTest, -1920, 1920);
 			ImGui::SliderInt("height", &heightTest, -300, 300);
-			
+			*/
 			
 
 			ImGui::Separator();
@@ -1088,7 +1082,8 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
-			renderYesNoPopup("JoinServer", "The directory \"mods\" doesn't exist. Create it?", [this, modsDirPath]() {
+			std::string label = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
+			renderYesNoPopup("JoinServer", label.c_str(), [this, modsDirPath]() {
 				fs::create_directory(modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}

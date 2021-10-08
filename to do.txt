@@ -14,6 +14,7 @@ avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si o
 
 sur les bouttons des maps, peut etre faire des genres de petits bouttons sur le coté en haut a droite (play(icone triangle vert), host server(icone serveur), join (icoene jsp)
 
+FAUT QUE JE REGARDE, YA UN PROBLEME AVEC BROWSE MAPS DANS RLMAPS
 
 pouvoir ajouter un mot de passe pour le serveur
 
