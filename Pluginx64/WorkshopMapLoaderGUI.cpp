@@ -246,7 +246,7 @@ void Pluginx64::Render()
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing ;)");
-			ImGui::Text("Thanks to JetFox for help");
+			ImGui::Text("Thanks to JetFox for his help");
 
 			ImGui::EndMenu();
 		}
