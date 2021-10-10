@@ -633,12 +633,28 @@ void Pluginx64::Render()
 
 						ImGui::SameLine();
 
-						ImGui::Text("Current page : %d", CurrentPage + 1);
-						ImGui::SameLine();
-						ImGui::Text("nb total pages : %f", (float(NBOfMapsOnSite) / 30.f));
-						ImGui::SameLine();
+						
+						for (auto page : listBrowsePages())
+						{
+							std::string pageName = "Page " + std::to_string(page + 1);
+							if (page != CurrentPage)
+							{
+								if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)) && !RLMAPS_Searching)
+								{
+									CurrentPage = page;
+									std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 30);
+									t2.detach();
+								}
+								ImGui::SameLine();
+							}
+							else
+							{
+								ImGui::Text("Current page : %d", CurrentPage + 1);
+								ImGui::SameLine();
+							}
+						}
 
-						if (CurrentPage < (NBOfMapsOnSite / 30))
+						if (CurrentPage < (NBOfMapsOnSite / 30)) //(NBOfMapsOnSite / 30) is the number of pages
 						{
 							if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
 							{
@@ -647,7 +663,6 @@ void Pluginx64::Render()
 								t2.detach();
 							}
 						}
-						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
 
 						ImGui::EndGroup();
 					}
@@ -1363,6 +1378,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 	}
 }
 
+//https://gist.github.com/dougbinks/ef0962ef6ebe2cadae76c4e9f0586c69
 void Pluginx64::renderUnderLine(ImColor col_)
 {
 	ImVec2 min = ImGui::GetItemRectMin();

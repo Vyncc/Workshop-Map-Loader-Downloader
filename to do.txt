@@ -10,18 +10,14 @@ avant de publier la maj, faut que je change le changelog dans le plugin (lastUpd
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
-avant de dl une map regarder si on l'a deja, si oui ya une popup que demand si on veut vraiment la télécharger
 
-sur les bouttons des maps, peut etre faire des genres de petits bouttons sur le coté en haut a droite (play(icone triangle vert), host server(icone serveur), join (icoene jsp)
 
 FAUT QUE JE REGARDE, YA UN PROBLEME AVEC BROWSE MAPS DANS RLMAPS
 
 pouvoir ajouter un mot de passe pour le serveur
 
 
-dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
-pour les bouttons quand on choisit le launchmode, je vais mettre des images, genre multiplayer : image avec deux bonhommes, pour solo : un seul bonhomme, join server : jsp
 
 ya #include <regex> dans .cpp je crois qu'il sert a rien
 
@@ -30,7 +26,7 @@ faut que je fasse un #define pour la taille des bouttons que j'utilise tout le t
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 
 
-faut que je fix les bigs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
+faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

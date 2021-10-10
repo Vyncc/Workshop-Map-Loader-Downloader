@@ -263,6 +263,7 @@ public:
 	int GetNBOfMapsOnSite();
 	int CurrentPage;
 	int NBOfMapsOnSite;
+	std::vector<int> listBrowsePages();
 
 
 	//Related to download

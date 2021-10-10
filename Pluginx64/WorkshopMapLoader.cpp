@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "WorkshopMapLoader.h"
-#include <regex>
 
 
 BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.13", 0)
@@ -1195,6 +1194,21 @@ bool Pluginx64::MapWasAlreadyInCPCC(Map map)
 	//cvarManager->log(map.UpkFile.filename().string() + " : wasn't in mods");
 	return false;
 
+}
+
+std::vector<int> Pluginx64::listBrowsePages()
+{
+	std::vector<int> listPages;
+	int nbPages = (NBOfMapsOnSite / 30);
+
+	for (int i = 0; i <= nbPages; i++)
+	{
+		if (i >= (CurrentPage - 2) && i <= (CurrentPage + 2))
+		{
+			listPages.push_back(i);
+		}
+	}
+	return listPages;
 }
 
 
