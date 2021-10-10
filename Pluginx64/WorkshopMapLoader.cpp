@@ -30,6 +30,7 @@ void Pluginx64::onLoad()
 	RLMAPS_browsing = false;
 	RLMAPS_Searching = false;
 	CurrentPage = 0; //starts at 0
+	NBOfMapsOnSite = 0;
 
 	try
 	{
@@ -828,7 +829,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 
 		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
 		{
-			cvarManager->log(resultMapName);
+			cvarManager->log("Search on RLMAPS : " + resultMapName);
 
 			if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
 			{
@@ -870,6 +871,8 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 {
 	RLMAPS_Searching = true;
 	RLMAPS_MapResultList.clear();
+
+	NBOfMapsOnSite = GetNBOfMapsOnSite();
 
 	std::string request_url = rlmaps_offset_url + std::to_string(offset);
 	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
@@ -935,6 +938,23 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 	RLMAPS_Searching = false;
 }
 
+
+
+int Pluginx64::GetNBOfMapsOnSite()
+{
+	std::string request_url = rlmaps_url;
+	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+
+	reader.parse(request_response.text, actualJson);
+	const Json::Value maps = actualJson["body"];
+
+	cvarManager->log("total maps on site : " + std::to_string(maps.size()));
+	return maps.size();
+}
 
 void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult)
 {

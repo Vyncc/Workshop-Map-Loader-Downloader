@@ -18,7 +18,6 @@ FAUT QUE JE REGARDE, YA UN PROBLEME AVEC BROWSE MAPS DANS RLMAPS
 
 pouvoir ajouter un mot de passe pour le serveur
 
-44 MB quand on télécharge 
 
 dans le renderMaps() pour la good description, je puex changer la méthode en utilisant imgui::calctextsize, si la size va au dela de la window ca ajoute un retour ligne
 
@@ -31,7 +30,7 @@ faut que je fasse un #define pour la taille des bouttons que j'utilise tout le t
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 
 
-j'ai envie de faire mon plugin responsive, faire pour le texte des descriptions des maps
+faut que je fix les bigs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 
 faut que tri les fonctions et mettre bien en page le code
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

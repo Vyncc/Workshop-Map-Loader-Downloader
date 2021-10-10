@@ -564,7 +564,7 @@ void Pluginx64::Render()
 			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)) && !RLMAPS_Searching)
 			{
 				CurrentPage = 0;
-				std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
+				std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 30);
 				t2.detach();
 
 				RLMAPS_browsing = true;
@@ -626,20 +626,28 @@ void Pluginx64::Render()
 							if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
 							{
 								CurrentPage -= 1;
-								std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
+								std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 30);
 								t2.detach();
 							}
 						}
 
 						ImGui::SameLine();
 
-						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
-						if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
+						ImGui::Text("Current page : %d", CurrentPage + 1);
+						ImGui::SameLine();
+						ImGui::Text("nb total pages : %f", (float(NBOfMapsOnSite) / 30.f));
+						ImGui::SameLine();
+
+						if (CurrentPage < (NBOfMapsOnSite / 30))
 						{
-							CurrentPage++;
-							std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 20);
-							t2.detach();
+							if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
+							{
+								CurrentPage++;
+								std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 30);
+								t2.detach();
+							}
 						}
+						//faudra que je rajoute un if qui verifie si CurrentPage < nbTotalDePage
 
 						ImGui::EndGroup();
 					}
@@ -1089,10 +1097,8 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-
 			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
-
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!MapWasAlreadyInCPCC(curMap))
@@ -1101,7 +1107,6 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else
 		{
-			
 			if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);

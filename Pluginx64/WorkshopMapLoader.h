@@ -192,7 +192,6 @@ public:
 	};
 
 
-	const char* items[11] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIIIIII", "JJJJ", "KKKKKKK" };
 
 	bool IsDownloading_WorkshopTextures;
 
@@ -261,7 +260,9 @@ public:
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	void GetResults(std::string searchType, std::string keyWord);
 	void GetResultsBrowseMaps(int offset);
+	int GetNBOfMapsOnSite();
 	int CurrentPage;
+	int NBOfMapsOnSite;
 
 
 	//Related to download
