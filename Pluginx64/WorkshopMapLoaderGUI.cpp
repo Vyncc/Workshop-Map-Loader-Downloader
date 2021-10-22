@@ -233,6 +233,16 @@ void Pluginx64::Render()
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::Selectable("Open mods/ directory"))
+			{
+				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string() + "\\mods");
+				LPCWSTR L_modsDir = w_modsDir.c_str();
+
+				ShellExecute(NULL, L"open", L_modsDir, NULL, NULL, SW_SHOWDEFAULT);
+			}
+
+
+
 			ImGui::EndMenu();
 		}
 
@@ -454,9 +464,9 @@ void Pluginx64::Render()
 				*/
 
 				ImGui::Separator();
-
+				
 				std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSize));
-				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorPos(), ImVec2(1305.f, 24.f),
+				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
 

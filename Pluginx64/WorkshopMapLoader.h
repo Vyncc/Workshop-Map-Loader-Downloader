@@ -309,7 +309,7 @@ public:
 	//ImGui Functions
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13 | Made By Vync";
 
 	void renderUnderLine(ImColor col_);
 

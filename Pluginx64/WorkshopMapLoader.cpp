@@ -21,7 +21,6 @@ void Pluginx64::onLoad()
 
 	std::string SteamLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\steamlogo.png";
 	SteamLogoImage = std::make_shared<ImageWrapper>(SteamLogoPath, false, true);
-
 	std::string RLMAPSLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\rlmapslogo.png";
 	RLMAPSLogoImage = std::make_shared<ImageWrapper>(RLMAPSLogoPath, false, true);
 
@@ -79,7 +78,7 @@ void Pluginx64::onLoad()
 	else
 	{
 		cvarManager->log(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg : doesn't exist");
-		MapsFolderPath = "Ex : D:/Workshop Maps/";
+		MapsFolderPath = "The path of the maps folder";
 		FR = false;
 		unzipMethod = "Powershell";
 		HasSeeNewUpdateAlert = false;
