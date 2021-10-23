@@ -394,9 +394,7 @@ public:
 	std::string YESButtonText;
 	std::string NOButtonText;
 	std::string IsDownloadDingWarningText;
-	std::string ExtractMapFilesText;
-	std::string DownloadTexturesText;
-	std::string PathSavedText;
+	std::string PathSavedText;//jsp si jutilise
 
 	//LaunchMode
 	std::string LMLabel1Text;
@@ -408,4 +406,18 @@ public:
 	std::string GameModeText;
 	std::string NBOfPlayersText;
 	std::string HostGameText;
+
+	//ExtractMapFiles
+	std::string EMFMessageText1;
+	std::string EMFMessageText2;
+	std::string EMFStillDoesntWorkText;
+	//ExtractManually
+	std::string EMLabelText;
+
+	//Download Texutures
+	std::string DLTLabel1Text;
+	std::string DLTLabel2Text;
+	std::string DLTMissingFilesText;
+	std::string DLTTexturesInstalledText;
+	std::string CloseText;
 };

@@ -111,7 +111,21 @@ void Pluginx64::Render()
 		GameSettingsText = "Game Settings :";
 		GameModeText = "Game Mode :";
 		NBOfPlayersText = "Number Of Players :";
-		HostGameText = "Host";
+		HostGameText = "Host Game";
+
+		//ExtractMapFiles
+		EMFMessageText1 = "The map isn't extracted from ";
+		EMFMessageText2 = "\nChoose an extract method (you need to click on refresh maps after extracting) :";
+		EMFStillDoesntWorkText = "Still doesn't work";
+		//ExtractManually
+		EMLabelText = "If both of the extract methods didn't work, you need to extract the files manually of ";
+
+		//Download Texutures
+		DLTLabel1Text = "It seems like the workshop textures aren't installed in " + RLCookedPCConsole_Path.string();
+		DLTLabel2Text = "You can still play without the workshop textures but some maps will have some white/weird textures.";
+		DLTMissingFilesText = "Missing Files";
+		DLTTexturesInstalledText = "Workshop textures installed !";
+		CloseText = "Close";
 	}
 	else
 	{
@@ -186,6 +200,21 @@ void Pluginx64::Render()
 		GameModeText = "Mode De Jeu :";
 		NBOfPlayersText = "Nombre De Joueurs :";
 		HostGameText = "Heberger";
+
+		//ExtractMapFiles
+		EMFMessageText1 = "La map n'est pas extrait de ";
+		EMFMessageText2 = "\nChoisis une methode d'extraction (rafraichis les maps apres l'extraction) :";
+		EMFStillDoesntWorkText = "Ne fonctionne pas";
+		//ExtractManually
+		EMLabelText = "Si les deux methodes d'extraction n'ont pas fonctionne, tu dois extraire les fichiers manuellement de ";
+
+
+		//Download Texutures
+		DLTLabel1Text = "Les textures des workshops ne semblent pas etre installees dans " + RLCookedPCConsole_Path.string();
+		DLTLabel2Text = "Tu peux toujours jouer sans mais des maps auront des textures blanches/bizarres.";
+		DLTMissingFilesText = "Fichiers Manquants";
+		DLTTexturesInstalledText = "Textures des workshops installees!";
+		CloseText = "Fermer";
 	}
 
 
@@ -1402,7 +1431,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		ImGui::SameLine();
 
-		if (ImGui::Button(HostText.c_str(), ImVec2(200.f, 50.f)))
+		if (ImGui::Button(HostText.c_str(), ImVec2(200.f, 50.f))) //Host Multiplayer Server
 		{
 			ImGui::OpenPopup("HostGame");
 		}
@@ -1410,7 +1439,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		renderHostGamePopup(curMap);
 
 
-		if (ImGui::Button(JoinServerText.c_str(), ImVec2(200.f, 50.f)))
+		if (ImGui::Button(JoinServerText.c_str(), ImVec2(200.f, 50.f)))//Join Server
 		{
 			ImGui::OpenPopup("JoinServer");
 		}
@@ -1419,19 +1448,19 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
-			renderYesNoPopup("JoinServer", LMLabel1Text.c_str(), [this, modsDirPath]() {
+			renderYesNoPopup("JoinServer", LMLabel1Text.c_str(), [this, modsDirPath]() { //"There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
 				fs::create_directory(modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() {
+			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() { //" isn't in mods/. Paste the map to mods/ ?";
 				fs::copy(curMap.UpkFile, modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!MapWasAlreadyInCPCC(curMap))
 		{
-			renderInfoPopup("JoinServer", LMLabel3Text.c_str());
+			renderInfoPopup("JoinServer", LMLabel3Text.c_str());//"You need to restart Rocket Legaue first to be able to join a server on this map!";
 		}
 		else
 		{
@@ -1455,7 +1484,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 				CenterNexIMGUItItem(208.f);
 				ImGui::BeginGroup();
 				{
-					if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))
+					if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))//Join Server
 					{
 						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
 							{
@@ -1469,7 +1498,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 					ImGui::SameLine();
 
-					if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
+					if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))//Cancel
 					{
 						ImGui::CloseCurrentPopup();
 					}
@@ -1602,7 +1631,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 {
 	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		std::string message = "The map isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method (you need to click on refresh maps after extracting) :";
+		std::string message = EMFMessageText1 + curMap.ZipFile.filename().string() + EMFMessageText2; //The map isn't extracted from              \nChoose an extract method (you need to click on refresh maps after extracting) :
 		ImGui::Text(message.c_str());
 		ImGui::NewLine();
 
@@ -1621,14 +1650,14 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Still doesn't work", ImVec2(110.f, 25.f)))
+		if (ImGui::Button(EMFStillDoesntWorkText.c_str(), ImVec2(110.f, 25.f)))//"Still doesn't work"
 		{
 			ImGui::OpenPopup("ExtractManually");
 		}
 
 		if (ImGui::BeginPopupModal("ExtractManually", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			std::string txt = "If both of the extract methods didn't work, you need to extract the files manually of %s" + curMap.ZipFile.filename().string();
+			std::string txt = EMLabelText + curMap.ZipFile.filename().string(); //"If both of the extract methods didn't work, you need to extract the files manually of "
 			ImGui::Text(txt.c_str());
 			ImGui::Text("Tutorial : ");
 			ImGui::SameLine();
@@ -1680,7 +1709,7 @@ void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::
 		CenterNexIMGUItItem(208.f);
 		ImGui::BeginGroup();
 		{
-			if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
+			if (ImGui::Button(YESButtonText.c_str(), ImVec2(100.f, 25.f)))//YES
 			{
 				try
 				{
@@ -1695,7 +1724,7 @@ void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::
 
 			}
 			ImGui::SameLine();
-			if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
+			if (ImGui::Button(NOButtonText.c_str(), ImVec2(100.f, 25.f)))//NO
 			{
 				noFunc();
 			}
@@ -1751,8 +1780,8 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 	{
 		if (missingTextureFiles.size())
 		{
-			ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
-			ImGui::Text("You can still play without the workshop textures but some maps will have some white/weird textures.");
+			ImGui::Text(DLTLabel1Text.c_str());//"It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str()
+			ImGui::Text(DLTLabel2Text.c_str());//"You can still play without the workshop textures but some maps will have some white/weird textures."
 			if (IsDownloading_WorkshopTextures)
 			{
 				ImGui::Separator();
@@ -1771,8 +1800,9 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			CenterNexIMGUItItem(250.f);
 			ImGui::BeginChild("##MissingFilesTable", ImVec2(250.f, height), true);
 			{
-				CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
-				ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
+				std::string MissingFilesTxt = DLTMissingFilesText + "(" + std::to_string(missingTextureFiles.size()) + ") :";//"Missing Files :"
+				CenterNexIMGUItItem(ImGui::CalcTextSize(MissingFilesTxt.c_str()).x);//"Missing Files :"
+				ImGui::Text(MissingFilesTxt.c_str());//"Missing Files :"
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
 				ImGui::Separator();
 
@@ -1792,20 +1822,20 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			ImGui::NewLine();
 
 			CenterNexIMGUItItem(208.f);
-			if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
+			if (ImGui::Button(DownloadButtonText.c_str(), ImVec2(100.f, 25.f)))//"Download"
 			{
 				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
 				t2.detach();
 			}
 			ImGui::SameLine();
-			if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
+			if (ImGui::Button(CloseText.c_str(), ImVec2(100.f, 25.f)))//"Close"
 			{
 				ImGui::CloseCurrentPopup();
 			}
 		}
 		else
 		{
-			ImGui::Text("Workshop textures installed !");
+			ImGui::Text(DLTTexturesInstalledText.c_str());//"Workshop textures installed !"
 			ImGui::NewLine();
 			CenterNexIMGUItItem(100.f);
 			if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
