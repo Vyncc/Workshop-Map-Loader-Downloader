@@ -83,6 +83,8 @@ void Pluginx64::Render()
 		PeriodText[5] = "1 Year";
 		PeriodText[6] = "Since The Begining";
 
+		BrowseMapsText = "Browse Maps";
+
 		//3rd Tab
 		Tab3SearchWorkshopText = "Search Workshop(rocketleaguemaps.us)";
 
@@ -169,6 +171,8 @@ void Pluginx64::Render()
 		PeriodText[4] = "6 Mois";
 		PeriodText[5] = "1 An";
 		PeriodText[6] = "Depuis Le Debut";
+
+		BrowseMapsText = "Parcourir Les Maps";
 
 		//3rd Tab
 		Tab3SearchWorkshopText = "Rechercher Un Workshop(rocketleaguemaps.us)";
@@ -472,7 +476,7 @@ void Pluginx64::Render()
 				
 				ImGui::SameLine();
 
-				if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)) && !STEAM_Searching)
+				if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !STEAM_Searching)//Browse Maps
 				{
 					std::thread t2(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
 					t2.detach();
@@ -590,7 +594,7 @@ void Pluginx64::Render()
 					SearchButtonText = SearchingText;
 				}
 
-				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching) // "Search"
+				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching && std::string(keyWord) != "") // "Search"
 				{
 					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
 					t2.detach();
@@ -615,7 +619,7 @@ void Pluginx64::Render()
 			ImGui::SameLine();
 
 			AlignRightNexIMGUItItem(180.f, 8.f);
-			if (ImGui::Button("Browse Maps", ImVec2(180.f, 65.f)) && !RLMAPS_Searching)
+			if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !RLMAPS_Searching)//Browse Maps
 			{
 				CurrentPage = 0;
 				std::thread t2(&Pluginx64::GetResultsBrowseMaps, this, CurrentPage * 30);

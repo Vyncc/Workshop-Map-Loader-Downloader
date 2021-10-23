@@ -370,6 +370,7 @@ public:
 	std::string RetrievingFilesText;
 	std::string DownloadingText;
 	std::string WorkshopsFoundText;
+	std::string BrowseMapsText;
 
 	std::string PeriodText[8];
 	std::string SortByText[4];

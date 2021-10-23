@@ -844,6 +844,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 			result.isImageLoaded = resultisImageLoaded;
 
 			RLMAPS_MapResultList.push_back(result);
+			Sleep(20);
 		}
 	}
 
