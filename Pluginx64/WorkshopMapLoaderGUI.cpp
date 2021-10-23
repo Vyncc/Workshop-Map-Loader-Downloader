@@ -299,7 +299,6 @@ void Pluginx64::Render()
 			}
 			renderInfoPopup("SavePath", "Path saved successfully !");
 
-			ImGui::CalcItemWidth(); //I think it's useless
 
 			ImGui::SameLine();
 
@@ -324,8 +323,7 @@ void Pluginx64::Render()
 
 			renderDownloadTexturesPopup(missingTexturesFiles);
 
-			
-			if (IsDownloading_WorkshopTextures) //pas testé
+			if (IsDownloading_WorkshopTextures)
 			{
 				ImGui::Separator();
 
@@ -335,7 +333,6 @@ void Pluginx64::Render()
 
 				ImGui::Separator();
 			}
-
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
 
@@ -360,8 +357,6 @@ void Pluginx64::Render()
 
 			ImGui::Separator();
 
-
-
 			ImGui::BeginGroup();
 			{
 				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
@@ -385,12 +380,10 @@ void Pluginx64::Render()
 					STEAM_browsing = false;
 					MostPopularSelected = false;
 				}
-
 				ImGui::EndGroup();
 			}
 
 			ImGui::SameLine();
-
 
 			try
 			{
@@ -421,12 +414,9 @@ void Pluginx64::Render()
 					MostPopularSelected = true;
 					STEAM_browsing = true;
 				}
-
 				ImGui::EndGroup();
 			}
 			
-
-
 
 			if (FolderErrorBool)
 			{
@@ -458,25 +448,12 @@ void Pluginx64::Render()
 
 			if (STEAM_IsDownloadingWorkshop == true)
 			{
-				/*
-				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(STEAM_WorkshopDownload_ProgressString)).c_str(),
-					convertToMB(std::to_string(STEAM_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
-				*/
-
 				ImGui::Separator();
 				
 				std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSize));
 				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
 								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
 			}
-
-			/*
-			ImGui::Separator();
-			
-			ImGui::SliderInt("width", &widthTest, -1920, 1920);
-			ImGui::SliderInt("height", &heightTest, -300, 300);
-			*/
-			
 
 			ImGui::Separator();
 
@@ -604,11 +581,6 @@ void Pluginx64::Render()
 
 			if (RLMAPS_IsDownloadingWorkshop == true)
 			{
-				/*
-				ImGui::TextColored(ImVec4(0, 255, 0, 1), "%s %s / %s", DownloadingText.c_str(), convertToMB(std::to_string(RLMAPS_WorkshopDownload_ProgressString)).c_str(),
-					convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSizeString)).c_str()); // "Downloading : 0 MB / 0 MB"
-				*/
-
 				ImGui::Separator();
 
 				std::string ProgressBar_Label = convertToMB(std::to_string(RLMAPS_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSize));
@@ -894,14 +866,6 @@ void Pluginx64::renderMaps()
 }
 
 
-//https://stackoverflow.com/questions/64653747/how-to-center-align-text-horizontally
-void Pluginx64::TextCenter(std::string text) {
-	auto windowWidth = ImGui::GetWindowSize().x;
-	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
-
-	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-	ImGui::Text(text.c_str());
-}
 
 void Pluginx64::CenterNexIMGUItItem(float itemWidth)
 {

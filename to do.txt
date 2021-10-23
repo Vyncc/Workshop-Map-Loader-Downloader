@@ -70,3 +70,17 @@ Fait :
 /(quand j'appuie pour copier je crois que ca fais freeze le thread du jeu, donc peut etre tester de call la copy dans un thread)
 /si oui :
 /-on affiche les inputtext pour IP et PORT plus un boutton join
+
+
+
+
+
+
+
+			/*
+			ImGui::Separator();
+			
+			ImGui::SliderInt("width", &widthTest, -1920, 1920);
+			ImGui::SliderInt("height", &heightTest, -300, 300);
+			*/
+			
