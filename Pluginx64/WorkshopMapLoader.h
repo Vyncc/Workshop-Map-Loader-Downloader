@@ -352,6 +352,12 @@ public:
 	std::string OpenMapDirText;
 	std::string DeleteMapText;
 
+	//LauchMode Popup
+	std::string HostText;
+	std::string JoinServerText;
+	std::string CancelText;
+	
+
 
 	//2nd Tab
 	std::string Tab2SearchWorkshopText;
@@ -369,6 +375,9 @@ public:
 	std::string SortByText[4];
 
 
+	//3rd Tab
+	std::string Tab3SearchWorkshopText;
+
 	//Search Result
 	std::string ResultByText;
 	std::string ResultSizeText;
@@ -385,4 +394,18 @@ public:
 	std::string YESButtonText;
 	std::string NOButtonText;
 	std::string IsDownloadDingWarningText;
+	std::string ExtractMapFilesText;
+	std::string DownloadTexturesText;
+	std::string PathSavedText;
+
+	//LaunchMode
+	std::string LMLabel1Text;
+	std::string LMLabel2Text;
+	std::string LMLabel3Text;
+
+	//HostGame
+	std::string GameSettingsText;
+	std::string GameModeText;
+	std::string NBOfPlayersText;
+	std::string HostGameText;
 };

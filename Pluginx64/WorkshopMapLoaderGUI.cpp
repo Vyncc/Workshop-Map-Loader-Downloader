@@ -52,6 +52,11 @@ void Pluginx64::Render()
 		OpenMapDirText = "Open map directory";
 		DeleteMapText = "Delete map";
 
+		//LauchMode Popup
+		HostText = "Host Multiplayer Server";
+		JoinServerText = "Join server";
+		CancelText = "Cancel";
+
 		//2nd Tab
 		Tab2SearchWorkshopText = "Search Workshop(Steam)";
 		DlWorkshopByURLText = "Download Workshop By Url";
@@ -78,6 +83,9 @@ void Pluginx64::Render()
 		PeriodText[5] = "1 Year";
 		PeriodText[6] = "Since The Begining";
 
+		//3rd Tab
+		Tab3SearchWorkshopText = "Search Workshop(rocketleaguemaps.us)";
+
 		//Search Result
 		ResultByText = "By ";
 		ResultSizeText = "Size : ";
@@ -92,18 +100,35 @@ void Pluginx64::Render()
 		YESButtonText = "YES";
 		NOButtonText = "NO";
 		IsDownloadDingWarningText = "A download is already running !\nYou cannot download 2 workshops at the same time.";
+		PathSavedText = "Path saved successfully !";
+
+		//LaunchMode
+		LMLabel1Text = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
+		LMLabel2Text = " isn't in mods/. Paste the map to mods/ ?";
+		LMLabel3Text = "You need to restart Rocket Legaue first to be able to join a server on this map!";
+
+		//HostGame
+		GameSettingsText = "Game Settings :";
+		GameModeText = "Game Mode :";
+		NBOfPlayersText = "Number Of Players :";
+		HostGameText = "Host";
 	}
 	else
 	{
 		//1st Tab
 		Tab1MapLoaderText = "Charger Map";
-		Label1Text = "Mets le chemin du dossier ou se trouvent les maps :";
+		Label1Text = "Mets le chemin du dossier des maps :";
 		RefreshMapsButtonText = "Rafraichir Les Maps";
 		SavePathText = "Sauvegarder Le Chemin";
 
 		//context menu strip
 		OpenMapDirText = "Ouvrir le dossier de la map";
 		DeleteMapText = "Supprimer la map";
+
+		//LauchMode Popup
+		HostText = "Heberger Serveur Multijoueur";
+		JoinServerText = "Rejoindre Serveur";
+		CancelText = "Annuler";
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Rechercher Un Workshop(Steam)";
@@ -131,6 +156,9 @@ void Pluginx64::Render()
 		PeriodText[5] = "1 An";
 		PeriodText[6] = "Depuis Le Debut";
 
+		//3rd Tab
+		Tab3SearchWorkshopText = "Rechercher Un Workshop(rocketleaguemaps.us)";
+
 		//Search Result
 		ResultByText = "Par ";
 		ResultSizeText = "Taille : ";
@@ -145,6 +173,19 @@ void Pluginx64::Render()
 		YESButtonText = "OUI";
 		NOButtonText = "NON";
 		IsDownloadDingWarningText = "Un telechargement est deja en cours !\nTu ne peux pas telecharger 2 workshops en meme temps.";
+		PathSavedText = "Le chemin a ete sauvegarde !";
+
+
+		//LaunchMode
+		LMLabel1Text = "Il n'y a pas le de dossier \"mods\" dans " + RLCookedPCConsole_Path.string() + "\nCreer ce dossier ?";
+		LMLabel2Text = " n'est pas dans mods/. Copier la map dans mods/ ?";
+		LMLabel3Text = "Tu dois d'abord relancer Rocket League pour pouvoir rejoindre un serveur sur cette map!";
+
+		//HostGame
+		GameSettingsText = "Parametres :";
+		GameModeText = "Mode De Jeu :";
+		NBOfPlayersText = "Nombre De Joueurs :";
+		HostGameText = "Heberger";
 	}
 
 
@@ -294,7 +335,7 @@ void Pluginx64::Render()
 					ImGui::OpenPopup("SavePath");
 				}
 			}
-			renderInfoPopup("SavePath", "Path saved successfully !");
+			renderInfoPopup("SavePath", PathSavedText.c_str());
 
 
 			ImGui::SameLine();
@@ -488,7 +529,7 @@ void Pluginx64::Render()
 			ImGui::EndTabItem();
 		}
 
-		if (ImGui::BeginTabItem("Search Workshop(rocketleaguemaps.us)"))
+		if (ImGui::BeginTabItem(Tab3SearchWorkshopText.c_str()))
 		{
 			ImGui::BeginGroup();
 			{
@@ -1361,7 +1402,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
+		if (ImGui::Button(HostText.c_str(), ImVec2(200.f, 50.f)))
 		{
 			ImGui::OpenPopup("HostGame");
 		}
@@ -1369,7 +1410,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		renderHostGamePopup(curMap);
 
 
-		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
+		if (ImGui::Button(JoinServerText.c_str(), ImVec2(200.f, 50.f)))
 		{
 			ImGui::OpenPopup("JoinServer");
 		}
@@ -1378,20 +1419,19 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
 		if (!Directory_Or_File_Exists(modsDirPath))
 		{
-			std::string label = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
-			renderYesNoPopup("JoinServer", label.c_str(), [this, modsDirPath]() {
+			renderYesNoPopup("JoinServer", LMLabel1Text.c_str(), [this, modsDirPath]() {
 				fs::create_directory(modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
 		{
-			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
+			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() {
 				fs::copy(curMap.UpkFile, modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
 		else if (!MapWasAlreadyInCPCC(curMap))
 		{
-			renderInfoPopup("JoinServer", "You need to restart Rocket Legaue first to be able to join a server on this map!");
+			renderInfoPopup("JoinServer", LMLabel3Text.c_str());
 		}
 		else
 		{
@@ -1415,7 +1455,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 				CenterNexIMGUItItem(208.f);
 				ImGui::BeginGroup();
 				{
-					if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+					if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))
 					{
 						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
 							{
@@ -1429,7 +1469,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 					ImGui::SameLine();
 
-					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+					if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
 					{
 						ImGui::CloseCurrentPopup();
 					}
@@ -1444,7 +1484,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
+		if (ImGui::Button(CancelText.c_str(), ImVec2(200.f, 50.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
@@ -1458,10 +1498,10 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 	{
 		ImGui::BeginChild("##gameSettings", ImVec2(500.f, heightHostGamePopup), true);
 		{
-			CenterNexIMGUItItem(ImGui::CalcTextSize("Game Settings :").x);
-			ImGui::Text("Game Settings :");
+			CenterNexIMGUItItem(ImGui::CalcTextSize(GameSettingsText.c_str()).x); //Game Settings :
+			ImGui::Text(GameSettingsText.c_str()); //Game Settings :
 			ImGui::NewLine();
-			ImGui::Text("Game Mode :");
+			ImGui::Text(GameModeText.c_str()); //Game Mode :
 
 			if (ImGui::BeginCombo("##gameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
 			{
@@ -1478,7 +1518,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 				ImGui::EndCombo();
 			}
 
-			ImGui::Text("Number Of Players :");
+			ImGui::Text(NBOfPlayersText.c_str());
 			if (ImGui::SliderInt("##nbPlayers", &nbPlayers, 2, 8, "%d players") && nbPlayers < 2)
 			{
 				nbPlayers = 6;
@@ -1533,7 +1573,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.f);
 
-			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
+			if (ImGui::Button(HostGameText.c_str(), ImVec2(100.f, 30.f))) //Host Game
 			{
 				gameWrapper->Execute([&, curMap](GameWrapper* gw)
 					{
@@ -1548,7 +1588,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 			ImGui::SameLine();
 
 			AlignRightNexIMGUItItem(100.f, 8.f);
-			if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
+			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
 			{
 				ImGui::CloseCurrentPopup();
 			}
@@ -1613,7 +1653,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT); //open the map directory in file explorer
 			}
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
 			{
 				ImGui::CloseCurrentPopup();
 			}
@@ -1622,7 +1662,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 
 
 		CenterNexIMGUItItem(326.f);
-		if (ImGui::Button("Cancel", ImVec2(326.f, 25.f)))
+		if (ImGui::Button(CancelText.c_str(), ImVec2(326.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
