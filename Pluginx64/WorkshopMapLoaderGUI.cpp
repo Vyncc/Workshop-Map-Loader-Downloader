@@ -322,6 +322,12 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
+		if (ImGui::Selectable("Join Server", false, 0, ImVec2{ 63, 14 }))
+		{
+			ImGui::OpenPopup("JoinServer");
+		}
+		renderJoinServerPopup();
+
 		if (ImGui::BeginMenu("Credits"))
 		{
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
@@ -1468,51 +1474,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		}
 		else
 		{
-			if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
-				ImGui::Text("IP :");
-				ImGui::SameLine();
-				static char IP[200] = "";
-				ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-				ImGui::Text("PORT :");
-				ImGui::SameLine();
-				static char PORT[200] = "";
-				ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-				std::string str_IP = std::string(IP);
-				std::string str_PORT = std::string(PORT);
-
-
-				CenterNexIMGUItItem(208.f);
-				ImGui::BeginGroup();
-				{
-					if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))//Join Server
-					{
-						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-							{
-								cvarManager->log("IP : " + str_IP);
-								cvarManager->log("PORT : " + str_PORT);
-								gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
-							});
-
-						ImGui::CloseCurrentPopup();
-					}
-
-					ImGui::SameLine();
-
-					if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))//Cancel
-					{
-						ImGui::CloseCurrentPopup();
-					}
-
-					ImGui::EndGroup();
-				}
-				ImGui::EndPopup();
-			}
-
-
+			renderJoinServerPopup();
 		}
 
 		ImGui::SameLine();
@@ -1524,6 +1486,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 		ImGui::EndPopup();
 	}
 }
+
 
 void Pluginx64::renderHostGamePopup(Map curMap)
 {
@@ -1848,6 +1811,53 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			}
 		}
 
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderJoinServerPopup()
+{
+	if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
+		ImGui::Text("IP :");
+		ImGui::SameLine();
+		static char IP[200] = "";
+		ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+
+		ImGui::Text("PORT :");
+		ImGui::SameLine();
+		static char PORT[200] = "";
+		ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+		std::string str_IP = std::string(IP);
+		std::string str_PORT = std::string(PORT);
+
+
+		CenterNexIMGUItItem(208.f);
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))//Join Server
+			{
+				gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+					{
+						cvarManager->log("IP : " + str_IP);
+						cvarManager->log("PORT : " + str_PORT);
+						gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
+					});
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))//Cancel
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndGroup();
+		}
 		ImGui::EndPopup();
 	}
 }

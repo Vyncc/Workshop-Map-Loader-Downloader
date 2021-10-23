@@ -328,6 +328,7 @@ public:
 	void renderDownloadFailedPopup();
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 	void renderHostGamePopup(Map curMap);
+	void renderJoinServerPopup();
 
 
 	void renderMaps();
