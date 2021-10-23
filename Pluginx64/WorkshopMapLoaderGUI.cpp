@@ -240,9 +240,6 @@ void Pluginx64::Render()
 
 				ShellExecute(NULL, L"open", L_modsDir, NULL, NULL, SW_SHOWDEFAULT);
 			}
-
-
-
 			ImGui::EndMenu();
 		}
 
@@ -557,20 +554,17 @@ void Pluginx64::Render()
 				RLMAPS_browsing = true;
 			}
 
-
 			if (FolderErrorBool)
 			{
 				ImGui::OpenPopup("FolderError");
 			}
 			renderFolderErrorPopup();
 
-
 			if (DownloadFailed)
 			{
 				ImGui::OpenPopup("DownloadFailed");
 			}
 			renderDownloadFailedPopup();
-
 
 			if (UserIsChoosingYESorNO)
 			{
@@ -592,9 +586,6 @@ void Pluginx64::Render()
 
 			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
 			{
-				//ImGui::Text("Page : %d", CurrentPage);
-
-
 				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, RLMAPS_NumberOfMapsFound); // "Workshops Found : 0 / 0"
 
 				ImGui::SameLine();
@@ -615,7 +606,6 @@ void Pluginx64::Render()
 
 						ImGui::SameLine();
 
-						
 						for (auto page : listBrowsePages())
 						{
 							std::string pageName = "Page " + std::to_string(page + 1);
@@ -645,7 +635,6 @@ void Pluginx64::Render()
 								t2.detach();
 							}
 						}
-
 						ImGui::EndGroup();
 					}
 				}
@@ -655,11 +644,8 @@ void Pluginx64::Render()
 
 				ImGui::EndChild();
 			}
-			
 			ImGui::EndTabItem();
 		}
-
-
 		ImGui::EndTabBar();
 	}
 
@@ -670,8 +656,6 @@ void Pluginx64::Render()
 		cvarManager->executeCommand("togglemenu " + GetMenuName());
 	}
 }
-
-
 
 
 
@@ -751,7 +735,7 @@ void Pluginx64::renderMaps()
 
 				ImGui::EndGroup();
 
-				if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+				if (ImGui::BeginPopupContextItem("Map context menu"))
 				{
 					if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
 					{
@@ -839,7 +823,7 @@ void Pluginx64::renderMaps()
 
 				ImGui::EndGroup();
 
-				if (ImGui::BeginPopupContextItem("Map context menu")) //faudrait que je change le nom (que je mette le nom de la map ou jsp
+				if (ImGui::BeginPopupContextItem("Map context menu"))
 				{
 					if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
 					{
@@ -865,649 +849,6 @@ void Pluginx64::renderMaps()
 	ImGui::EndChild();
 }
 
-
-
-void Pluginx64::CenterNexIMGUItItem(float itemWidth)
-{
-	auto windowWidth = ImGui::GetWindowSize().x;
-	ImGui::SetCursorPosX((windowWidth - itemWidth) * 0.5f);
-}
-
-void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
-{
-	auto windowWidth = ImGui::GetWindowSize().x;
-	float totalWidth = itemWidth + borderGap;
-	ImGui::SetCursorPosX(windowWidth - totalWidth);
-}
-
-
-void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
-{
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	float windowWidth = ImGui::GetWindowWidth();
-	auto textWidth = ImGui::CalcTextSize(label).x;
-	float percent = ((value * 100) / maxValue) / 100.f;
-
-	ImGui::BeginChild("##ProgessBar", size);
-	{
-		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 15.f, 15.f);
-		if (value != 0)
-		{
-			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 15.f, 15.f);
-		}
-		draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + 5.f), ImColor(255, 255, 255, 255), label);
-
-		ImGui::EndChild();
-	}
-}
-
-
-void Pluginx64::renderSortByCombos(std::string mostPopular_url)
-{
-	AlignRightNexIMGUItItem(widthBrowseGroup, 8.f);
-	ImGui::BeginGroup();
-	{
-		if (STEAM_browsing)
-		{
-			widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-			ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
-			//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
-			ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(142.f);
-			if (ImGui::BeginCombo("##comboMost", combo_selected_most))
-			{
-				if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url);
-					t6.detach();
-					combo_selected_most = SortByText[1].c_str(); // "Most Popular"
-					MostPopularSelected = true;
-				}
-
-				if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
-					t6.detach();
-					combo_selected_most = SortByText[2].c_str(); // "Most Recent"
-					MostPopularSelected = false;
-				}
-
-				if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
-					t6.detach();
-					combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
-					MostPopularSelected = false;
-				}
-				ImGui::EndCombo();
-			}
-		}
-		else
-		{
-			widthBrowseGroup = 186.f;
-		}
-
-
-
-		if (MostPopularSelected)
-		{
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-			ImGui::Text("%s : ", PeriodText[7].c_str()); // "Period :"
-			ImGui::SameLine();
-
-
-			ImGui::SetNextItemWidth(142.f);
-			if (ImGui::BeginCombo("##comboPeriod", combo_selected_period))
-			{
-				if (ImGui::Selectable(PeriodText[0].c_str())) // "Today"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=1");
-					t6.detach();
-					combo_selected_period = PeriodText[0].c_str(); // "Today"
-				}
-
-				if (ImGui::Selectable(PeriodText[1].c_str())) // "1 Week"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=7");
-					t6.detach();
-					combo_selected_period = PeriodText[1].c_str(); // "1 Week"
-				}
-
-				if (ImGui::Selectable(PeriodText[2].c_str())) // "1 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=30");
-					t6.detach();
-					combo_selected_period = PeriodText[2].c_str(); // "1 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[3].c_str())) // "3 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=90");
-					t6.detach();
-					combo_selected_period = PeriodText[3].c_str(); // "3 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[4].c_str())) // "6 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=180");
-					t6.detach();
-					combo_selected_period = PeriodText[4].c_str(); // "6 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[5].c_str())) // "1 Year"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=365");
-					t6.detach();
-					combo_selected_period = PeriodText[5].c_str(); // "1 Year"
-				}
-
-				if (ImGui::Selectable(PeriodText[6].c_str())) // "Since the begining"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=-1");
-					t6.detach();
-					combo_selected_period = PeriodText[6].c_str(); // "Since the begining"
-				}
-				ImGui::EndCombo();
-			}
-		}
-		ImGui::EndGroup();
-	}
-}
-
-void Pluginx64::renderDownloadFailedPopup()
-{
-	if (ImGui::BeginPopupModal("DownloadFailed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(DownloadFailedText.c_str());
-		ImGui::NewLine();
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			DownloadFailed = false;
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderAcceptDownload()
-{
-	renderYesNoPopup("Download?", WantToDawnloadText.c_str(), [this]() {
-		AcceptTheDownload = true;
-		UserIsChoosingYESorNO = false;
-		ImGui::CloseCurrentPopup();
-		}, [this]() {
-			AcceptTheDownload = false;
-			UserIsChoosingYESorNO = false;
-			ImGui::CloseCurrentPopup();
-		});
-}
-
-void Pluginx64::renderLaunchModePopup(Map curMap)
-{
-	if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
-		{
-			gameWrapper->Execute([&, curMap](GameWrapper* gw)
-				{
-					cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
-				});
-			cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
-
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
-		{
-			ImGui::OpenPopup("HostGame");
-		}
-
-		renderHostGamePopup(curMap);
-
-
-		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
-		{
-			ImGui::OpenPopup("JoinServer");
-		}
-
-
-		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
-		if (!Directory_Or_File_Exists(modsDirPath))
-		{
-			std::string label = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
-			renderYesNoPopup("JoinServer", label.c_str(), [this, modsDirPath]() {
-				fs::create_directory(modsDirPath);
-				}, [this]() {ImGui::CloseCurrentPopup(); });
-		}
-		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
-		{
-			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
-				fs::copy(curMap.UpkFile, modsDirPath);
-				}, [this]() {ImGui::CloseCurrentPopup(); });
-		}
-		else if (!MapWasAlreadyInCPCC(curMap))
-		{
-			renderInfoPopup("JoinServer", "You need to restart Rocket Legaue first to be able to join a server on this map!");
-		}
-		else
-		{
-			if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
-				ImGui::Text("IP :");
-				ImGui::SameLine();
-				static char IP[200] = "";
-				ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-				ImGui::Text("PORT :");
-				ImGui::SameLine();
-				static char PORT[200] = "";
-				ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-				std::string str_IP = std::string(IP);
-				std::string str_PORT = std::string(PORT);
-
-
-				CenterNexIMGUItItem(208.f);
-				ImGui::BeginGroup();
-				{
-					if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
-					{
-						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-							{
-								cvarManager->log("IP : " + str_IP);
-								cvarManager->log("PORT : " + str_PORT);
-								gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
-							});
-
-						ImGui::CloseCurrentPopup();
-					}
-
-					ImGui::SameLine();
-
-					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-					{
-						ImGui::CloseCurrentPopup();
-					}
-
-					ImGui::EndGroup();
-				}
-				ImGui::EndPopup();
-			}
-			
-			
-		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderHostGamePopup(Map curMap)
-{
-
-	//ImGui::SetNextWindowSize(ImVec2(428.f, 583.f));
-	if (ImGui::BeginPopupModal("HostGame", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		
-		ImGui::BeginChild("##gameSettings", ImVec2(500.f, heightHostGamePopup), true);
-		{
-			CenterNexIMGUItItem(ImGui::CalcTextSize("Game Settings :").x);
-			ImGui::Text("Game Settings :");
-			ImGui::NewLine();
-
-			/*
-			ImGui::SliderInt("width", &widthTest, 0, 1920);
-			ImGui::SliderInt("height", &heightTest, 0, 1920);
-			*/
-
-			ImGui::Text("Game Mode :");
-
-			if (ImGui::BeginCombo("##gameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
-			{
-				for (auto& displayName : gameModes->DisplayValuesNames)
-				{
-					if (ImGui::Selectable(displayName.c_str()))
-					{
-						int index = std::find(gameModes->DisplayValuesNames.begin(), gameModes->DisplayValuesNames.end(), displayName) - gameModes->DisplayValuesNames.begin();
-						//cvarManager->log("index : " + std::to_string(index));
-						gameModes->selectedValue = index;
-						cvarManager->log(gameModes->Name + " | Value : " + gameModes->GetSelectedValue());
-					}
-				}
-				ImGui::EndCombo();
-			}
-
-			ImGui::Text("Number Of Players :");
-			if (ImGui::SliderInt("##nbPlayers", &nbPlayers, 2, 8, "%d players") && nbPlayers < 2)
-			{
-				nbPlayers = 6;
-			}
-
-			ImGui::Separator();
-			
-			
-
-			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
-			{
-				ImGui::BeginChild("##mutators", ImVec2(widthTest, heightMutators));
-				{
-					heightMutators = 410.f;
-					heightHostGamePopup = 201.f + heightMutators;
-
-					for (auto& mutator : mutators)
-					{
-						//cvarManager->log(std::to_string(mutator->selectedValue));
-
-						if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
-						{
-							for (auto& displayName : mutator->DisplayValuesNames)
-							{
-								if (ImGui::Selectable(displayName.c_str()))
-								{
-									int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
-									//cvarManager->log("index : " + std::to_string(index));
-									mutator->selectedValue = index;
-									cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
-								}
-							}
-							ImGui::EndCombo();
-						}
-					}
-
-					if (ImGui::Button("Reset Mutators"))
-					{
-						for (auto& mutator : mutators)
-						{
-							mutator->selectedValue = 0;
-						}
-					}
-
-					ImGui::EndChild();
-				}
-				
-			}
-			else
-			{
-				heightMutators = 35.f;
-				heightHostGamePopup = 197.f;
-			}
-			
-
-
-			ImGui::Separator();
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.f);
-
-			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
-			{
-				gameWrapper->Execute([&, curMap](GameWrapper* gw)
-				{
-					//cvarManager->executeCommand("unreal_command \"start C:\\Users\\snipj\\AppData\\Roaming\\bakkesmod\\bakkesmod\\maps\\dribble_2_overhaul\\DribbleChallenge2Overhaul.upk?game=TAGame.GameInfo_Soccar_TA?GameTag=FiveMinutes,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen\"");
-					//gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=TAGame.GameInfo_Soccar_TA?GameTags=20Minutes,BoostMultiplier10x,BotsNone,UnlimitedBoost,PlayerCount8?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen");
-					gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
-				});
-
-				cvarManager->log("Command : start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
-				
-
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::SameLine();
-
-			AlignRightNexIMGUItItem(100.f, 8.f);
-			if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndChild();
-		}
-
-
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderExtractMapFilesPopup(Map curMap)
-{
-	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		std::string message = "The map isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method (you need to click on refresh maps after extracting) :";
-		ImGui::Text(message.c_str());
-		ImGui::NewLine();
-
-
-		CenterNexIMGUItItem(326.f);
-		if (ImGui::Button("Powershell", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + curMap.ZipFile.string() + "' -DestinationPath '" + curMap.Folder.string() + "/'";
-			system(extractCommand.c_str());
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Still doesn't work", ImVec2(110.f, 25.f)))
-		{
-			ImGui::OpenPopup("ExtractManually");
-		}
-
-		if (ImGui::BeginPopupModal("ExtractManually", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			std::string txt = "If both of the extract methods didn't work, you need to extract the files manually of %s" + curMap.ZipFile.filename().string();
-			ImGui::Text(txt.c_str());
-			ImGui::Text("Tutorial : ");
-			ImGui::SameLine();
-			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://youtu.be/mI2PqkissiQ?t=124");
-			renderUnderLine(ImColor(3, 94, 252, 255));
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-				if (ImGui::IsMouseClicked(0))
-				{
-					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW); //open the video tutorial in browser
-				}
-				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-			}
-			ImGui::NewLine();
-			float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
-			CenterNexIMGUItItem(buttonWidth + 100.f);
-			if (ImGui::Button(OpenMapDirText.c_str(), ImVec2(buttonWidth, 25.f)))
-			{
-				std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
-				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT); //open the map directory in file explorer
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-
-
-		CenterNexIMGUItItem(326.f);
-		if (ImGui::Button("Cancel", ImVec2(326.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-//https://gist.github.com/dougbinks/ef0962ef6ebe2cadae76c4e9f0586c69
-void Pluginx64::renderUnderLine(ImColor col_)
-{
-	ImVec2 min = ImGui::GetItemRectMin();
-	ImVec2 max = ImGui::GetItemRectMax();
-	min.y = max.y;
-	ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
-}
-
-void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc)
-{
-	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(label);
-		ImGui::NewLine();
-		
-		CenterNexIMGUItItem(208.f);
-		ImGui::BeginGroup();
-		{
-			if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
-			{
-				try
-				{
-					yesFunc();
-				}
-				catch (const std::exception& ex)
-				{
-					cvarManager->log(ex.what());
-					ImGui::OpenPopup("PasteMap");
-					renderInfoPopup("PasteMap", ex.what());
-				}
-
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
-			{
-				noFunc();
-			}
-
-			ImGui::EndGroup();
-		}
-
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderFolderErrorPopup()
-{
-	if (ImGui::BeginPopupModal("FolderError", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text("Error : ");
-		ImGui::Text(FolderErrorText.c_str()); // error message
-		ImGui::NewLine();
-		ImGui::NewLine();
-		ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
-		ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
-		ImGui::NewLine();
-
-		CenterNexIMGUItItem(100.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			FolderErrorBool = false;
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
-{
-	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(label);
-		ImGui::NewLine();
-		CenterNexIMGUItItem(100.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles)
-{
-	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		if (missingTextureFiles.size())
-		{
-			ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
-			ImGui::Text("You can still play without the workshop textures but some maps will have some white/weird textures.");
-			if (IsDownloading_WorkshopTextures)
-			{
-				ImGui::Separator();
-
-				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46970000));
-				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46970000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
-					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
-
-				ImGui::Separator();
-			}
-
-			ImGui::NewLine();
-
-			float height = ((missingTextureFiles.size() - 1) * 21) + 60;
-
-			CenterNexIMGUItItem(250.f);
-			ImGui::BeginChild("##MissingFilesTable", ImVec2(250.f, height), true);
-			{
-				CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
-				ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
-				ImGui::Separator();
-
-				if (missingTextureFiles.size() > 0)
-				{
-					for (auto missingFile : missingTextureFiles)
-					{
-						CenterNexIMGUItItem(ImGui::CalcTextSize(missingFile.c_str()).x);
-						ImGui::Text(missingFile.c_str());
-						ImGui::Separator();
-					}
-				}
-
-				ImGui::EndChild();
-			}
-
-			ImGui::NewLine();
-
-			CenterNexIMGUItItem(208.f);
-			if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
-			{
-				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
-				t2.detach();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-		}
-		else
-		{
-			ImGui::Text("Workshop textures installed !");
-			ImGui::NewLine();
-			CenterNexIMGUItItem(100.f);
-			if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-		}
-
-		ImGui::EndPopup();
-	}
-}
 
 
 void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
@@ -1551,7 +892,6 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 		Steam_SearchWorkshopDisplayed++;
 	}
 }
-
 
 void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200])
 {
@@ -1668,6 +1008,119 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 	
 }
 
+void Pluginx64::renderSortByCombos(std::string mostPopular_url)
+{
+	AlignRightNexIMGUItItem(widthBrowseGroup, 8.f);
+	ImGui::BeginGroup();
+	{
+		if (STEAM_browsing)
+		{
+			widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
+			ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
+			//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(142.f);
+			if (ImGui::BeginCombo("##comboMost", combo_selected_most))
+			{
+				if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url);
+					t6.detach();
+					combo_selected_most = SortByText[1].c_str(); // "Most Popular"
+					MostPopularSelected = true;
+				}
+
+				if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
+					t6.detach();
+					combo_selected_most = SortByText[2].c_str(); // "Most Recent"
+					MostPopularSelected = false;
+				}
+
+				if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
+					t6.detach();
+					combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
+					MostPopularSelected = false;
+				}
+				ImGui::EndCombo();
+			}
+		}
+		else
+		{
+			widthBrowseGroup = 186.f;
+		}
+
+
+		if (MostPopularSelected)
+		{
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
+			ImGui::Text("%s : ", PeriodText[7].c_str()); // "Period :"
+
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(142.f);
+			if (ImGui::BeginCombo("##comboPeriod", combo_selected_period))
+			{
+				if (ImGui::Selectable(PeriodText[0].c_str())) // "Today"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=1");
+					t6.detach();
+					combo_selected_period = PeriodText[0].c_str(); // "Today"
+				}
+
+				if (ImGui::Selectable(PeriodText[1].c_str())) // "1 Week"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=7");
+					t6.detach();
+					combo_selected_period = PeriodText[1].c_str(); // "1 Week"
+				}
+
+				if (ImGui::Selectable(PeriodText[2].c_str())) // "1 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=30");
+					t6.detach();
+					combo_selected_period = PeriodText[2].c_str(); // "1 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[3].c_str())) // "3 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=90");
+					t6.detach();
+					combo_selected_period = PeriodText[3].c_str(); // "3 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[4].c_str())) // "6 Months"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=180");
+					t6.detach();
+					combo_selected_period = PeriodText[4].c_str(); // "6 Months"
+				}
+
+				if (ImGui::Selectable(PeriodText[5].c_str())) // "1 Year"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=365");
+					t6.detach();
+					combo_selected_period = PeriodText[5].c_str(); // "1 Year"
+				}
+
+				if (ImGui::Selectable(PeriodText[6].c_str())) // "Since the begining"
+				{
+					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=-1");
+					t6.detach();
+					combo_selected_period = PeriodText[6].c_str(); // "Since the begining"
+				}
+				ImGui::EndCombo();
+			}
+		}
+		ImGui::EndGroup();
+	}
+}
 
 
 
@@ -1818,140 +1271,512 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 }
 
 
-void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
+
+void Pluginx64::CenterNexIMGUItItem(float itemWidth)
 {
-	MapList.clear();
-
-	std::vector<std::filesystem::path> MapsDirectories;
-
-	for (const auto& dir : fs::directory_iterator(mapsfolders))
-	{
-		if (dir.is_directory())
-		{
-			MapsDirectories.push_back(dir.path());
-		}
-	}
-
-	if (MapsDirectories.size() == 0) { cvarManager->log("No maps detected"); return; }
-
-	for (int i = 0; i < MapsDirectories.size(); i++)
-	{
-		cvarManager->log("Checking files in : " + MapsDirectories.at(i).string() + "/");
-
-		std::filesystem::path CurrentMapDirectory = MapsDirectories.at(i);
-		Map map;
-		map.Folder = MapsDirectories.at(i).string();
-
-
-		renameFileToUPK(CurrentMapDirectory);		//rename the map udk to upk, for people that already had the plugin
-
-
-		int nbFilesInDirectory = 0;
-		//get the numbers of files in the current map directory
-		for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
-		{
-			nbFilesInDirectory++;
-		}
-
-		if (nbFilesInDirectory > 0)
-		{
-			int nbFiles = 0;
-			bool hasFoundUPK = false;
-			bool hasFoundPreview = false;
-			bool hasFoundJSON = false;
-			bool hasFoundZIP = false;
-			for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
-			{
-				std::string fileExtension = file.path().filename().extension().string();
-				nbFiles++;
-
-
-
-				if (!hasFoundJSON && fileExtension == ".json")
-				{
-					if (file.path().filename().string().substr(0, file.path().filename().string().length() - 5) == CurrentMapDirectory.filename().string())//if JSON file name == the map folder's name
-					{
-						map.JsonFile = file.path().string();
-						hasFoundJSON = true;
-
-						//cvarManager->log("Folder name  : " + CurrentMapDirectory.filename().string());
-						cvarManager->log("JSON name  : " + file.path().filename().string());
-					}
-				}
-				else
-				{
-					if (nbFiles == nbFilesInDirectory && hasFoundJSON == false)
-					{
-						map.JsonFile = "NoInfos";
-					}
-				}
-
-				if ((!hasFoundPreview && fileExtension == ".png") || (!hasFoundPreview && fileExtension == ".jpg") || (!hasFoundPreview && fileExtension == ".jfif"))
-				{
-					map.PreviewImage = std::make_shared<ImageWrapper>(file.path(), false, true);
-					map.isPreviewImageLoaded = true;
-					cvarManager->log("Preview Loaded : " + file.path().string());
-					hasFoundPreview = true;
-				}
-				else
-				{
-					if (nbFiles == nbFilesInDirectory && hasFoundPreview == false)
-					{
-						map.PreviewImage = std::make_shared<ImageWrapper>(IfNoPreviewImagePath, false, true); //if there is no preview image, it will load a red cross image
-						map.isPreviewImageLoaded = true;
-						cvarManager->log("No preview found in this folder");
-					}
-				}
-
-				if (!hasFoundZIP && fileExtension == ".zip")
-				{
-					map.ZipFile = file.path();
-					hasFoundZIP = true;
-				}
-				else
-				{
-					if (nbFiles == nbFilesInDirectory && hasFoundZIP == false)
-					{
-						map.ZipFile = "NoZipFound";
-						cvarManager->log("No .zip file found in this folder : " + CurrentMapDirectory.string());
-					}
-				}
-
-
-				if (!hasFoundUPK && fileExtension == ".upk")
-				{
-					map.UpkFile = file.path();
-					hasFoundUPK = true;
-				}
-				else
-				{
-					if (nbFiles == nbFilesInDirectory && hasFoundUPK == false)
-					{
-						map.UpkFile = "NoUpkFound";
-						cvarManager->log("No upk found in this folder : " + CurrentMapDirectory.string());
-						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
-					}
-				}
-			}
-		}
-		else       //if the folder is empty
-		{
-			cvarManager->log("Empty folder !");
-			map.UpkFile = "EmptyFolder";
-			map.ZipFile = "EmptyFolder";
-			map.JsonFile = "EmptyFolder";
-			map.PreviewImage = std::make_shared<ImageWrapper>(IfNoPreviewImagePath, false, true); //if there is no preview image, it will load a red cross image
-			map.isPreviewImageLoaded = true;
-		}
-
-
-		MapList.push_back(map);
-		cvarManager->log("");
-	}
-
-
+	auto windowWidth = ImGui::GetWindowSize().x;
+	ImGui::SetCursorPosX((windowWidth - itemWidth) * 0.5f);
 }
 
+void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
+{
+	auto windowWidth = ImGui::GetWindowSize().x;
+	float totalWidth = itemWidth + borderGap;
+	ImGui::SetCursorPosX(windowWidth - totalWidth);
+}
+
+//https://gist.github.com/dougbinks/ef0962ef6ebe2cadae76c4e9f0586c69
+void Pluginx64::renderUnderLine(ImColor col_)
+{
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+	min.y = max.y;
+	ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
+}
+
+void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)
+{
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	float windowWidth = ImGui::GetWindowWidth();
+	auto textWidth = ImGui::CalcTextSize(label).x;
+	float percent = ((value * 100) / maxValue) / 100.f;
+
+	ImGui::BeginChild("##ProgessBar", size);
+	{
+		draw_list->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), colorBackground, 15.f, 15.f);
+		if (value != 0)
+		{
+			draw_list->AddRectFilled(pos, ImVec2(pos.x + (percent * size.x), pos.y + size.y), colorProgress, 15.f, 15.f);
+		}
+		draw_list->AddText(ImVec2(ImGui::GetCursorScreenPos().x + (windowWidth - textWidth) * 0.5f, ImGui::GetCursorScreenPos().y + 5.f), ImColor(255, 255, 255, 255), label);
+
+		ImGui::EndChild();
+	}
+}
+
+
+
+void Pluginx64::renderDownloadFailedPopup()
+{
+	if (ImGui::BeginPopupModal("DownloadFailed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(DownloadFailedText.c_str());
+		ImGui::NewLine();
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			DownloadFailed = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderAcceptDownload()
+{
+	renderYesNoPopup("Download?", WantToDawnloadText.c_str(), [this]() {
+		AcceptTheDownload = true;
+		UserIsChoosingYESorNO = false;
+		ImGui::CloseCurrentPopup();
+		}, [this]() {
+			AcceptTheDownload = false;
+			UserIsChoosingYESorNO = false;
+			ImGui::CloseCurrentPopup();
+		});
+}
+
+void Pluginx64::renderLaunchModePopup(Map curMap)
+{
+	if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
+		{
+			gameWrapper->Execute([&, curMap](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
+				});
+			cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
+
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Host Multiplayer Server", ImVec2(200.f, 50.f)))
+		{
+			ImGui::OpenPopup("HostGame");
+		}
+
+		renderHostGamePopup(curMap);
+
+
+		if (ImGui::Button("Join Server", ImVec2(200.f, 50.f)))
+		{
+			ImGui::OpenPopup("JoinServer");
+		}
+
+
+		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
+		if (!Directory_Or_File_Exists(modsDirPath))
+		{
+			std::string label = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
+			renderYesNoPopup("JoinServer", label.c_str(), [this, modsDirPath]() {
+				fs::create_directory(modsDirPath);
+				}, [this]() {ImGui::CloseCurrentPopup(); });
+		}
+		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
+		{
+			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + " isn't in mods/. Paste the map to mods/ ?").c_str(), [this, modsDirPath, curMap]() {
+				fs::copy(curMap.UpkFile, modsDirPath);
+				}, [this]() {ImGui::CloseCurrentPopup(); });
+		}
+		else if (!MapWasAlreadyInCPCC(curMap))
+		{
+			renderInfoPopup("JoinServer", "You need to restart Rocket Legaue first to be able to join a server on this map!");
+		}
+		else
+		{
+			if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
+				ImGui::Text("IP :");
+				ImGui::SameLine();
+				static char IP[200] = "";
+				ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
+
+				ImGui::Text("PORT :");
+				ImGui::SameLine();
+				static char PORT[200] = "";
+				ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
+
+				std::string str_IP = std::string(IP);
+				std::string str_PORT = std::string(PORT);
+
+
+				CenterNexIMGUItItem(208.f);
+				ImGui::BeginGroup();
+				{
+					if (ImGui::Button("Join Server", ImVec2(100.f, 25.f)))
+					{
+						gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
+							{
+								cvarManager->log("IP : " + str_IP);
+								cvarManager->log("PORT : " + str_PORT);
+								gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
+							});
+
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndGroup();
+				}
+				ImGui::EndPopup();
+			}
+
+
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel", ImVec2(200.f, 50.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderHostGamePopup(Map curMap)
+{
+	if (ImGui::BeginPopupModal("HostGame", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::BeginChild("##gameSettings", ImVec2(500.f, heightHostGamePopup), true);
+		{
+			CenterNexIMGUItItem(ImGui::CalcTextSize("Game Settings :").x);
+			ImGui::Text("Game Settings :");
+			ImGui::NewLine();
+			ImGui::Text("Game Mode :");
+
+			if (ImGui::BeginCombo("##gameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
+			{
+				for (auto& displayName : gameModes->DisplayValuesNames)
+				{
+					if (ImGui::Selectable(displayName.c_str()))
+					{
+						int index = std::find(gameModes->DisplayValuesNames.begin(), gameModes->DisplayValuesNames.end(), displayName) - gameModes->DisplayValuesNames.begin();
+						//cvarManager->log("index : " + std::to_string(index));
+						gameModes->selectedValue = index;
+						cvarManager->log(gameModes->Name + " | Value : " + gameModes->GetSelectedValue());
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::Text("Number Of Players :");
+			if (ImGui::SliderInt("##nbPlayers", &nbPlayers, 2, 8, "%d players") && nbPlayers < 2)
+			{
+				nbPlayers = 6;
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
+			{
+				ImGui::BeginChild("##mutators", ImVec2(widthTest, heightMutators));
+				{
+					heightMutators = 410.f;
+					heightHostGamePopup = 201.f + heightMutators;
+
+					for (auto& mutator : mutators)
+					{
+						//cvarManager->log(std::to_string(mutator->selectedValue));
+
+						if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
+						{
+							for (auto& displayName : mutator->DisplayValuesNames)
+							{
+								if (ImGui::Selectable(displayName.c_str()))
+								{
+									int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
+									//cvarManager->log("index : " + std::to_string(index));
+									mutator->selectedValue = index;
+									cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
+								}
+							}
+							ImGui::EndCombo();
+						}
+					}
+
+					if (ImGui::Button("Reset Mutators"))
+					{
+						for (auto& mutator : mutators)
+						{
+							mutator->selectedValue = 0;
+						}
+					}
+					ImGui::EndChild();
+				}
+			}
+			else
+			{
+				heightMutators = 35.f;
+				heightHostGamePopup = 197.f;
+			}
+
+			ImGui::Separator();
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.f);
+
+			if (ImGui::Button("Host Game", ImVec2(100.f, 30.f)))
+			{
+				gameWrapper->Execute([&, curMap](GameWrapper* gw)
+					{
+						gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
+					});
+
+				cvarManager->log("Command : start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			AlignRightNexIMGUItItem(100.f, 8.f);
+			if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndChild();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderExtractMapFilesPopup(Map curMap)
+{
+	if (ImGui::BeginPopupModal("ExtractMapFiles", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		std::string message = "The map isn't extracted from " + curMap.ZipFile.filename().string() + "\nChoose an extract method (you need to click on refresh maps after extracting) :";
+		ImGui::Text(message.c_str());
+		ImGui::NewLine();
+
+
+		CenterNexIMGUItItem(326.f);
+		if (ImGui::Button("Powershell", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + curMap.ZipFile.string() + "' -DestinationPath '" + curMap.Folder.string() + "/'";
+			system(extractCommand.c_str());
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Batch File", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+			CreateUnzipBatchFile(curMap.Folder.string() + "/", curMap.ZipFile.string());
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Still doesn't work", ImVec2(110.f, 25.f)))
+		{
+			ImGui::OpenPopup("ExtractManually");
+		}
+
+		if (ImGui::BeginPopupModal("ExtractManually", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string txt = "If both of the extract methods didn't work, you need to extract the files manually of %s" + curMap.ZipFile.filename().string();
+			ImGui::Text(txt.c_str());
+			ImGui::Text("Tutorial : ");
+			ImGui::SameLine();
+			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://youtu.be/mI2PqkissiQ?t=124");
+			renderUnderLine(ImColor(3, 94, 252, 255));
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				if (ImGui::IsMouseClicked(0))
+				{
+					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW); //open the video tutorial in browser
+				}
+				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+			}
+			ImGui::NewLine();
+			float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
+			CenterNexIMGUItItem(buttonWidth + 100.f);
+			if (ImGui::Button(OpenMapDirText.c_str(), ImVec2(buttonWidth, 25.f)))
+			{
+				std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
+				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT); //open the map directory in file explorer
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+
+		CenterNexIMGUItItem(326.f);
+		if (ImGui::Button("Cancel", ImVec2(326.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc)
+{
+	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(label);
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(208.f);
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Button("YES", ImVec2(100.f, 25.f)))
+			{
+				try
+				{
+					yesFunc();
+				}
+				catch (const std::exception& ex)
+				{
+					cvarManager->log(ex.what());
+					ImGui::OpenPopup("PasteMap");
+					renderInfoPopup("PasteMap", ex.what());
+				}
+
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("NO", ImVec2(100.f, 25.f)))
+			{
+				noFunc();
+			}
+
+			ImGui::EndGroup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderFolderErrorPopup()
+{
+	if (ImGui::BeginPopupModal("FolderError", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Error : ");
+		ImGui::Text(FolderErrorText.c_str()); // error message
+		ImGui::NewLine();
+		ImGui::NewLine();
+		ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
+		ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			FolderErrorBool = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
+{
+	if (ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text(label);
+		ImGui::NewLine();
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles)
+{
+	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (missingTextureFiles.size())
+		{
+			ImGui::Text("It seems like the workshop textures aren't installed in %s", RLCookedPCConsole_Path.string().c_str());
+			ImGui::Text("You can still play without the workshop textures but some maps will have some white/weird textures.");
+			if (IsDownloading_WorkshopTextures)
+			{
+				ImGui::Separator();
+
+				std::string ProgressBar_Label = convertToMB(std::to_string(DownloadTextrures_ProgressDisplayed)) + " / " + convertToMB(std::to_string(46970000));
+				renderProgressBar(DownloadTextrures_ProgressDisplayed, 46970000.f, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
+					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
+
+				ImGui::Separator();
+			}
+
+			ImGui::NewLine();
+
+			float height = ((missingTextureFiles.size() - 1) * 21) + 60;
+
+			CenterNexIMGUItItem(250.f);
+			ImGui::BeginChild("##MissingFilesTable", ImVec2(250.f, height), true);
+			{
+				CenterNexIMGUItItem(ImGui::CalcTextSize("Missing Files :").x);
+				ImGui::Text("Missing Files (%d) :", missingTextureFiles.size());
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
+				ImGui::Separator();
+
+				if (missingTextureFiles.size() > 0)
+				{
+					for (auto missingFile : missingTextureFiles)
+					{
+						CenterNexIMGUItItem(ImGui::CalcTextSize(missingFile.c_str()).x);
+						ImGui::Text(missingFile.c_str());
+						ImGui::Separator();
+					}
+				}
+
+				ImGui::EndChild();
+			}
+
+			ImGui::NewLine();
+
+			CenterNexIMGUItItem(208.f);
+			if (ImGui::Button("Download", ImVec2(100.f, 25.f)))
+			{
+				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
+				t2.detach();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+		}
+		else
+		{
+			ImGui::Text("Workshop textures installed !");
+			ImGui::NewLine();
+			CenterNexIMGUItItem(100.f);
+			if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+		}
+
+		ImGui::EndPopup();
+	}
+}
 
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()

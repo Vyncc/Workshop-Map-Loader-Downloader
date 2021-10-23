@@ -231,7 +231,6 @@ public:
 	std::vector<Steam_MapResult> Steam_MapResultList;
 	std::vector<std::string> OtherPagesList;
 	void StartSearchRequest(std::string fullurl);
-	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	void CreateJSONSearchWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapSize, std::string mapDescription);
 	std::vector<std::string> GetJSONSearchMapInfos(std::string jsonFilePath);
 	bool STEAM_Searching = false;
@@ -291,6 +290,7 @@ public:
 	std::string UdkInDirectory(std::string dirPath);
 	void SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert);
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
+	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 
 
 	//ImGui SettingsWindow Functions
