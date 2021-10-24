@@ -1285,7 +1285,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 				}
 				catch (const std::exception& ex)
 				{
-					cvarManager->log(ex.what());
+					//cvarManager->log(ex.what());
 				}
 			}
 
@@ -1477,6 +1477,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 			renderJoinServerPopup();
 		}
 
+
 		ImGui::SameLine();
 
 		if (ImGui::Button(CancelText.c_str(), ImVec2(200.f, 50.f)))
@@ -1524,7 +1525,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 
 			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
 			{
-				ImGui::BeginChild("##mutators", ImVec2(widthTest, heightMutators));
+				ImGui::BeginChild("##mutators", ImVec2(ImGui::GetWindowWidth() - 10, heightMutators));
 				{
 					heightMutators = 410.f;
 					heightHostGamePopup = 201.f + heightMutators;
