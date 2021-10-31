@@ -643,8 +643,10 @@ void Pluginx64::Render()
 
 				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching && std::string(keyWord) != "") // "Search"
 				{
-					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
-					t2.detach();
+					//std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
+					//t2.detach();
+
+					GetResults(std::string(combo_selected_searchingType), std::string(keyWord));
 
 					RLMAPS_browsing = false;
 				}
@@ -766,7 +768,7 @@ void Pluginx64::Render()
 						std::string pageName = "Page " + std::to_string(i + 1);
 						if (RLMAPS_PageSelected != i)
 						{
-							if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)) && !RLMAPS_Searching)
+							if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)))
 							{
 								RLMAPS_PageSelected = i;
 							}
