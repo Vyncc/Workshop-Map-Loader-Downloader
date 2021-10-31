@@ -718,6 +718,27 @@ void Pluginx64::Render()
 						ImGui::EndGroup();
 					}
 				}
+				else
+				{
+					for (int i = 0; i < RLMAPS_Pages.size(); i++)
+					{
+						std::string pageName = "Page " + std::to_string(i + 1);
+						if (RLMAPS_PageSelected != i)
+						{
+							if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)) && !RLMAPS_Searching)
+							{
+								RLMAPS_PageSelected = i;
+							}
+							ImGui::SameLine();
+						}
+						else
+						{
+							ImGui::Text("Current page : %d", RLMAPS_PageSelected + 1);
+							ImGui::SameLine();
+						}
+					}
+				}
+				
 				ImGui::NewLine();
 				ImGui::NewLine();
 				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
@@ -1211,6 +1232,7 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+	/*
 	int widthResults = (RLMAPS_MapResultList.size() * (190 + 81));
 	float windowWidth = ImGui::GetContentRegionAvailWidth();
 	int nbOfLines = widthResults / windowWidth;
@@ -1223,35 +1245,39 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 		widthOfOneResult = widthResults / RLMAPS_MapResultList.size();
 		nbResultsPerLine = windowWidth / widthOfOneResult;
 		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
-	}
+	}*/
 
-	for (int i = 0; i < RLMAPS_MapResultList.size(); i++)
+	if (RLMAPS_Pages.size() != 0)
 	{
-		if (LinesNb < nbResultsPerLine - 1)
+		for (int i = 0; i < RLMAPS_Pages.at(RLMAPS_PageSelected).size(); i++)
 		{
-			RLMAPS_RenderAResult(i, draw_list, mapspath);
+			if (LinesNb < 4)
+			{
+				RLMAPS_RenderAResult(i, draw_list, mapspath);
 
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
-			LinesNb++;
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
+				LinesNb++;
+			}
+			else
+			{
+				RLMAPS_RenderAResult(i, draw_list, mapspath);
+
+				ImGui::NewLine();
+				LinesNb = 0;
+			}
+
+			RLMAPS_SearchWorkshopDisplayed++;
 		}
-		else
-		{
-			RLMAPS_RenderAResult(i, draw_list, mapspath);
-
-			ImGui::NewLine();
-			LinesNb = 0;
-		}
-
-		RLMAPS_SearchWorkshopDisplayed++;
 	}
+	
 }
 
 void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200])
 {
 	ImGui::PushID(i);
 
-	RLMAPS_MapResult mapResult = RLMAPS_MapResultList.at(i);
+	RLMAPS_MapResult mapResult = RLMAPS_Pages.at(RLMAPS_PageSelected).at(i);
 	std::string mapName = mapResult.Name;
 	std::string mapSize = mapResult.Size;
 	std::string mapDescription = mapResult.Description;

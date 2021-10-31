@@ -63,6 +63,9 @@ public:
 	int widthTest;
 	int heightTest;
 
+	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
+	int RLMAPS_PageSelected;
+
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server

@@ -38,6 +38,8 @@ void Pluginx64::onLoad()
 	CurrentPage = 0; //starts at 0
 	NBOfMapsOnSite = 0;
 
+	RLMAPS_PageSelected = 0;
+
 	try
 	{
 		if (Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods"))
@@ -744,6 +746,7 @@ std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePa
 void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 {
 	RLMAPS_Searching = true;
+	RLMAPS_Pages.clear();
 	RLMAPS_MapResultList.clear();
 
 	std::string request_url = rlmaps_url;
@@ -781,7 +784,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	}
 	RLMAPS_NumberOfMapsFound = nbMapsFound;
 
-
+	int nbResults = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
@@ -844,7 +847,25 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 			result.isImageLoaded = resultisImageLoaded;
 
 			RLMAPS_MapResultList.push_back(result);
+
+
+
+			nbResults++;
+
+			if (nbResults == 30)
+			{
+				RLMAPS_Pages.push_back(RLMAPS_MapResultList);
+				RLMAPS_MapResultList.clear();
+				nbResults = 0;
+			}
 		}
+	}
+
+	if (RLMAPS_MapResultList.size() > 0)
+	{
+		RLMAPS_Pages.push_back(RLMAPS_MapResultList);
+		RLMAPS_MapResultList.clear();
+		nbResults = 0;
 	}
 
 	RLMAPS_Searching = false;
@@ -854,6 +875,7 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 {
 	RLMAPS_Searching = true;
 	RLMAPS_MapResultList.clear();
+	RLMAPS_Pages.clear();
 
 	NBOfMapsOnSite = GetNBOfMapsOnSite();
 
@@ -870,6 +892,10 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 	const Json::Value maps = actualJson["body"];
 
 	RLMAPS_NumberOfMapsFound = maps.size();
+
+
+
+	int nbResults = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
@@ -916,6 +942,23 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 
 		RLMAPS_MapResultList.push_back(result);
 		
+
+
+		nbResults++;
+
+		if (nbResults == 30)
+		{
+			RLMAPS_Pages.push_back(RLMAPS_MapResultList);
+			RLMAPS_MapResultList.clear();
+			nbResults = 0;
+		}
+	}
+
+	if (RLMAPS_MapResultList.size() > 0)
+	{
+		RLMAPS_Pages.push_back(RLMAPS_MapResultList);
+		RLMAPS_MapResultList.clear();
+		nbResults = 0;
 	}
 
 	RLMAPS_Searching = false;
