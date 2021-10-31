@@ -229,17 +229,26 @@ void Pluginx64::Render()
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("Changelog : v1.13 :");
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.14").x);
+		ImGui::Text("Changelog v1.14");
 		ImGui::NewLine();
-		ImGui::Text("-Added 2 methods to extract the files of a map just downloaded : Powershell Method, Batch File Method");
-		ImGui::TextColored(ImVec4{255, 0, 0, 255}, "IMPORTANT : If when you were clicking on \"Refresh Maps\" nothing happened, now you don't need to extract the files manually anymore to make the maps appear,");
-		ImGui::TextColored(ImVec4{ 255, 0, 0, 255 }, "you have to choose settings->Extract Method->Powershell Method");
+		ImGui::Text("Added :");
 		ImGui::NewLine();
-		ImGui::Text("-Fixed previews that didn't correspond to the maps");
+		ImGui::Text("-Multiplayer Support, you are now able to host/join a workshop map");
+		ImGui::Text("Check the multiplayer video tutorial linked on the plugin page(maybe not available yet) :");
+		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://bakkesplugins.com/plugins/view/223");
+		renderUnderLine(ImColor(3, 94, 252, 255));
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if (ImGui::IsMouseClicked(0))
+			{
+				ShellExecute(0, 0, L"https://bakkesplugins.com/plugins/view/223", 0, 0, SW_SHOW); //open link in webbrowser
+			}
+			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+		}
 		ImGui::NewLine();
-		ImGui::Text("-Fixed : the previews images don't appear when you are searching a workshop, and you can't download a map");
-		ImGui::NewLine();
-		ImGui::TextColored(ImVec4{ 255, 0, 0, 255 }, "If one of the fixes still doesn't work for you, let me know on discord(check Credits)");
+		ImGui::Text("-You can now search/download workshop maps from rocketleaguemaps.us");
 		ImGui::NewLine();
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
@@ -306,6 +315,34 @@ void Pluginx64::Render()
 				}
 				ImGui::EndMenu();
 			}
+			ImGui::EndMenu();
+		}
+
+
+
+		if (ImGui::BeginMenu("Multiplayer"))
+		{
+			if (ImGui::BeginMenu("Maps joinable"))
+			{
+				if (MapsAlreadyInCPCC.size() != 0)
+				{
+					for (auto mapInCPCC : MapsAlreadyInCPCC)
+					{
+						ImGui::Text(mapInCPCC.filename().string().c_str());
+					}
+				}
+				else
+				{
+					ImGui::Text("No maps can be join");
+				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::Selectable("Join Server"))
+			{
+				JoinServerBool = true;
+			}
+
 
 			if (ImGui::Selectable("Open mods/ directory"))
 			{
@@ -314,19 +351,23 @@ void Pluginx64::Render()
 
 				ShellExecute(NULL, L"open", L_modsDir, NULL, NULL, SW_SHOWDEFAULT);
 			}
+
 			ImGui::EndMenu();
 		}
+
+		if (JoinServerBool) //I know this is not good but It works, so I don't care
+		{
+			ImGui::OpenPopup("JoinServer");
+		}
+		renderJoinServerPopup();
+
 
 		if (ImGui::Selectable("LastUpdate", false, 0, ImVec2{63, 14}))
 		{
 			HasSeeNewUpdateAlert = false;
 		}
 
-		if (ImGui::Selectable("Join Server", false, 0, ImVec2{ 63, 14 }))
-		{
-			ImGui::OpenPopup("JoinServer");
-		}
-		renderJoinServerPopup();
+		
 
 		if (ImGui::BeginMenu("Credits"))
 		{
@@ -423,7 +464,7 @@ void Pluginx64::Render()
 			if (ImGui::CollapsingHeader(DlWorkshopByURLText.c_str())) // "Download Workshop By Url"
 			{
 				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
-				static char url[200] = "Ex : https://steamcommunity.com/sharedfiles/filedetails/?id=2120912805&searchtext=rings+3";
+				static char url[200] = "put the url of a workshop";
 				ImGui::InputText("##STEAMworkshopurl", url, IM_ARRAYSIZE(url));
 				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
 				{
@@ -738,7 +779,6 @@ void Pluginx64::Render()
 						}
 					}
 				}
-				
 				ImGui::NewLine();
 				ImGui::NewLine();
 				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
@@ -959,22 +999,20 @@ void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	int widthResults = (Steam_MapResultList.size() * (190 + 81));
-	float windowWidth = ImGui::GetContentRegionAvailWidth();
-	int nbOfLines = widthResults / windowWidth;
-	widthResults -= 81 * nbOfLines;
-	int widthOfOneResult;
-	int nbResultsPerLine = 1;
+	int nbResultPerLine = 4;
 
-	if (Steam_MapResultList.size() > 0)
+	if (ImGui::GetWindowWidth() > 1560 && ImGui::GetWindowWidth() < 1830)
 	{
-		widthOfOneResult = widthResults / Steam_MapResultList.size();
-		nbResultsPerLine = windowWidth / widthOfOneResult;
+		nbResultPerLine = 5;
+	}
+	else if (ImGui::GetWindowWidth() >= 1830)
+	{
+		nbResultPerLine = 6;
 	}
 
 	for (int i = 0; i < Steam_MapResultList.size(); i++)
 	{
-		if (LinesNb < nbResultsPerLine - 1)
+		if (LinesNb < nbResultPerLine)
 		{
 			Steam_RenderAResult(i, draw_list, mapspath);
 
@@ -1232,26 +1270,23 @@ void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	/*
-	int widthResults = (RLMAPS_MapResultList.size() * (190 + 81));
-	float windowWidth = ImGui::GetContentRegionAvailWidth();
-	int nbOfLines = widthResults / windowWidth;
-	widthResults -= 81 * nbOfLines;
-	int widthOfOneResult;
-	int nbResultsPerLine = 1;
 
-	if (RLMAPS_MapResultList.size() > 0)
+	int nbResultPerLine = 4;
+
+	if (ImGui::GetWindowWidth() > 1560 && ImGui::GetWindowWidth() < 1830)
 	{
-		widthOfOneResult = widthResults / RLMAPS_MapResultList.size();
-		nbResultsPerLine = windowWidth / widthOfOneResult;
-		//cvarManager->log("nbresultperline = " + std::to_string(nbResultsPerLine));
-	}*/
+		nbResultPerLine = 5;
+	}
+	else if (ImGui::GetWindowWidth() >= 1830)
+	{
+		nbResultPerLine = 6;
+	}
 
 	if (RLMAPS_Pages.size() != 0)
 	{
 		for (int i = 0; i < RLMAPS_Pages.at(RLMAPS_PageSelected).size(); i++)
 		{
-			if (LinesNb < 4)
+			if (LinesNb < nbResultPerLine)
 			{
 				RLMAPS_RenderAResult(i, draw_list, mapspath);
 
@@ -1549,7 +1584,7 @@ void Pluginx64::renderHostGamePopup(Map curMap)
 
 			ImGui::Separator();
 
-			if (ImGui::CollapsingHeader("Mutators")) // "Download Workshop By Url"
+			if (ImGui::CollapsingHeader("Mutators"))
 			{
 				ImGui::BeginChild("##mutators", ImVec2(ImGui::GetWindowWidth() - 10, heightMutators));
 				{
@@ -1866,6 +1901,8 @@ void Pluginx64::renderJoinServerPopup()
 		{
 			if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))//Join Server
 			{
+				JoinServerBool = false;
+
 				gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
 					{
 						cvarManager->log("IP : " + str_IP);
@@ -1880,6 +1917,7 @@ void Pluginx64::renderJoinServerPopup()
 
 			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))//Cancel
 			{
+				JoinServerBool = false;
 				ImGui::CloseCurrentPopup();
 			}
 

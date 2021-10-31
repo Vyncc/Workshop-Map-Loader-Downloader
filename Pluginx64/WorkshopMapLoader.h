@@ -54,6 +54,8 @@ struct GameSetting
 };
 
 
+//Hey Jerry or Martinn, have a good time reviewing my awful code ;)
+
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
 public:
@@ -65,6 +67,8 @@ public:
 
 	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
 	int RLMAPS_PageSelected;
+
+	bool JoinServerBool;
 
 	
 	//Host multiplayer game
@@ -304,7 +308,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.13 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.14 | Made By Vync";
 
 	void Render() override;
 	std::string GetMenuName() override;

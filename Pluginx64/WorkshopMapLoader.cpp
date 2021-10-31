@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.13", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.14", 0)
 
 
 namespace
@@ -39,6 +39,9 @@ void Pluginx64::onLoad()
 	NBOfMapsOnSite = 0;
 
 	RLMAPS_PageSelected = 0;
+
+
+	JoinServerBool = false;
 
 	try
 	{
@@ -748,6 +751,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	RLMAPS_Searching = true;
 	RLMAPS_Pages.clear();
 	RLMAPS_MapResultList.clear();
+	RLMAPS_PageSelected = 0;
 
 	std::string request_url = rlmaps_url;
 	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
@@ -876,6 +880,7 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 	RLMAPS_Searching = true;
 	RLMAPS_MapResultList.clear();
 	RLMAPS_Pages.clear();
+	RLMAPS_PageSelected = 0;
 
 	NBOfMapsOnSite = GetNBOfMapsOnSite();
 
