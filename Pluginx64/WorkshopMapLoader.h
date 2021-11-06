@@ -65,10 +65,7 @@ public:
 	int widthTest;
 	int heightTest;
 
-	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
-	int RLMAPS_PageSelected;
 
-	bool JoinServerBool;
 
 	
 	//Host multiplayer game
@@ -219,6 +216,7 @@ public:
 	static bool FR;
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
+	bool JoinServerBool;
 	std::string IfNoPreviewImagePath;
 	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
 	std::string rlmaps_url = "http://rocketleaguemaps.us/api/getmultimap.php";
@@ -248,6 +246,8 @@ public:
 
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
+	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
+	int RLMAPS_PageSelected;
 	void GetResults(std::string searchType, std::string keyWord);
 	void GetResultsBrowseMaps(int offset);
 	int GetNBOfMapsOnSite();

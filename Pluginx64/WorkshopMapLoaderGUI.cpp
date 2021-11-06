@@ -1055,7 +1055,8 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 	{
 		ImGui::BeginGroup();
 		{
-			std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
+			//std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
+			//cvarManager->log("mapSize : " + mapSize);
 
 			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
 			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
@@ -1083,7 +1084,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 				GoodMapName.append("...");
 			}
 			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
+			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), mapSize.c_str()); //Map size
 			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
 				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
 			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
@@ -1127,7 +1128,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 
 				ImGui::BeginTooltip();
 				ImGui::Text("Title : %s", mapName.c_str());
-				ImGui::Text(SizeConverted.c_str());
+				ImGui::Text(mapSize.c_str());
 				ImGui::Text("By : %s", mapAuthor.c_str());
 				ImGui::Text("Description : \n%s", GoodDescription.c_str());
 				ImGui::EndTooltip();

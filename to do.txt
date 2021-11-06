@@ -13,6 +13,8 @@ pour les results de rlmpas.us, faut que je change le design
 
 FAUT QUE JE REGARDE, YA UN PROBLEME AVEC BROWSE MAPS DANS RLMAPS
 
+pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
+
 pouvoir ajouter un mot de passe pour le serveur
 
 faut que je fasse un #define pour la taille des bouttons que j'utilise tout le temps

@@ -420,8 +420,18 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 	IsRetrievingWorkshopFiles = true;
 
-	std::string request_url = "https://backend-02-prd.steamworkshopdownloader.io/api/download/request";
+	std::string request_url = "https://node03.steamworkshopdownloader.io/prod/api/download/request";
 	cpr::Response request_response = cpr::Post(cpr::Url{request_url}, cpr::Body{"{\"publishedFileId\":" + Workshop_id + "}"});
+
+	if (request_response.status_code != 200)
+	{
+		cvarManager->log("request_response.status_code : " + std::to_string(request_response.status_code));
+		DownloadFailedErrorText = "request_response : error " + std::to_string(request_response.status_code);
+		DownloadFailed = true;
+		IsRetrievingWorkshopFiles = false;
+		return;
+	}
+
 	cvarManager->log("Response : " + request_response.text);
 
 
@@ -429,8 +439,18 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	std::string Workshop_uuid = request_response.text.substr(9, request_response.text.length() - 11);
 
 	//get the state (if prepared)
-	std::string status_url = "https://backend-02-prd.steamworkshopdownloader.io/api/download/status";
+	std::string status_url = "https://node03.steamworkshopdownloader.io/prod/api/download/status";
 	cpr::Response state = cpr::Post(cpr::Url{status_url}, cpr::Body{"{\"uuids\":[\"" + Workshop_uuid + "\"]}:"});
+
+	if (state.status_code != 200)
+	{
+		cvarManager->log("state.status_code : " + std::to_string(state.status_code));
+		DownloadFailedErrorText = "state : error " + std::to_string(state.status_code);
+		DownloadFailed = true;
+		IsRetrievingWorkshopFiles = false;
+		return;
+	}
+
 	cvarManager->log("State : " + state.text);
 
 
@@ -463,6 +483,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 			}
 
 			DownloadFailed = true;
+			IsRetrievingWorkshopFiles = false;
 			return;
 		}
 		Sleep(2000);
@@ -487,8 +508,17 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		cvarManager->log("Found !");
 
 		//Get the workshop map infos, name and size
-		std::string Workshop_request_url = "https://backend-02-prd.steamworkshopdownloader.io/api/details/file";
+		std::string Workshop_request_url = "https://node03.steamworkshopdownloader.io/prod/api/details/file";
 		cpr::Response Workshop_request_response = cpr::Post(cpr::Url{Workshop_request_url}, cpr::Body{"[" + Workshop_id + "]:"});
+
+		if (Workshop_request_response.status_code != 200)
+		{
+			cvarManager->log("Workshop_request_response.status_code : " + std::to_string(Workshop_request_response.status_code));
+			DownloadFailedErrorText = "Workshop_request_response : error " + std::to_string(Workshop_request_response.status_code);
+			DownloadFailed = true;
+			IsRetrievingWorkshopFiles = false;
+			return;
+		}
 
 		int WorkshopNameLenght = Workshop_request_response.text.find("\",\"file_description\"") - Workshop_request_response.text.find("\"title_disk_safe\":\"");
 		int WorkshopSizeLenght = Workshop_request_response.text.find("\",\"preview_file_size\"") - Workshop_request_response.text.find("\"file_size\":\"");
@@ -535,7 +565,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 			cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
 		}
 
-		std::string download_url = "https://backend-02-prd.steamworkshopdownloader.io/api/download/transmit?uuid=" + Workshop_uuid;
+		std::string download_url = "https://node03.steamworkshopdownloader.io/prod/api/download/transmit?uuid=" + Workshop_uuid;
 		cvarManager->log("Download URL : " + download_url);
 		std::string Folder_Path = Workshop_Dl_Path + "/" + Workshop_filename + ".zip";
 
@@ -628,24 +658,37 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		bool resultisImageLoaded;
 
 
-		std::string file_infos_request_url = "https://backend-03-prd.steamworkshopdownloader.io/api/details/file";
+		std::string file_infos_request_url = "https://node03.steamworkshopdownloader.io/prod/api/details/file";
 
 		if (!Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\" + resultMapID + ".json")) //if json map infos doesn't exist
 		{
 			cpr::Response file_infos_request_response = cpr::Post(cpr::Url{ file_infos_request_url }, cpr::Body{ "[" + resultMapID + "]:" });
 
-			int WorkshopMapSizeLenght = file_infos_request_response.text.find("\",\"preview_file_size\"") - file_infos_request_response.text.find("\"file_size\":\"");
-			std::string Workshop_filesize = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_size\":\"") + 13, WorkshopMapSizeLenght - 13);
+			cvarManager->log("status code : " + std::to_string(file_infos_request_response.status_code));
 
-			int WorkshopMapDescriptionLenght = file_infos_request_response.text.find("\",\"time_created\":") - file_infos_request_response.text.find("\"file_description\":\"");
-			std::string WorkshopMapDescription = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_description\":\"") + 20,
-				WorkshopMapDescriptionLenght - 20);
+			std::string Workshop_filesize;
+			std::string WorkshopMapDescription;
+
+			if (file_infos_request_response.status_code == 200)
+			{
+				int WorkshopMapSizeLenght = file_infos_request_response.text.find("\",\"preview_file_size\"") - file_infos_request_response.text.find("\"file_size\":\"");
+				Workshop_filesize = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_size\":\"") + 13, WorkshopMapSizeLenght - 13);
+
+				int WorkshopMapDescriptionLenght = file_infos_request_response.text.find("\",\"time_created\":") - file_infos_request_response.text.find("\"file_description\":\"");
+				WorkshopMapDescription = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_description\":\"") + 20,
+					WorkshopMapDescriptionLenght - 20);
+			}
+			else
+			{
+				Workshop_filesize = "error";
+				WorkshopMapDescription = "error";
+			}
+
 
 			resultSize = Workshop_filesize;
 			resultDescription = WorkshopMapDescription;
 
 			CreateJSONSearchWorkshopInfos(resultMapID, BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\", Workshop_filesize, WorkshopMapDescription);
-
 		}
 		else
 		{

@@ -36,3 +36,12 @@ you have to choose settings->Extract Method->Powershell Method
 -Fixed : the previews images don't appear when you are searching a workshop, and you can't download a map
 
 If one of the fixes still doesn't work for you, let me know on discord(check Credits)
+
+
+v1.14
+
+Added Multiplayer Support :
+You are now able to host/join a workshop map
+See tutorial : lienDuTuto
+
+-you can now search/download workshop maps from rocketleaguemaps.us
