@@ -664,7 +664,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		{
 			cpr::Response file_infos_request_response = cpr::Post(cpr::Url{ file_infos_request_url }, cpr::Body{ "[" + resultMapID + "]:" });
 
-			cvarManager->log("status code : " + std::to_string(file_infos_request_response.status_code));
+			//cvarManager->log("status code : " + std::to_string(file_infos_request_response.status_code));
 
 			std::string Workshop_filesize;
 			std::string WorkshopMapDescription;
