@@ -296,7 +296,7 @@ public:
 	bool Directory_Or_File_Exists(const fs::path& p, fs::file_status s = fs::file_status{});
 	void renameFileToUPK(std::filesystem::path filePath);
 	std::string UdkInDirectory(std::string dirPath);
-	void SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert);
+	void SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert, std::string dontask);
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);

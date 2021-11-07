@@ -44,6 +44,7 @@ void Pluginx64::onLoad()
 	JoinServerBool = false;
 	DownloadTexturesBool = false;
 
+
 	try
 	{
 		for (const auto& dir : fs::directory_iterator(RLCookedPCConsole_Path.string()))
@@ -1394,7 +1395,7 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 		cvarManager->log("File renamed successfully");
 }
 
-void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert)
+void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert, std::string dontask)
 {
 	std::string filename = cfgFilePath;
 	std::ofstream CFGFile(filename);
@@ -1402,7 +1403,8 @@ void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvar
 	CFGFile << "MapsFolderPath = \"" + mapsfolderpathvariable + "\"\n";
 	CFGFile << "Language = \"" + languageVariable + "\"\n";
 	CFGFile << "UnzipMethod = \"" + unzipMethodVariable + "\"\n";
-	CFGFile << "HasSeeNewUpdateAlert = \"" + hasSeenNewUpdateAlert + "\"";
+	CFGFile << "HasSeeNewUpdateAlert = \"" + hasSeenNewUpdateAlert + "\"\n";
+	CFGFile << "dontask = \"" + dontask + "\"";
 
 	CFGFile.close();
 
@@ -1435,6 +1437,10 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 			if (i == 3)
 			{
 				CfgInfosList.push_back(line.substr(24, line.length() - 25)); //pushback HasSeeNewUpdateAlert
+			}
+			if (i == 4)
+			{
+				CfgInfosList.push_back(line.substr(11, line.length() - 12)); //pushback dontask
 			}
 			i++;
 		}

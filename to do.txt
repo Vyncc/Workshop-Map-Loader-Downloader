@@ -7,7 +7,6 @@ pour les results de rlmpas.us, faut que je change le design
 
 
 
-faire le ne plus me demander (pour les textures)
 
 
 
@@ -25,6 +24,7 @@ faut que je fix les bugs de responsive pour les results maps, que je fasse respo
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
 
+/faire le ne plus me demander (pour les textures)
 
 /ajouter tous les mutators pour host multiplayer
 
