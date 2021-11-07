@@ -106,7 +106,7 @@ void Pluginx64::Render()
 
 		//LaunchMode
 		LMLabel1Text = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
-		LMLabel2Text = " isn't in mods/. Paste the map to mods/ ?";
+		LMLabel2Text = " isn't in CookedPCConsole. Paste the map to CookedPCConsole/mods ?";
 		LMLabel3Text = "You need to restart Rocket Legaue first to be able to join a server on this map!";
 
 		//HostGame
@@ -128,6 +128,7 @@ void Pluginx64::Render()
 		DLTMissingFilesText = "Missing Files";
 		DLTTexturesInstalledText = "Workshop textures installed !";
 		CloseText = "Close";
+		DontAskText = "Don't ask me again";
 	}
 	else
 	{
@@ -196,7 +197,7 @@ void Pluginx64::Render()
 
 		//LaunchMode
 		LMLabel1Text = "Il n'y a pas le de dossier \"mods\" dans " + RLCookedPCConsole_Path.string() + "\nCreer ce dossier ?";
-		LMLabel2Text = " n'est pas dans mods/. Copier la map dans mods/ ?";
+		LMLabel2Text = " n'est pas dans CookedPCConsole. Copier la map dans CookedPCConsole/mods ?";
 		LMLabel3Text = "Tu dois d'abord relancer Rocket League pour pouvoir rejoindre un serveur sur cette map!";
 
 		//HostGame
@@ -219,6 +220,7 @@ void Pluginx64::Render()
 		DLTMissingFilesText = "Fichiers Manquants";
 		DLTTexturesInstalledText = "Textures des workshops installees!";
 		CloseText = "Fermer";
+		DontAskText = "Ne plus me demander";
 	}
 
 
@@ -249,6 +251,8 @@ void Pluginx64::Render()
 		}
 		ImGui::NewLine();
 		ImGui::Text("-You can now search/download workshop maps from rocketleaguemaps.us");
+		ImGui::NewLine();
+		ImGui::Text("Searching from the Steam tab is working");
 		ImGui::NewLine();
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
@@ -315,6 +319,12 @@ void Pluginx64::Render()
 				}
 				ImGui::EndMenu();
 			}
+
+			if (ImGui::Selectable("Download Textures"))
+			{
+				DownloadTexturesBool = true;
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -344,9 +354,9 @@ void Pluginx64::Render()
 			}
 
 
-			if (ImGui::Selectable("Open mods/ directory"))
+			if (ImGui::Selectable("Open CookedPCConsole"))
 			{
-				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string() + "\\mods");
+				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string());
 				LPCWSTR L_modsDir = w_modsDir.c_str();
 
 				ShellExecute(NULL, L"open", L_modsDir, NULL, NULL, SW_SHOWDEFAULT);
@@ -360,6 +370,12 @@ void Pluginx64::Render()
 			ImGui::OpenPopup("JoinServer");
 		}
 		renderJoinServerPopup();
+
+		if (DownloadTexturesBool) //I know this is not good but It works, so I don't care
+		{
+			ImGui::OpenPopup("DownloadTextures");
+		}
+		renderDownloadTexturesPopup(CheckExist_TexturesFiles());
 
 
 		if (ImGui::Selectable("LastUpdate", false, 0, ImVec2{63, 14}))
@@ -1533,9 +1549,9 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 				fs::create_directory(modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
-		else if (!Directory_Or_File_Exists(modsDirPath + "\\" + curMap.UpkFile.filename().string()))
+		else if (!FileIsInDirectoryRecursive(RLCookedPCConsole_Path.string(), curMap.UpkFile.filename().string()))
 		{
-			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() { //" isn't in mods/. Paste the map to mods/ ?";
+			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() { //" isn't in CookedPCConsole. Paste the map to CookedPCConsole/mods ?";
 				fs::copy(curMap.UpkFile, modsDirPath);
 				}, [this]() {ImGui::CloseCurrentPopup(); });
 		}
@@ -1860,7 +1876,7 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 
 			ImGui::NewLine();
 
-			CenterNexIMGUItItem(208.f);
+			CenterNexIMGUItItem(383.f);
 			if (ImGui::Button(DownloadButtonText.c_str(), ImVec2(100.f, 25.f)))//"Download"
 			{
 				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
@@ -1869,6 +1885,13 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			ImGui::SameLine();
 			if (ImGui::Button(CloseText.c_str(), ImVec2(100.f, 25.f)))//"Close"
 			{
+				DownloadTexturesBool = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(DontAskText.c_str(), ImVec2(150.f, 25.f)))//"Don't ask me again"
+			{
+				DownloadTexturesBool = false;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -1879,6 +1902,7 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 			CenterNexIMGUItItem(100.f);
 			if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 			{
+				DownloadTexturesBool = false;
 				ImGui::CloseCurrentPopup();
 			}
 		}

@@ -217,6 +217,7 @@ public:
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
 	bool JoinServerBool;
+	bool DownloadTexturesBool;
 	std::string IfNoPreviewImagePath;
 	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
 	std::string rlmaps_url = "http://rocketleaguemaps.us/api/getmultimap.php";
@@ -298,6 +299,7 @@ public:
 	void SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert);
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
+	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 
 
 	//ImGui SettingsWindow Functions
@@ -429,4 +431,5 @@ public:
 	std::string DLTMissingFilesText;
 	std::string DLTTexturesInstalledText;
 	std::string CloseText;
+	std::string DontAskText;
 };

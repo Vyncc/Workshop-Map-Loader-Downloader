@@ -42,20 +42,21 @@ void Pluginx64::onLoad()
 
 
 	JoinServerBool = false;
+	DownloadTexturesBool = false;
 
 	try
 	{
-		if (Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods"))
+		for (const auto& dir : fs::directory_iterator(RLCookedPCConsole_Path.string()))
 		{
-			for (const auto& file : fs::directory_iterator(RLCookedPCConsole_Path.string() + "\\mods"))
+			if (dir.is_directory())
 			{
-				MapsAlreadyInCPCC.push_back(file.path());
-				cvarManager->log("Map already in cpcc : " + file.path().filename().string());
+				for (const auto& file : fs::recursive_directory_iterator(dir.path()))
+					if (!file.is_directory())
+					{
+						MapsAlreadyInCPCC.push_back(file.path());
+						cvarManager->log("Map already in cpcc : " + file.path().filename().string());
+					}
 			}
-		}
-		else
-		{
-			cvarManager->log("The mods directory doesn't exist !");
 		}
 	}
 	catch (const std::exception& ex)
@@ -832,6 +833,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	RLMAPS_NumberOfMapsFound = nbMapsFound;
 
 	int nbResults = 0;
+	int pageIndex = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
@@ -893,26 +895,25 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 			result.Image = resultImage;
 			result.isImageLoaded = resultisImageLoaded;
 
-			RLMAPS_MapResultList.push_back(result);
 
+			if (nbResults == 0)
+			{
+				RLMAPS_Pages.push_back({ result });
+			}
+			else
+			{
+				RLMAPS_Pages.at(pageIndex).push_back(result);
+			}
 
 
 			nbResults++;
 
 			if (nbResults == 30)
 			{
-				RLMAPS_Pages.push_back(RLMAPS_MapResultList);
-				RLMAPS_MapResultList.clear();
 				nbResults = 0;
+				pageIndex++;
 			}
 		}
-	}
-
-	if (RLMAPS_MapResultList.size() > 0)
-	{
-		RLMAPS_Pages.push_back(RLMAPS_MapResultList);
-		RLMAPS_MapResultList.clear();
-		nbResults = 0;
 	}
 
 	RLMAPS_Searching = false;
@@ -944,6 +945,7 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 
 
 	int nbResults = 0;
+	int pageIndex = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
@@ -988,25 +990,24 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 		result.Image = resultImage;
 		result.isImageLoaded = resultisImageLoaded;
 
-		RLMAPS_MapResultList.push_back(result);
-		
 
+		if (nbResults == 0)
+		{
+			RLMAPS_Pages.push_back({ result });
+		}
+		else
+		{
+			RLMAPS_Pages.at(pageIndex).push_back(result);
+		}
+		
 
 		nbResults++;
 
 		if (nbResults == 30)
 		{
-			RLMAPS_Pages.push_back(RLMAPS_MapResultList);
-			RLMAPS_MapResultList.clear();
 			nbResults = 0;
+			pageIndex++;
 		}
-	}
-
-	if (RLMAPS_MapResultList.size() > 0)
-	{
-		RLMAPS_Pages.push_back(RLMAPS_MapResultList);
-		RLMAPS_MapResultList.clear();
-		nbResults = 0;
 	}
 
 	RLMAPS_Searching = false;
@@ -1464,6 +1465,22 @@ void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePa
 			IsDownloadingPreview = false;
 		});
 
+}
+
+bool Pluginx64::FileIsInDirectoryRecursive(std::string dirPath, std::string filename)
+{
+	for (const auto& dir : fs::directory_iterator(dirPath))
+	{
+		if (dir.is_directory())
+		{
+			for (const auto& file : fs::recursive_directory_iterator(dir.path()))
+				if (!file.is_directory() && file.path().filename().string() == filename)
+				{
+					return true;
+				}
+		}
+	}
+	return false;
 }
 
 

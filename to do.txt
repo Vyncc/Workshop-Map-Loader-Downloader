@@ -1,19 +1,18 @@
-tester le join(lancer un deuxieme rl sur le pc)
-faire la fenetre quand on appuie sur host multiplayer avec tous les mutators etc
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
 
-avant de publier la maj, faut que je change le changelog dans le plugin (lastUpdate)
-			 faut que je fasse les traductions
-			 faut que je change la version du plugin
 
 pour les results de rlmpas.us, faut que je change le design
 			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 
 
-FAUT QUE JE REGARDE, YA UN PROBLEME AVEC BROWSE MAPS DANS RLMAPS
+
+faire le ne plus me demander (pour les textures)
+
+
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
+
 
 pouvoir ajouter un mot de passe pour le serveur
 
