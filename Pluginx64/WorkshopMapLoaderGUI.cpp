@@ -252,7 +252,9 @@ void Pluginx64::Render()
 		ImGui::NewLine();
 		ImGui::Text("-You can now search/download workshop maps from rocketleaguemaps.us");
 		ImGui::NewLine();
-		ImGui::Text("Searching from the Steam tab is working");
+		ImGui::Separator();
+		ImGui::NewLine();
+		ImGui::Text("Searching from the Steam tab works again");
 		ImGui::NewLine();
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
