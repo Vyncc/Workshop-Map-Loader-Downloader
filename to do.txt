@@ -10,6 +10,8 @@ pour les results de rlmpas.us, faut que je change le design
 
 pouvoir afficher les maps dans l'ordre qu'on veut
 
+pouvoir changer l'affichage en mode grile
+
 
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
