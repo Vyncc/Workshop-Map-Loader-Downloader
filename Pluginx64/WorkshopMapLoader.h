@@ -64,9 +64,20 @@ public:
 
 	int widthTest;
 	int heightTest;
+	float fontSizeTest;
+
+	int nbTilesPerLine = 5;
+	float maxTextSize = 160.f;
+	int MapsDisplayMode = 0;
+	std::shared_ptr<ImageWrapper> MapsDisplayModeLogo1Image;
+	std::shared_ptr<ImageWrapper> MapsDisplayModeLogo2Image;
 
 
 
+	void renderMap_DisplayMode_0(Map map);
+	void renderMap_DisplayMode_1(Map map, float buttonWidth);
+
+	std::string LimitTextSize(std::string str, float maxTextSize);
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server
@@ -322,6 +333,7 @@ public:
 	void OnClose() override;
 
 	void renderUnderLine(ImColor col_);
+	void renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function);
 	void CenterNexIMGUItItem(float itemWidth);
 	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
 

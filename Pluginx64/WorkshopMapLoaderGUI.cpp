@@ -334,7 +334,6 @@ void Pluginx64::Render()
 		}
 
 
-
 		if (ImGui::BeginMenu("Multiplayer"))
 		{
 			if (ImGui::BeginMenu("Maps joinable"))
@@ -388,7 +387,17 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
-		
+		if (ImGui::BeginMenu("Display"))
+		{
+			for (int i = 3; i <= 14; i++)
+			{
+				if (ImGui::Selectable(std::to_string(i).c_str()))
+				{
+					nbTilesPerLine = i;
+				}
+			}
+			ImGui::EndMenu();
+		}
 
 		if (ImGui::BeginMenu("Credits"))
 		{
@@ -463,6 +472,53 @@ void Pluginx64::Render()
 			renderInfoPopup("Exists?", DirNotExistText.c_str());
 
 			renderDownloadTexturesPopup(missingTexturesFiles);
+
+			ImGui::SameLine();
+
+			ImGui::BeginGroup(); //display mode + maps on line
+			{
+				AlignRightNexIMGUItItem(95.f, 8.f);
+				ImVec2 cursorPos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + 14.f, cursorPos.y - 48.f));
+				ImGui::BeginGroup();
+				{
+					ImGui::Text("Maps On Line : ");
+					ImGui::SetNextItemWidth(80.f);
+					if (ImGui::BeginCombo("##maponline", std::to_string(nbTilesPerLine).c_str()))
+					{
+						for (int i = 3; i <= 14; i++)
+						{
+							if (ImGui::Selectable(std::to_string(i).c_str()))
+							{
+								nbTilesPerLine = i;
+							}
+						}
+						ImGui::EndCombo();
+					}
+
+					ImGui::EndGroup();
+				}
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + 14.f, cursorPos.y - 4.f));
+				ImGui::BeginGroup();
+				{
+					renderImageButton(MapsDisplayModeLogo1Image->GetImGuiTex(), ImVec2(36.f, 36.f), [this]() {
+						cvarManager->log("MapsDisplayMode set to : 0");
+						MapsDisplayMode = 0;
+						});
+
+					ImGui::SameLine();
+
+					renderImageButton(MapsDisplayModeLogo2Image->GetImGuiTex(), ImVec2(36.f, 36.f), [this]() {
+						cvarManager->log("MapsDisplayMode set to : 1");
+						MapsDisplayMode = 1;
+						});
+
+					ImGui::EndGroup();
+				}
+				ImGui::EndGroup();
+			}
+			
+			//ImGui::Separator();
 
 			if (IsDownloading_WorkshopTextures)
 			{
@@ -830,8 +886,24 @@ void Pluginx64::renderMaps()
 
 	int ID = 0;
 
+
+	
+	/*
+	ImGui::Text("window width : %f", ImGui::GetWindowWidth());
+	ImGui::Separator();
+
+	ImGui::SliderInt("width", &widthTest, -100, 1920);
+	ImGui::SliderInt("height", &heightTest, -100, 500);
+	ImGui::SliderFloat("fontsize", &fontSizeTest, 0.f, 1.f);
+	*/
+	
+
 	if (ImGui::BeginChild("#MapsLauncherButtons"))
 	{
+		float windowWidth = ImGui::GetContentRegionAvailWidth();
+		float buttonWidth = (windowWidth - ((nbTilesPerLine - 1) * 8)) / nbTilesPerLine;
+		int nbTilesOnTheActualLine = 0;
+
 		for (auto map : MapList)
 		{
 			if (map.UpkFile == "NoUpkFound" && map.ZipFile != "EmptyFolder" && map.ZipFile != "NoZipFound")
@@ -927,90 +999,197 @@ void Pluginx64::renderMaps()
 		for (auto curMap : Good_MapList)
 		{
 			ImGui::PushID(ID); //needed to make the button work
-			ImGui::BeginGroup();
+
+			if (MapsDisplayMode == 0)
 			{
-				ImDrawList* draw_list = ImGui::GetWindowDrawList();
-				ImFont* fontA = ImGui::GetDefaultFont();
-
-
-				if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+				renderMap_DisplayMode_0(curMap);
+				ImGui::PopID();
+				ID++;
+			}
+			else
+			{
+				renderMap_DisplayMode_1(curMap, buttonWidth);
+				nbTilesOnTheActualLine++;
+				ImGui::PopID();
+				ID++;
+				if (nbTilesOnTheActualLine == nbTilesPerLine)
 				{
-					ImGui::OpenPopup("LaunchMode");
-				}
-				renderLaunchModePopup(curMap);
-
-
-				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
-				ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
-				ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
-				ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
-
-
-				draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
-				if (curMap.isPreviewImageLoaded == true)
-				{
-					try
-					{
-						draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
-					}
-					catch (const std::exception& ex)
-					{
-						cvarManager->log(ex.what());
-					}
-				}
-
-				if (curMap.JsonFile == "NoInfos")
-				{
-					draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
-						replace(curMap.Folder.filename().string(), *"_", *" ").c_str());
+					nbTilesOnTheActualLine = 0;
+					ImGui::NewLine();
 				}
 				else
 				{
-					std::string GoodDescription = GetJSONLocalMapInfos(curMap.JsonFile).at(1);
-					if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 150)
-					{
-						GoodDescription.insert(145, "\n");
-
-						if (GetJSONLocalMapInfos(curMap.JsonFile).at(1).length() > 280)
-						{
-							GoodDescription.erase(280);
-							GoodDescription.append("...");
-						}
-					}
-
-					draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
-						GetJSONLocalMapInfos(curMap.JsonFile).at(0).c_str()); //Map title
-					draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
-					draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
-						std::string(ResultByText.c_str() + GetJSONLocalMapInfos(curMap.JsonFile).at(2)).c_str()); // "By " Map Author
-				}
-
-				ImGui::EndGroup();
-
-				if (ImGui::BeginPopupContextItem("Map context menu"))
-				{
-					if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
-					{
-						std::wstring w_CurrentMapsDir = s2ws(curMap.Folder.string());
-						LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
-
-						ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
-					}
-
-					if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
-					{
-						fs::remove_all(curMap.Folder);
-						RefreshMapsFunct(MapsFolderPathBuf);
-					}
-					ImGui::EndPopup();
+					ImGui::SameLine();
 				}
 			}
-
-			ImGui::PopID();
-			ID++;
 		}
 	}
 	ImGui::EndChild();
+}
+
+void Pluginx64::renderMap_DisplayMode_0(Map map)
+{
+	ImGui::BeginGroup();
+	{
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		ImFont* fontA = ImGui::GetDefaultFont();
+
+		float windowWidth = ImGui::GetContentRegionAvailWidth();
+
+
+		if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
+		{
+			ImGui::OpenPopup("LaunchMode");
+		}
+		renderLaunchModePopup(map);
+
+
+		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
+		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
+		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
+		ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
+
+
+		draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
+		if (map.isPreviewImageLoaded == true)
+		{
+			try
+			{
+				draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log(ex.what());
+			}
+		}
+
+		if (map.JsonFile == "NoInfos")
+		{
+			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 10.f), ImColor(255, 255, 255, 255),
+				replace(map.Folder.filename().string(), *"_", *" ").c_str());
+		}
+		else
+		{
+			std::string GoodDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
+			if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 150)
+			{
+				GoodDescription.insert(145, "\n");
+
+				if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 280)
+				{
+					GoodDescription.erase(280);
+					GoodDescription.append("...");
+				}
+			}
+
+			/* //resopnsive description but it takes too much ressources and causes fps issues
+			std::string mapDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
+			if (ImGui::CalcTextSize(mapDescription.c_str()).x > windowWidth - 500.f)
+			{
+				mapDescription.insert(LimitTextSize(mapDescription, ImGui::GetWindowWidth()).size() - 1, "\n");
+			}
+			*/
+
+			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
+				GetJSONLocalMapInfos(map.JsonFile).at(0).c_str()); //Map title
+			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
+			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
+				std::string(ResultByText.c_str() + GetJSONLocalMapInfos(map.JsonFile).at(2)).c_str()); // "By " Map Author
+		}
+
+		ImGui::EndGroup();
+
+		if (ImGui::BeginPopupContextItem("Map context menu"))
+		{
+			if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
+			{
+				std::wstring w_CurrentMapsDir = s2ws(map.Folder.string());
+				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+
+				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+			}
+
+			if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
+			{
+				fs::remove_all(map.Folder);
+				RefreshMapsFunct(MapsFolderPathBuf);
+			}
+			ImGui::EndPopup();
+		}
+	}
+}
+
+void Pluginx64::renderMap_DisplayMode_1(Map map, float buttonWidth)
+{
+	ImGui::BeginGroup();
+	{
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+		if (ImGui::Button("##map", ImVec2(buttonWidth, (buttonWidth * 0.75f))))
+		{
+			ImGui::OpenPopup("LaunchMode");
+		}
+		renderLaunchModePopup(map);
+
+		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
+		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
+		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 29.f);
+		ImVec2 ImageMax = ImVec2(ButtonRectMax.x - 5.f, ButtonRectMax.y - 5.f);
+
+
+		draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
+		if (map.isPreviewImageLoaded == true)
+		{
+			try
+			{
+				draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log(ex.what());
+			}
+		}
+
+		ImFont* fontA = ImGui::GetDefaultFont();
+
+		
+		std::string mapTitle = GetJSONLocalMapInfos(map.JsonFile).at(0);
+		if (ImGui::CalcTextSize(mapTitle.c_str()).x > (buttonWidth * 0.808f))
+		{
+			mapTitle = LimitTextSize(mapTitle, (buttonWidth * 0.808f) - ImGui::CalcTextSize("...").x) + "...";
+		}
+		
+		draw_list->AddText(fontA, 15.5f, ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 6.f), ImColor(255, 255, 255, 255), mapTitle.c_str()); //Map title
+
+		ImGui::EndGroup();
+
+		if (ImGui::BeginPopupContextItem("Map context menu"))
+		{
+			if (ImGui::Selectable(OpenMapDirText.c_str())) // "Open map directory"
+			{
+				std::wstring w_CurrentMapsDir = s2ws(map.Folder.string());
+				LPCWSTR L_CurrentMapsDir = w_CurrentMapsDir.c_str();
+
+				ShellExecute(NULL, L"open", L_CurrentMapsDir, NULL, NULL, SW_SHOWDEFAULT);
+			}
+
+			if (ImGui::Selectable(DeleteMapText.c_str())) // "Delete Map"
+			{
+				fs::remove_all(map.Folder);
+				RefreshMapsFunct(MapsFolderPathBuf);
+			}
+			ImGui::EndPopup();
+		}
+	}
+}
+
+std::string Pluginx64::LimitTextSize(std::string str, float maxTextSize)
+{
+	while (ImGui::CalcTextSize(str.c_str()).x > maxTextSize)
+	{
+		str = str.substr(0, str.size() - 1);
+	}
+	return str;
 }
 
 
@@ -1466,6 +1645,25 @@ void Pluginx64::renderUnderLine(ImColor col_)
 	ImVec2 max = ImGui::GetItemRectMax();
 	min.y = max.y;
 	ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
+}
+
+void Pluginx64::renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function)
+{
+	ImGui::BeginGroup();
+	{
+		ImGui::Image(user_texture_id, size, ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if (ImGui::IsMouseClicked(0))
+			{
+				function();
+			}
+		}
+
+		ImGui::EndGroup();
+	}
 }
 
 void Pluginx64::renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label)

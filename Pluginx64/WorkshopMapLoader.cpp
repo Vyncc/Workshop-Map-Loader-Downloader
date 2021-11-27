@@ -32,6 +32,12 @@ void Pluginx64::onLoad()
 	std::string RLMAPSLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\rlmapslogo.png";
 	RLMAPSLogoImage = std::make_shared<ImageWrapper>(RLMAPSLogoPath, false, true);
 
+	std::string MapsDisplayModeLogo1Path = BakkesmodPath + "data\\WorkshopMapLoader\\logo1.png";
+	MapsDisplayModeLogo1Image = std::make_shared<ImageWrapper>(MapsDisplayModeLogo1Path, false, true);
+
+	std::string MapsDisplayModeLogo2Path = BakkesmodPath + "data\\WorkshopMapLoader\\logo2.png";
+	MapsDisplayModeLogo2Image = std::make_shared<ImageWrapper>(MapsDisplayModeLogo2Path, false, true);
+
 	STEAM_browsing = false;
 	RLMAPS_browsing = false;
 	RLMAPS_Searching = false;

@@ -12,6 +12,10 @@ pouvoir afficher les maps dans l'ordre qu'on veut
 
 pouvoir changer l'affichage en mode grile
 
+faut que je fix le download by url
+faut que je regarde pk la popup directory doesn't exist ne s'affiche pas quand ya un mauvais chemin
+
+faire le responsive avec les descriptions des maps grace a LimitTextSize()
 
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
