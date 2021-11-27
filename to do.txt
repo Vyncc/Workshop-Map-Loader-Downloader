@@ -10,12 +10,14 @@ pour les results de rlmpas.us, faut que je change le design
 
 pouvoir afficher les maps dans l'ordre qu'on veut
 
-pouvoir changer l'affichage en mode grile
+
 
 faut que je fix le download by url
-faut que je regarde pk la popup directory doesn't exist ne s'affiche pas quand ya un mauvais chemin
 
-faire le responsive avec les descriptions des maps grace a LimitTextSize()
+
+faire le responsive avec les descriptions des maps grace a LimitTextSize() (j'ai essayé mais trop de pertes d'fps a cause du while(dans LimitTextSize()) qui tourne
+pour chaque map, mais je pense que je peux le faire quand meme en appellant la fonction juste quand je redimensionne la fenetre, du coup les drops de fps se feront
+juste à ce moment la)
 
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
@@ -31,6 +33,10 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+/faut que je regarde pk la popup directory doesn't exist ne s'affiche pas quand ya un mauvais chemin
+
+/pouvoir changer l'affichage en mode grile
 
 /faire le ne plus me demander (pour les textures)
 

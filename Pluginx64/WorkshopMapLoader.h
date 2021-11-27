@@ -62,22 +62,12 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
+	/*
 	int widthTest;
 	int heightTest;
 	float fontSizeTest;
+	*/
 
-	int nbTilesPerLine = 5;
-	float maxTextSize = 160.f;
-	int MapsDisplayMode = 0;
-	std::shared_ptr<ImageWrapper> MapsDisplayModeLogo1Image;
-	std::shared_ptr<ImageWrapper> MapsDisplayModeLogo2Image;
-
-
-
-	void renderMap_DisplayMode_0(Map map);
-	void renderMap_DisplayMode_1(Map map, float buttonWidth);
-
-	std::string LimitTextSize(std::string str, float maxTextSize);
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server
@@ -242,6 +232,15 @@ public:
 	std::vector<std::string> GetJSONLocalMapInfos(std::string jsonFilePath);
 	void RefreshMapsFunct(std::string mapsfolders);
 
+	//Display mode
+	int nbTilesPerLine = 5;
+	float maxTextSize = 160.f;
+	int MapsDisplayMode = 0;
+	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo1_Image;
+	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo1_SelectedImage;
+	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_Image;
+	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_SelectedImage;
+
 
 	//Search Workshop
 	//Steam
@@ -336,6 +335,7 @@ public:
 	void renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function);
 	void CenterNexIMGUItItem(float itemWidth);
 	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
+	std::string LimitTextSize(std::string str, float maxTextSize); //à mettre dans utils
 
 	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
 
@@ -353,6 +353,8 @@ public:
 
 
 	void renderMaps();
+	void renderMaps_DisplayMode_0(Map map);
+	void renderMaps_DisplayMode_1(Map map, float buttonWidth);
 
 	void renderSortByCombos(std::string mostPopular_url);
 	void Steam_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);

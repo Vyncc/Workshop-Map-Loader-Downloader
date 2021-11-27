@@ -27,16 +27,16 @@ void Pluginx64::onLoad()
 	std::string RLWin64_Path = std::filesystem::current_path().string();
 	RLCookedPCConsole_Path = RLWin64_Path.substr(0, RLWin64_Path.length() - 14) + "TAGame\\CookedPCConsole";
 
-	std::string SteamLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\steamlogo.png";
-	SteamLogoImage = std::make_shared<ImageWrapper>(SteamLogoPath, false, true);
-	std::string RLMAPSLogoPath = BakkesmodPath + "data\\WorkshopMapLoader\\rlmapslogo.png";
-	RLMAPSLogoImage = std::make_shared<ImageWrapper>(RLMAPSLogoPath, false, true);
+	std::string Data_WorkshopMapLoader_Path = BakkesmodPath + "data\\WorkshopMapLoader\\";
 
-	std::string MapsDisplayModeLogo1Path = BakkesmodPath + "data\\WorkshopMapLoader\\logo1.png";
-	MapsDisplayModeLogo1Image = std::make_shared<ImageWrapper>(MapsDisplayModeLogo1Path, false, true);
+	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "steamlogo.png", false, true);
+	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "rlmapslogo.png", false, true);
 
-	std::string MapsDisplayModeLogo2Path = BakkesmodPath + "data\\WorkshopMapLoader\\logo2.png";
-	MapsDisplayModeLogo2Image = std::make_shared<ImageWrapper>(MapsDisplayModeLogo2Path, false, true);
+	//Load maps display mode images
+	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1.png", false, true);
+	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo2.png", false, true);
+	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1_white.png", false, true);
+	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo2_white.png", false, true);
 
 	STEAM_browsing = false;
 	RLMAPS_browsing = false;

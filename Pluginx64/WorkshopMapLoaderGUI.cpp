@@ -387,23 +387,11 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
-		if (ImGui::BeginMenu("Display"))
-		{
-			for (int i = 3; i <= 14; i++)
-			{
-				if (ImGui::Selectable(std::to_string(i).c_str()))
-				{
-					nbTilesPerLine = i;
-				}
-			}
-			ImGui::EndMenu();
-		}
-
 		if (ImGui::BeginMenu("Credits"))
 		{
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 			ImGui::NewLine();
-			ImGui::Text("Thanks to PatteAuSucre for testing ;)");
+			ImGui::Text("Thanks to PatteAuSucre for testing and Teyq for his help ;)");
 			ImGui::Text("Thanks to JetFox for his help");
 
 			ImGui::EndMenu();
@@ -479,38 +467,51 @@ void Pluginx64::Render()
 			{
 				AlignRightNexIMGUItItem(95.f, 8.f);
 				ImVec2 cursorPos = ImGui::GetCursorPos();
-				ImGui::SetCursorPos(ImVec2(cursorPos.x + 14.f, cursorPos.y - 48.f));
-				ImGui::BeginGroup();
+				if (MapsDisplayMode == 1)
 				{
-					ImGui::Text("Maps On Line : ");
-					ImGui::SetNextItemWidth(80.f);
-					if (ImGui::BeginCombo("##maponline", std::to_string(nbTilesPerLine).c_str()))
+					ImGui::SetCursorPos(ImVec2(cursorPos.x + 14.f, cursorPos.y - 48.f));
+					ImGui::BeginGroup();
 					{
-						for (int i = 3; i <= 14; i++)
+						ImGui::Text("Maps Per Line : ");
+						ImGui::SetNextItemWidth(80.f);
+						if (ImGui::BeginCombo("##maponline", std::to_string(nbTilesPerLine).c_str()))
 						{
-							if (ImGui::Selectable(std::to_string(i).c_str()))
+							for (int i = 2; i <= 14; i++)
 							{
-								nbTilesPerLine = i;
+								if (ImGui::Selectable(std::to_string(i).c_str()))
+								{
+									nbTilesPerLine = i;
+								}
 							}
+							ImGui::EndCombo();
 						}
-						ImGui::EndCombo();
-					}
 
-					ImGui::EndGroup();
+						ImGui::EndGroup();
+					}
 				}
 				ImGui::SetCursorPos(ImVec2(cursorPos.x + 14.f, cursorPos.y - 4.f));
 				ImGui::BeginGroup();
 				{
-					renderImageButton(MapsDisplayModeLogo1Image->GetImGuiTex(), ImVec2(36.f, 36.f), [this]() {
-						cvarManager->log("MapsDisplayMode set to : 0");
+					ImTextureID TextureID_DisplayMode1Image = MapsDisplayMode_Logo1_Image->GetImGuiTex();
+					if (MapsDisplayMode == 0)
+					{
+						TextureID_DisplayMode1Image = MapsDisplayMode_Logo1_SelectedImage->GetImGuiTex();
+					}
+					renderImageButton(TextureID_DisplayMode1Image, ImVec2(36.f, 36.f), [this]() {
 						MapsDisplayMode = 0;
+						cvarManager->log("MapsDisplayMode set to : 0");
 						});
 
 					ImGui::SameLine();
 
-					renderImageButton(MapsDisplayModeLogo2Image->GetImGuiTex(), ImVec2(36.f, 36.f), [this]() {
-						cvarManager->log("MapsDisplayMode set to : 1");
+					ImTextureID TextureID_DisplayMode2Image = MapsDisplayMode_Logo2_Image->GetImGuiTex();
+					if (MapsDisplayMode == 1)
+					{
+						TextureID_DisplayMode2Image = MapsDisplayMode_Logo2_SelectedImage->GetImGuiTex();
+					}
+					renderImageButton(TextureID_DisplayMode2Image, ImVec2(36.f, 36.f), [this]() {
 						MapsDisplayMode = 1;
+						cvarManager->log("MapsDisplayMode set to : 1");
 						});
 
 					ImGui::EndGroup();
@@ -1002,13 +1003,13 @@ void Pluginx64::renderMaps()
 
 			if (MapsDisplayMode == 0)
 			{
-				renderMap_DisplayMode_0(curMap);
+				renderMaps_DisplayMode_0(curMap);
 				ImGui::PopID();
 				ID++;
 			}
 			else
 			{
-				renderMap_DisplayMode_1(curMap, buttonWidth);
+				renderMaps_DisplayMode_1(curMap, buttonWidth);
 				nbTilesOnTheActualLine++;
 				ImGui::PopID();
 				ID++;
@@ -1027,7 +1028,7 @@ void Pluginx64::renderMaps()
 	ImGui::EndChild();
 }
 
-void Pluginx64::renderMap_DisplayMode_0(Map map)
+void Pluginx64::renderMaps_DisplayMode_0(Map map)
 {
 	ImGui::BeginGroup();
 	{
@@ -1119,7 +1120,7 @@ void Pluginx64::renderMap_DisplayMode_0(Map map)
 	}
 }
 
-void Pluginx64::renderMap_DisplayMode_1(Map map, float buttonWidth)
+void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 {
 	ImGui::BeginGroup();
 	{
@@ -1183,16 +1184,6 @@ void Pluginx64::renderMap_DisplayMode_1(Map map, float buttonWidth)
 	}
 }
 
-std::string Pluginx64::LimitTextSize(std::string str, float maxTextSize)
-{
-	while (ImGui::CalcTextSize(str.c_str()).x > maxTextSize)
-	{
-		str = str.substr(0, str.size() - 1);
-	}
-	return str;
-}
-
-
 
 void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
 {
@@ -1245,11 +1236,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 	std::string mapSize = mapResult.Size;
 	std::string mapAuthor = mapResult.Author;
 
-	//Popup if is a downlaod is in progress and user wants to start a new download
-	renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
 
-	//Popup if maps directory doesn't exist
-	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
 	ImGui::BeginChild("##SteamResult", ImVec2(190.f, 260.f));
 	{
@@ -1309,6 +1296,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 					if (!Directory_Or_File_Exists(fs::path(mapspath)))
 					{
 						ImGui::OpenPopup("Exists?");
+						cvarManager->log("CA MARCHE PAS PTN");
 					}
 
 					if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
@@ -1317,6 +1305,13 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 					}
 				}
 			}
+
+			//Popup if maps directory doesn't exist
+			renderInfoPopup("Exists?", DirNotExistText.c_str());
+
+			//Popup if is a downlaod is in progress and user wants to start a new download
+			renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
+
 			ImGui::EndGroup();
 
 			if (ImGui::IsItemHovered())
@@ -1530,11 +1525,6 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 	std::string mapDescription = mapResult.Description;
 	std::string mapAuthor = mapResult.Author;
 
-	//Popup if is a downlaod is in progress and user wants to start a new download
-	renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
-
-	//Popup if maps directory doesn't exist
-	renderInfoPopup("Exists?", DirNotExistText.c_str());
 
 	ImGui::BeginChild("##RlmapsResult", ImVec2(190.f, 260.f));
 	{
@@ -1592,6 +1582,13 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 					}
 				}
 			}
+
+			//Popup if is a downlaod is in progress and user wants to start a new download
+			renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
+
+			//Popup if maps directory doesn't exist
+			renderInfoPopup("Exists?", DirNotExistText.c_str());
+
 			ImGui::EndGroup();
 
 			if (ImGui::IsItemHovered())
@@ -1636,6 +1633,16 @@ void Pluginx64::AlignRightNexIMGUItItem(float itemWidth, float borderGap)
 	auto windowWidth = ImGui::GetWindowSize().x;
 	float totalWidth = itemWidth + borderGap;
 	ImGui::SetCursorPosX(windowWidth - totalWidth);
+}
+
+
+std::string Pluginx64::LimitTextSize(std::string str, float maxTextSize)
+{
+	while (ImGui::CalcTextSize(str.c_str()).x > maxTextSize)
+	{
+		str = str.substr(0, str.size() - 1);
+	}
+	return str;
 }
 
 //https://gist.github.com/dougbinks/ef0962ef6ebe2cadae76c4e9f0586c69
