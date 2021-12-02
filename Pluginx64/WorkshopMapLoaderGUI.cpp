@@ -686,9 +686,6 @@ void Pluginx64::Render()
 					ImGui::EndGroup();
 				}
 
-
-				ImGui::SliderFloat("fontsize", &fontSizeTest, 0.f, 1.f);
-
 				ImGui::NewLine();
 				ImGui::NewLine();
 
@@ -897,16 +894,14 @@ void Pluginx64::renderMaps()
 
 	int ID = 0;
 
-
-	
-	
+	/*
 	ImGui::Text("window width : %f", ImGui::GetWindowWidth());
 	ImGui::Separator();
 
 	ImGui::SliderInt("width", &widthTest, -100, 1920);
 	ImGui::SliderInt("height", &heightTest, -100, 500);
 	ImGui::SliderFloat("fontsize", &fontSizeTest, 0.f, 1.f);
-	
+	*/
 	
 
 	if (ImGui::BeginChild("#MapsLauncherButtons"))

@@ -62,11 +62,11 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	
+	/*
 	int widthTest;
 	int heightTest;
 	float fontSizeTest = 0.f;
-	
+	*/
 
 	
 	//Host multiplayer game
