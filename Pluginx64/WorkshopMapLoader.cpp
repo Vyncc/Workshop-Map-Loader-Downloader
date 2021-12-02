@@ -29,10 +29,11 @@ void Pluginx64::onLoad()
 
 	std::string Data_WorkshopMapLoader_Path = BakkesmodPath + "data\\WorkshopMapLoader\\";
 
+	//Load logos
 	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "steamlogo.png", false, true);
 	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "rlmapslogo.png", false, true);
 
-	//Load maps display mode images
+	//Load display mode images
 	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1.png", false, true);
 	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo2.png", false, true);
 	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1_white.png", false, true);
@@ -74,11 +75,18 @@ void Pluginx64::onLoad()
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
-		cvarManager->log("Workshop Maps Folder : " + GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(0));
-		MapsFolderPath = GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(0);
-		unzipMethod = GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(2);
+		std::vector<std::string> CFGVariablesList = GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg");
+		cvarManager->log("Workshop Maps Folder : " + CFGVariablesList.at(0));
+		MapsFolderPath = CFGVariablesList.at(0);
+		unzipMethod = CFGVariablesList.at(2);
+		dontAsk = std::stoi(CFGVariablesList.at(4));
+		MapsDisplayMode = std::stoi(CFGVariablesList.at(5));
+		nbTilesPerLine = std::stoi(CFGVariablesList.at(6));
 
-		if (GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(1) == "0")
+
+
+
+		if (CFGVariablesList.at(1) == "0")
 		{
 			FR = false;
 		}
@@ -87,7 +95,7 @@ void Pluginx64::onLoad()
 			FR = true;
 		}
 
-		if (GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg").at(3) == "0")
+		if (CFGVariablesList.at(3) == "0")
 		{
 			HasSeeNewUpdateAlert = false;
 		}
@@ -406,6 +414,7 @@ std::string Pluginx64::GetWorkshopIDByUrl(std::string workshopurl)
 
 	return Workshop_id;
 }
+
 
 
 //Steam Download & Search
@@ -1401,16 +1410,18 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 		cvarManager->log("File renamed successfully");
 }
 
-void Pluginx64::SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert, std::string dontask)
+void Pluginx64::SaveInCFG()
 {
-	std::string filename = cfgFilePath;
+	std::string filename = BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg";
 	std::ofstream CFGFile(filename);
 
-	CFGFile << "MapsFolderPath = \"" + mapsfolderpathvariable + "\"\n";
-	CFGFile << "Language = \"" + languageVariable + "\"\n";
-	CFGFile << "UnzipMethod = \"" + unzipMethodVariable + "\"\n";
-	CFGFile << "HasSeeNewUpdateAlert = \"" + hasSeenNewUpdateAlert + "\"\n";
-	CFGFile << "dontask = \"" + dontask + "\"";
+	CFGFile << "MapsFolderPath = \"" + std::string(MapsFolderPathBuf) + "\"\n";
+	CFGFile << "Language = \"" + std::to_string(FR) + "\"\n";
+	CFGFile << "UnzipMethod = \"" + unzipMethod + "\"\n";
+	CFGFile << "HasSeeNewUpdateAlert = \"" + std::to_string(HasSeeNewUpdateAlert) + "\"\n";
+	CFGFile << "dontask = \"" + std::to_string(dontAsk) + "\"\n";
+	CFGFile << "MapsDisplayMode = \"" + std::to_string(MapsDisplayMode) + "\"\n";
+	CFGFile << "nbTilesPerLine = \"" + std::to_string(nbTilesPerLine) + "\"";
 
 	CFGFile.close();
 
@@ -1447,6 +1458,14 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 			if (i == 4)
 			{
 				CfgInfosList.push_back(line.substr(11, line.length() - 12)); //pushback dontask
+			}
+			if (i == 5)
+			{
+				CfgInfosList.push_back(line.substr(19, line.length() - 20)); //pushback mapsDisplayMode
+			}
+			if (i == 6)
+			{
+				CfgInfosList.push_back(line.substr(18, line.length() - 19)); //pushback nbTilesPerLine
 			}
 			i++;
 		}

@@ -62,11 +62,11 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	/*
+	
 	int widthTest;
 	int heightTest;
-	float fontSizeTest;
-	*/
+	float fontSizeTest = 0.f;
+	
 
 	
 	//Host multiplayer game
@@ -217,6 +217,7 @@ public:
 	static bool FR;
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
+	int dontAsk = 0;
 	bool JoinServerBool;
 	bool DownloadTexturesBool;
 	std::string IfNoPreviewImagePath;
@@ -306,7 +307,7 @@ public:
 	bool Directory_Or_File_Exists(const fs::path& p, fs::file_status s = fs::file_status{});
 	void renameFileToUPK(std::filesystem::path filePath);
 	std::string UdkInDirectory(std::string dirPath);
-	void SaveInCFG(std::string cfgFilePath, std::string mapsfolderpathvariable, std::string languageVariable, std::string unzipMethodVariable, std::string hasSeenNewUpdateAlert, std::string dontask);
+	void SaveInCFG();
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
@@ -320,7 +321,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.14 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.14.1 | Made By Vync";
 
 	void Render() override;
 	std::string GetMenuName() override;
@@ -372,6 +373,7 @@ public:
 	std::string Label1Text; //Put the folder's path of the maps, don't forget to add a  /  at the end.
 	std::string RefreshMapsButtonText;
 	std::string SavePathText;
+	std::string MapsPerLineText;
 	//context menu strip
 	std::string OpenMapDirText;
 	std::string DeleteMapText;

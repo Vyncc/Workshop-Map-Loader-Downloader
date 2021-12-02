@@ -1,18 +1,13 @@
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
 
 
-pour les results de rlmpas.us, faut que je change le design
-			       faut que je fasse le system de pages (avec les offsets que JetFox a fait)
 
 
+FAUT QUE JE DISE QUE https://bakkesplugins.com/plugins/view/292 CE PLUGIN M A INSPIRER
 
 
 
 pouvoir afficher les maps dans l'ordre qu'on veut
-
-
-
-faut que je fix le download by url
 
 
 faire le responsive avec les descriptions des maps grace a LimitTextSize() (j'ai essayé mais trop de pertes d'fps a cause du while(dans LimitTextSize()) qui tourne
@@ -22,6 +17,7 @@ juste à ce moment la)
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
 
+faire une meilleurs description en survolant un result de map
 
 pouvoir ajouter un mot de passe pour le serveur
 
