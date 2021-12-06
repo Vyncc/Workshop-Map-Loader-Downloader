@@ -44,6 +44,143 @@ void Pluginx64::Render()
 		return;
 	}
 
+	Gamepad controller1 = Gamepad(1);
+
+	controller1.Update();
+	if (controller1.Connected())
+	{
+		float stickX = controller1.LeftStick_X();
+		float stickY = controller1.LeftStick_Y();
+
+
+
+		POINT point;
+		GetCursorPos(&point);
+
+
+		static bool L1WasPressed = false;
+		static bool BWasPressed = false;
+
+
+		if (controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && !L1WasPressed) {
+			cvarManager->log("Button L1 is pressed");
+			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); //Left click down
+			L1WasPressed = true;
+		}
+		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && L1WasPressed)
+		{
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //Left click realease
+			cvarManager->log("Button L1 is realeased");
+			L1WasPressed = false;
+		}
+
+
+		if (controller1.checkButtonPress(XINPUT_GAMEPAD_B) && !BWasPressed) {
+			cvarManager->log("Button B is pressed");
+			BWasPressed = true;
+		}
+		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_B) && BWasPressed)
+		{
+			isWindowOpen_ = false;
+			cvarManager->log("Button B is realeased");
+			BWasPressed = false;
+		}
+
+
+		if (!controller1.LStick_InDeadzone())
+		{
+			//std::cout << point.x << "," << point.y << "\n"; //display mouse curosr pos
+
+			float ratio = DoRatio(stickX, stickY);
+			int pixelsX = 0;
+			int pixelsY = 0;
+
+
+			if (ratio > 0)
+			{
+				if (ratio >= 0.75f && ratio <= 1.25f)
+				{
+					pixelsX = 9;
+					pixelsY = 9;
+				}
+				if (ratio >= 0.25f && ratio <= 0.75f)
+				{
+					pixelsX = 6;
+					pixelsY = 12;
+				}
+				if (ratio >= 0.f && ratio <= 0.25f)
+				{
+					pixelsX = 0;
+					pixelsY = 9;
+				}
+				if (ratio >= 1.25f && ratio <= 2.5f)
+				{
+					pixelsX = 12;
+					pixelsY = 6;
+				}
+				if (ratio > 2.5f)
+				{
+					pixelsX = 9;
+					pixelsY = 0;
+				}
+			}
+
+			if (ratio < 0)
+			{
+				if (ratio <= -0.75f && ratio >= -1.25f)
+				{
+					pixelsX = 9;
+					pixelsY = -9;
+				}
+				if (ratio <= -0.25f && ratio >= -0.75f)
+				{
+					pixelsX = 6;
+					pixelsY = -12;
+				}
+				if (ratio <= 0.f && ratio >= -0.25f)
+				{
+					pixelsX = 0;
+					pixelsY = -9;
+				}
+				if (ratio <= -1.25f && ratio >= -2.5f)
+				{
+					pixelsX = 12;
+					pixelsY = -6;
+				}
+				if (ratio < -2.5f)
+				{
+					pixelsX = 9;
+					pixelsY = 0;
+				}
+			}
+
+			if (stickX < 0)
+			{
+				pixelsX = pixelsX - pixelsX - pixelsX; //transform pixelsX to negative value
+				pixelsY = pixelsY - pixelsY - pixelsY; //transform pixelsY to negative value
+			}
+
+			/*
+			if (std::abs(stickX) < 0.7f)
+			{
+				pixelsX = pixelsX / 2;
+			}
+			if (std::abs(stickY) < 0.7f)
+			{
+				pixelsY = pixelsY / 2;
+			}*/
+
+			float sensitivity = cvarManager->getCvar("workshopmaploader_controller_sens").getFloatValue();
+
+			pixelsX = (pixelsX * sensitivity) * std::abs(stickX);
+			pixelsY = (pixelsY * sensitivity) * std::abs(stickY);
+
+
+
+			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
+		}
+	}
+
 	if (!FR)
 	{
 		//1st Tab
@@ -541,7 +678,7 @@ void Pluginx64::Render()
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
 
-			renderMaps();
+			renderMaps(controller1);
 
 			ImGui::EndTabItem();
 		}
@@ -887,7 +1024,7 @@ void Pluginx64::Render()
 
 
 
-void Pluginx64::renderMaps()
+void Pluginx64::renderMaps(Gamepad controller)
 {
 	std::vector<Map> NoUpk_MapList;
 	std::vector<Map> Good_MapList;
@@ -1029,6 +1166,28 @@ void Pluginx64::renderMaps()
 				}
 			}
 		}
+
+
+		float rightStickX = controller.RightStick_X();
+		float rightStickY = controller.RightStick_Y();
+
+
+
+		if (controller.Connected())
+		{
+			if (!controller.RStick_InDeadzone())
+			{
+				if (rightStickY < 0)
+				{
+					ImGui::SetScrollY(ImGui::GetScrollY() + std::abs(rightStickY * 10));
+				}
+				if (rightStickY > 0)
+				{
+					ImGui::SetScrollY(ImGui::GetScrollY() - std::abs(rightStickY * 10));
+				}
+			}
+		}
+
 	}
 	ImGui::EndChild();
 }
@@ -1076,7 +1235,7 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		}
 		else
 		{
-			/*
+			
 			std::string GoodDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
 			if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 150)
 			{
@@ -1088,9 +1247,10 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 					GoodDescription.append("...");
 				}
 			}
-			*/
+			
 
-			//responsive description but it takes too much ressources and causes fps issues for not good pc
+			//responsive description but it takes too much ressources and causes fps issues for not good PC (like my PC xD)
+			/*
 			float descriptionWidth = ((windowWidth - 214) * 0.867f);
 			std::string mapDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
 			std::vector<std::string> mapDescriptionParts;
@@ -1109,11 +1269,11 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 					mapDescription = mapDescriptionParts.at(0) + "\n" + mapDescriptionParts.at(1);
 				}
 			}
-			
+			*/
 
 			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
 				GetJSONLocalMapInfos(map.JsonFile).at(0).c_str()); //Map title
-			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), mapDescription.c_str()); //Map Description
+			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
 			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
 				std::string(ResultByText.c_str() + GetJSONLocalMapInfos(map.JsonFile).at(2)).c_str()); // "By " Map Author
 		}

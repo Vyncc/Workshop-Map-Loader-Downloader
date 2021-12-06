@@ -39,6 +39,14 @@ void Pluginx64::RenderSettings()
 		ImGui::OpenPopup("BindSet");
 	}
 
+	if (ImGui::Button("Set Bind for controller : RightThumbStick + LeftThumbStick"))
+	{
+		gameWrapper->Execute([&](GameWrapper* gw) {
+			cvarManager->setBind("XboxTypeS_LeftThumbStick+XboxTypeS_RightThumbStick", "togglemenu WorkshopMapLoaderMenu");
+			cvarManager->log("New key bind set : XboxTypeS_LeftThumbStick+XboxTypeS_RightThumbStick  -> togglemenu WorkshopMapLoaderMenu");
+			});
+	}
+
 	ImGui::Separator();
 	ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 }

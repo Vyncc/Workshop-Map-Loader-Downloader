@@ -21,6 +21,9 @@ std::string GameSetting::GetSelectedValue()
 
 void Pluginx64::onLoad()
 {
+	cvarManager->registerCvar("workshopmaploader_controller_sens", "0.5");
+	gameWrapper->RegisterDrawable(std::bind(&Pluginx64::checkOpenMenuWithController, this, std::placeholders::_1));
+
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
 	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
@@ -120,7 +123,31 @@ void Pluginx64::onLoad()
 
 
 
+void Pluginx64::checkOpenMenuWithController(CanvasWrapper canvas)
+{
+	Gamepad ds4 = Gamepad(1);
 
+	ds4.Update();
+
+	if (ds4.Connected())
+	{
+		static bool ButtonsWasPressed = false;
+
+		if (ds4.checkButtonPress(XINPUT_GAMEPAD_LEFT_THUMB) && ds4.checkButtonPress(XINPUT_GAMEPAD_RIGHT_THUMB) && !ButtonsWasPressed)
+		{
+			ButtonsWasPressed = true;
+		}
+		else if (!ds4.checkButtonPress(XINPUT_GAMEPAD_LEFT_THUMB) && !ds4.checkButtonPress(XINPUT_GAMEPAD_RIGHT_THUMB) && ButtonsWasPressed)
+		{
+			gameWrapper->Execute([&](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("togglemenu " + GetMenuName());
+				});
+			ButtonsWasPressed = false;
+		}
+	}
+	
+}
 
 
 
@@ -1512,6 +1539,12 @@ bool Pluginx64::FileIsInDirectoryRecursive(std::string dirPath, std::string file
 		}
 	}
 	return false;
+}
+
+float Pluginx64::DoRatio(float x, float y)
+{
+	float result = x / y;
+	return result;
 }
 
 
