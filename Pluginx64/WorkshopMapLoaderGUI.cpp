@@ -2230,10 +2230,6 @@ void Pluginx64::renderFolderErrorPopup()
 		ImGui::Text("Error : ");
 		ImGui::Text(FolderErrorText.c_str()); // error message
 		ImGui::NewLine();
-		ImGui::NewLine();
-		ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
-		ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
-		ImGui::NewLine();
 
 		CenterNexIMGUItItem(100.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
