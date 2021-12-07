@@ -477,7 +477,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	if (request_response.status_code != 200)
 	{
 		cvarManager->log("request_response.status_code : " + std::to_string(request_response.status_code));
-		DownloadFailedErrorText = "request_response : error " + std::to_string(request_response.status_code);
+		DownloadFailedErrorText = " error " + std::to_string(request_response.status_code);
 		DownloadFailed = true;
 		IsRetrievingWorkshopFiles = false;
 		return;
