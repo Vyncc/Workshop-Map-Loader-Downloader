@@ -1470,38 +1470,10 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 
 	if (myfile.is_open())
 	{
-		int i = 0;
 		while (std::getline(myfile, line))
 		{
-			if (i == 0)
-			{
-				CfgInfosList.push_back(line.substr(18, line.length() - 19)); // pushback folderPath
-			}
-			if (i == 1)
-			{
-				CfgInfosList.push_back(line.substr(12, line.length() - 13)); // pushback language
-			}
-			if (i == 2)
-			{
-				CfgInfosList.push_back(line.substr(15, line.length() - 16)); //pushback UnzipMethod
-			}
-			if (i == 3)
-			{
-				CfgInfosList.push_back(line.substr(24, line.length() - 25)); //pushback HasSeeNewUpdateAlert
-			}
-			if (i == 4)
-			{
-				CfgInfosList.push_back(line.substr(11, line.length() - 12)); //pushback dontask
-			}
-			if (i == 5)
-			{
-				CfgInfosList.push_back(line.substr(19, line.length() - 20)); //pushback mapsDisplayMode
-			}
-			if (i == 6)
-			{
-				CfgInfosList.push_back(line.substr(18, line.length() - 19)); //pushback nbTilesPerLine
-			}
-			i++;
+			std::string value = FindAllSubstringInAString(line, "\"", "\"").at(0);
+			CfgInfosList.push_back(value.substr(0, value.find("\"")));
 		}
 		myfile.close();
 	}
