@@ -407,6 +407,33 @@ void Pluginx64::Render()
 		ImGui::EndPopup();
 	}
 
+
+	if (!HasSeenIssuesEncountered)
+	{
+		ImGui::OpenPopup("Issues Encountered");
+	}
+	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	if (ImGui::BeginPopupModal("Issues Encountered", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Warning :").x);
+		ImGui::Text("Warning :");
+		ImGui::NewLine();
+
+		for (auto issue : IssuesEncountered)
+		{
+			ImGui::Text(issue.c_str());
+		}
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			HasSeenIssuesEncountered = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
 	
 
 	if (ImGui::BeginMenuBar())

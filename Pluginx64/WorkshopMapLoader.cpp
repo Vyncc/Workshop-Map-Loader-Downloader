@@ -55,6 +55,10 @@ void Pluginx64::onLoad()
 	DownloadTexturesBool = false;
 
 
+	std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
+	t1.detach();
+
+
 	try
 	{
 		for (const auto& dir : fs::directory_iterator(RLCookedPCConsole_Path.string()))
@@ -128,6 +132,9 @@ void Pluginx64::checkOpenMenuWithController(CanvasWrapper canvas)
 	Gamepad ds4 = Gamepad(1);
 
 	ds4.Update();
+
+	if (gameWrapper->IsInOnlineGame())
+		return;
 
 	if (ds4.Connected())
 	{
@@ -1545,6 +1552,33 @@ float Pluginx64::DoRatio(float x, float y)
 {
 	float result = x / y;
 	return result;
+}
+
+
+//Issues Encountered
+void Pluginx64::CheckIssuesEncountered()
+{
+	IssuesEncountered.clear();
+
+	cpr::Response request_response = cpr::Get(cpr::Url{ "https://bakkesplugins.com/plugins/view/223" });
+	if (request_response.status_code != 200)
+	{
+		cvarManager->log("CheckIssuesEncountered : error " + std::to_string(request_response.status_code));
+		return;
+	}
+
+	std::vector<std::string> issuesEncountered = FindAllSubstringInAString(request_response.text, "<h2>Issues Encountered</h2>", "<p>This plugin allows you :</p>");
+
+	if (issuesEncountered.size() == 0) {cvarManager->log("No Issues Encountered"); return;}
+
+	cvarManager->log("Issues Encountered :");
+	for (auto item : FindAllSubstringInAString(issuesEncountered.at(0), "<li>", "</li>"))
+	{
+		cvarManager->log("- " + item);
+		IssuesEncountered.push_back(item);
+	}
+
+	HasSeenIssuesEncountered = false;
 }
 
 

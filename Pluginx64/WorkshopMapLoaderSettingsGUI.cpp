@@ -39,6 +39,12 @@ void Pluginx64::RenderSettings()
 		ImGui::OpenPopup("BindSet");
 	}
 
+	if (ImGui::Button("check issuesencountered"))
+	{
+		std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
+		t1.detach();
+	}
+
 	if (ImGui::Button("Set Bind for controller : RightThumbStick + LeftThumbStick"))
 	{
 		gameWrapper->Execute([&](GameWrapper* gw) {

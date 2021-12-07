@@ -5,6 +5,8 @@
 #include<Xinput.h>
 #pragma comment(lib, "Xinput.lib")
 
+//https://lcmccauley.wordpress.com/2014/01/05/gamepad-input-tutorial/
+
 
 class Gamepad
 {

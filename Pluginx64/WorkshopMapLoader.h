@@ -72,6 +72,12 @@ public:
 
 	void checkOpenMenuWithController(CanvasWrapper canvas);
 
+
+	//Issues Encountered
+	void CheckIssuesEncountered();
+	std::vector<std::string> IssuesEncountered;
+	bool HasSeenIssuesEncountered = true;
+
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server
