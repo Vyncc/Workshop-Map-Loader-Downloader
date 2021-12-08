@@ -579,8 +579,8 @@ void Pluginx64::Render()
 			ImGui::Text(Label1Text.c_str()); // "Put the folder's path of the maps, don't forget to add a  /  at the end."
 
 
-			CenterNexIMGUItItem(620.f);
-			ImGui::SetNextItemWidth(620.f);
+			CenterNexIMGUItItem(628.f);
+			ImGui::SetNextItemWidth(628.f);
 			ImGui::InputText("##workshopurl123", MapsFolderPathBuf, IM_ARRAYSIZE(MapsFolderPathBuf));
 			ImGui::SameLine();
 			if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
@@ -592,9 +592,17 @@ void Pluginx64::Render()
 				ImGui::Text("");
 			}
 
-			CenterNexIMGUItItem(620.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
+			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button(SavePathText.c_str(), ImVec2(306.f, 32.f))) // "Save Path"
+			if (ImGui::Button("Select a directory", ImVec2(204.f, 32.f))) // "Select a directory"
+			{
+				ImGui::OpenPopup("FileExplorer");
+			}
+			renderFileExplorer();
+
+			ImGui::SameLine();
+
+			if (ImGui::Button(SavePathText.c_str(), ImVec2(204.f, 32.f))) // "Save Path"
 			{
 				if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\"))
 				{
@@ -610,7 +618,7 @@ void Pluginx64::Render()
 
 			std::vector<std::string> missingTexturesFiles = CheckExist_TexturesFiles();
 
-			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(306.f, 32.f))) // "Refresh Maps"
+			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(204.f, 32.f))) // "Refresh Maps"
 			{
 				if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
 				{
@@ -2413,26 +2421,23 @@ void Pluginx64::renderFileExplorer()
 
 			ImGui::NextColumn();
 
-			//strncpy(fullPathBuff, currentPath.string().c_str(), IM_ARRAYSIZE(fullPathBuff));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
 			ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
 
 			currentPath = fullPathBuff;
-
 
 			ImGui::EndChild();
 		}
 		
 		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
 		{
-			cvarManager->log("currentpath : " + currentPath.string());
 			try
 			{
 				for (const auto& dir : fs::directory_iterator(currentPath))
 				{
 					if (dir.is_directory())
 					{
-						if (ImGui::Button(dir.path().filename().string().c_str()))
+						if (ImGui::Selectable(dir.path().filename().string().c_str()))
 						{
 							strncpy(fullPathBuff, dir.path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
 						}
@@ -2445,12 +2450,20 @@ void Pluginx64::renderFileExplorer()
 				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
 			}
 			
-
 			ImGui::EndChild();
 		}
 
-		if (ImGui::Button("Close", ImVec2(100.f, 30.f)))
+		if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
 		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("Select", ImVec2(100.f, 30.f)))
+		{
+			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
 			ImGui::CloseCurrentPopup();
 		}
 		
