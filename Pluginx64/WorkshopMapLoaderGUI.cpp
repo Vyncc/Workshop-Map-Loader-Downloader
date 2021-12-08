@@ -594,9 +594,9 @@ void Pluginx64::Render()
 
 			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button("Select a directory", ImVec2(204.f, 32.f))) // "Select a directory"
+			if (ImGui::Button("Select maps folder", ImVec2(204.f, 32.f))) // "Select maps folder"
 			{
-				ImGui::OpenPopup("FileExplorer");
+				ImGui::OpenPopup("Select maps folder");
 			}
 			renderFileExplorer();
 
@@ -2403,8 +2403,10 @@ void Pluginx64::renderJoinServerPopup()
 void Pluginx64::renderFileExplorer()
 {
 	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
-	if (ImGui::BeginPopupModal("FileExplorer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::BeginPopupModal("Select maps folder", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		static char newFolderName[200] = "";
+
 		static char fullPathBuff[200] = "C:/";
 		std::filesystem::path currentPath = fullPathBuff;
 
@@ -2421,10 +2423,41 @@ void Pluginx64::renderFileExplorer()
 
 			ImGui::NextColumn();
 
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
 			ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
-
 			currentPath = fullPathBuff;
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("New Folder", ImVec2(100.f, 19.f)))
+			{
+				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
+				ImGui::OpenPopup("Folder Name");
+			}
+			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
+				if (ImGui::Button("Confirm", ImVec2(100.f, 25.f)))
+				{
+					try
+					{
+						std::filesystem::create_directory(currentPath.string() + "/" + newFolderName);
+					}
+					catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+					{
+						cvarManager->log(ex.what());
+					}
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 
 			ImGui::EndChild();
 		}
@@ -2449,7 +2482,7 @@ void Pluginx64::renderFileExplorer()
 				cvarManager->log("error : " + std::string(ex.what()));
 				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
 			}
-			
+
 			ImGui::EndChild();
 		}
 
@@ -2464,10 +2497,10 @@ void Pluginx64::renderFileExplorer()
 		if (ImGui::Button("Select", ImVec2(100.f, 30.f)))
 		{
 			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
+			SaveInCFG();
 			ImGui::CloseCurrentPopup();
 		}
 		
-
 		ImGui::EndPopup();
 	}
 }

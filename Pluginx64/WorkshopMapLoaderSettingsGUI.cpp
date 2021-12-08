@@ -47,7 +47,7 @@ void Pluginx64::RenderSettings()
 
 	if (ImGui::Button("Open file explorer"))
 	{
-		ImGui::OpenPopup("FileExplorer");
+		ImGui::OpenPopup("Select maps folder");
 	}
 	renderFileExplorer();
 
