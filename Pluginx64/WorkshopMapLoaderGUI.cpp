@@ -2391,6 +2391,75 @@ void Pluginx64::renderJoinServerPopup()
 	}
 }
 
+
+void Pluginx64::renderFileExplorer()
+{
+	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal("FileExplorer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char fullPathBuff[200] = "C:/";
+		std::filesystem::path currentPath = fullPathBuff;
+
+		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
+		{
+			ImGui::Columns(2, 0, true);
+			ImGui::SetColumnWidth(0, 40.f);
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
+			if(ImGui::Selectable("<--"))
+			{
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+
+			ImGui::NextColumn();
+
+			//strncpy(fullPathBuff, currentPath.string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth());
+			ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
+
+			currentPath = fullPathBuff;
+
+
+			ImGui::EndChild();
+		}
+		
+		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
+		{
+			cvarManager->log("currentpath : " + currentPath.string());
+			try
+			{
+				for (const auto& dir : fs::directory_iterator(currentPath))
+				{
+					if (dir.is_directory())
+					{
+						if (ImGui::Button(dir.path().filename().string().c_str()))
+						{
+							strncpy(fullPathBuff, dir.path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+						}
+					}
+				}
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log("error : " + std::string(ex.what()));
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+			
+
+			ImGui::EndChild();
+		}
+
+		if (ImGui::Button("Close", ImVec2(100.f, 30.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		
+
+		ImGui::EndPopup();
+	}
+}
+
+
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()
 {

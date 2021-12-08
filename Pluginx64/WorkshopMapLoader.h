@@ -363,6 +363,8 @@ public:
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
 
+	void renderFileExplorer();
+
 
 	void renderMaps(Gamepad controller);
 	void renderMaps_DisplayMode_0(Map map);

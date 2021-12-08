@@ -45,6 +45,12 @@ void Pluginx64::RenderSettings()
 		t1.detach();
 	}
 
+	if (ImGui::Button("Open file explorer"))
+	{
+		ImGui::OpenPopup("FileExplorer");
+	}
+	renderFileExplorer();
+
 	if (ImGui::Button("Set Bind for controller : RightThumbStick + LeftThumbStick"))
 	{
 		gameWrapper->Execute([&](GameWrapper* gw) {
