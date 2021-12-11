@@ -54,8 +54,6 @@ struct GameSetting
 };
 
 
-//Hey Jerry or Martinn, have a good time reviewing my awful code ;)
-
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
 public:

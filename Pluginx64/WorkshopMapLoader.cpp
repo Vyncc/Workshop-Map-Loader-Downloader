@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.14", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.14.1", 0)
 
 
 namespace
@@ -30,14 +30,14 @@ void Pluginx64::onLoad()
 	std::string Data_WorkshopMapLoader_Path = BakkesmodPath + "data\\WorkshopMapLoader\\";
 
 	//Load logos
-	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "steamlogo.png", false, true);
-	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "rlmapslogo.png", false, true);
+	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\steamlogo.png", false, true);
+	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\rlmapslogo.png", false, true);
 
 	//Load display mode images
-	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1.png", false, true);
-	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo2.png", false, true);
-	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo1_white.png", false, true);
-	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logo2_white.png", false, true);
+	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo1.png", false, true);
+	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo2.png", false, true);
+	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo1_white.png", false, true);
+	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo2_white.png", false, true);
 
 	STEAM_browsing = false;
 	RLMAPS_browsing = false;

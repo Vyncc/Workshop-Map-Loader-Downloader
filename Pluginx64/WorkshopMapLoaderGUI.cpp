@@ -237,7 +237,7 @@ void Pluginx64::Render()
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.14").x);
-		ImGui::Text("Changelog v1.14");
+		ImGui::Text("Changelog v1.14.1");
 		ImGui::NewLine();
 		ImGui::Text("Added :");
 		ImGui::NewLine();
@@ -1076,7 +1076,7 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		}
 		else
 		{
-			/*
+			
 			std::string GoodDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
 			if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 150)
 			{
@@ -1088,9 +1088,10 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 					GoodDescription.append("...");
 				}
 			}
-			*/
+			
 
-			//responsive description but it takes too much ressources and causes fps issues for not good pc
+			//responsive description but it takes too much ressources and causes fps issues for not very good pc (my pc lmao)
+			/*
 			float descriptionWidth = ((windowWidth - 214) * 0.867f);
 			std::string mapDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
 			std::vector<std::string> mapDescriptionParts;
@@ -1109,11 +1110,11 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 					mapDescription = mapDescriptionParts.at(0) + "\n" + mapDescriptionParts.at(1);
 				}
 			}
-			
+			*/
 
 			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
 				GetJSONLocalMapInfos(map.JsonFile).at(0).c_str()); //Map title
-			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), mapDescription.c_str()); //Map Description
+			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
 			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
 				std::string(ResultByText.c_str() + GetJSONLocalMapInfos(map.JsonFile).at(2)).c_str()); // "By " Map Author
 		}

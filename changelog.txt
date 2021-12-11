@@ -45,3 +45,7 @@ You are now able to host/join a workshop map
 See tutorial : lienDuTuto
 
 -you can now search/download workshop maps from rocketleaguemaps.us
+
+v1.14.1
+
+added 2 display modes for the maps : list and tiles
