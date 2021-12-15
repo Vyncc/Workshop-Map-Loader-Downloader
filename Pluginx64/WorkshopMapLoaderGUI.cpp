@@ -52,15 +52,11 @@ void Pluginx64::Render()
 		float stickX = controller1.LeftStick_X();
 		float stickY = controller1.LeftStick_Y();
 
-
-
 		POINT point;
 		GetCursorPos(&point);
 
-
 		static bool L1WasPressed = false;
 		static bool BWasPressed = false;
-
 
 		if (controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && !L1WasPressed) {
 			cvarManager->log("Button L1 is pressed");
@@ -89,93 +85,14 @@ void Pluginx64::Render()
 
 		if (!controller1.LStick_InDeadzone())
 		{
-			//std::cout << point.x << "," << point.y << "\n"; //display mouse curosr pos
-
-			float ratio = DoRatio(stickX, stickY);
 			int pixelsX = 0;
 			int pixelsY = 0;
 
+			pixelsX = stickX * ControllerSensitivity;
+			pixelsY = stickY * ControllerSensitivity;
 
-			if (ratio > 0)
-			{
-				if (ratio >= 0.75f && ratio <= 1.25f)
-				{
-					pixelsX = 9;
-					pixelsY = 9;
-				}
-				if (ratio >= 0.25f && ratio <= 0.75f)
-				{
-					pixelsX = 6;
-					pixelsY = 12;
-				}
-				if (ratio >= 0.f && ratio <= 0.25f)
-				{
-					pixelsX = 0;
-					pixelsY = 9;
-				}
-				if (ratio >= 1.25f && ratio <= 2.5f)
-				{
-					pixelsX = 12;
-					pixelsY = 6;
-				}
-				if (ratio > 2.5f)
-				{
-					pixelsX = 9;
-					pixelsY = 0;
-				}
-			}
-
-			if (ratio < 0)
-			{
-				if (ratio <= -0.75f && ratio >= -1.25f)
-				{
-					pixelsX = 9;
-					pixelsY = -9;
-				}
-				if (ratio <= -0.25f && ratio >= -0.75f)
-				{
-					pixelsX = 6;
-					pixelsY = -12;
-				}
-				if (ratio <= 0.f && ratio >= -0.25f)
-				{
-					pixelsX = 0;
-					pixelsY = -9;
-				}
-				if (ratio <= -1.25f && ratio >= -2.5f)
-				{
-					pixelsX = 12;
-					pixelsY = -6;
-				}
-				if (ratio < -2.5f)
-				{
-					pixelsX = 9;
-					pixelsY = 0;
-				}
-			}
-
-			if (stickX < 0)
-			{
-				pixelsX = pixelsX - pixelsX - pixelsX; //transform pixelsX to negative value
-				pixelsY = pixelsY - pixelsY - pixelsY; //transform pixelsY to negative value
-			}
-
-			/*
-			if (std::abs(stickX) < 0.7f)
-			{
-				pixelsX = pixelsX / 2;
-			}
-			if (std::abs(stickY) < 0.7f)
-			{
-				pixelsY = pixelsY / 2;
-			}*/
-
-			float sensitivity = cvarManager->getCvar("workshopmaploader_controller_sens").getFloatValue();
-
-			pixelsX = (pixelsX * sensitivity) * std::abs(stickX);
-			pixelsY = (pixelsY * sensitivity) * std::abs(stickY);
-
-
+			//cvarManager->log("pixelX : " + std::to_string(pixelsX));
+			//cvarManager->log("pixelY : " + std::to_string(pixelsY));
 
 			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
 		}
@@ -491,6 +408,21 @@ void Pluginx64::Render()
 					FR = false;
 					SaveInCFG();
 				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Controller"))
+			{
+				if(ImGui::SliderInt("Sensitivity", &ControllerSensitivity, 1.f, 30.f))
+				{
+					SaveInCFG();
+				}
+
+				if(ImGui::SliderInt("Scroll Sensitivity", &ControllerScrollSensitivity, 1.f, 30.f))
+				{
+					SaveInCFG();
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -1080,7 +1012,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 	{
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
 		float buttonWidth = (windowWidth - ((nbTilesPerLine - 1) * 8)) / nbTilesPerLine;
-		int nbTilesOnTheActualLine = 0;
+		int nbTilesOnTheCurrentLine = 0;
 
 		for (auto map : MapList)
 		{
@@ -1187,12 +1119,12 @@ void Pluginx64::renderMaps(Gamepad controller)
 			else
 			{
 				renderMaps_DisplayMode_1(curMap, buttonWidth);
-				nbTilesOnTheActualLine++;
+				nbTilesOnTheCurrentLine++;
 				ImGui::PopID();
 				ID++;
-				if (nbTilesOnTheActualLine == nbTilesPerLine)
+				if (nbTilesOnTheCurrentLine == nbTilesPerLine)
 				{
-					nbTilesOnTheActualLine = 0;
+					nbTilesOnTheCurrentLine = 0;
 					ImGui::NewLine();
 				}
 				else
@@ -1203,23 +1135,13 @@ void Pluginx64::renderMaps(Gamepad controller)
 		}
 
 
-		float rightStickX = controller.RightStick_X();
 		float rightStickY = controller.RightStick_Y();
-
-
 
 		if (controller.Connected())
 		{
 			if (!controller.RStick_InDeadzone())
 			{
-				if (rightStickY < 0)
-				{
-					ImGui::SetScrollY(ImGui::GetScrollY() + std::abs(rightStickY * 10));
-				}
-				if (rightStickY > 0)
-				{
-					ImGui::SetScrollY(ImGui::GetScrollY() - std::abs(rightStickY * 10));
-				}
+				ImGui::SetScrollY(ImGui::GetScrollY() - (rightStickY * ControllerScrollSensitivity));
 			}
 		}
 

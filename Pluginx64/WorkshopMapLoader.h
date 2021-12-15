@@ -71,6 +71,8 @@ public:
 	*/
 
 	void checkOpenMenuWithController(CanvasWrapper canvas);
+	int ControllerSensitivity = 10;
+	int ControllerScrollSensitivity = 10;
 
 
 	//Issues Encountered

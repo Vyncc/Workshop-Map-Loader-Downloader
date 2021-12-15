@@ -21,7 +21,6 @@ std::string GameSetting::GetSelectedValue()
 
 void Pluginx64::onLoad()
 {
-	cvarManager->registerCvar("workshopmaploader_controller_sens", "0.5");
 	gameWrapper->RegisterDrawable(std::bind(&Pluginx64::checkOpenMenuWithController, this, std::placeholders::_1));
 
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
@@ -89,6 +88,8 @@ void Pluginx64::onLoad()
 		dontAsk = std::stoi(CFGVariablesList.at(4));
 		MapsDisplayMode = std::stoi(CFGVariablesList.at(5));
 		nbTilesPerLine = std::stoi(CFGVariablesList.at(6));
+		ControllerSensitivity = std::stoi(CFGVariablesList.at(7));
+		ControllerScrollSensitivity = std::stoi(CFGVariablesList.at(8));
 
 
 
@@ -1455,7 +1456,9 @@ void Pluginx64::SaveInCFG()
 	CFGFile << "HasSeeNewUpdateAlert = \"" + std::to_string(HasSeeNewUpdateAlert) + "\"\n";
 	CFGFile << "dontask = \"" + std::to_string(dontAsk) + "\"\n";
 	CFGFile << "MapsDisplayMode = \"" + std::to_string(MapsDisplayMode) + "\"\n";
-	CFGFile << "nbTilesPerLine = \"" + std::to_string(nbTilesPerLine) + "\"";
+	CFGFile << "nbTilesPerLine = \"" + std::to_string(nbTilesPerLine) + "\"\n";
+	CFGFile << "ControllerSensitivity = \"" + std::to_string(ControllerSensitivity) + "\"\n";
+	CFGFile << "ControllerScrollSensitivity = \"" + std::to_string(ControllerScrollSensitivity) + "\"";
 
 	CFGFile.close();
 
