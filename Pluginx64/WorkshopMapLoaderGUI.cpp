@@ -2283,7 +2283,7 @@ void Pluginx64::renderJoinServerPopup()
 
 		ImGui::Text("PORT :");
 		ImGui::SameLine();
-		static char PORT[200] = "";
+		static char PORT[200] = "7777";
 		ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
 
 		std::string str_IP = std::string(IP);
