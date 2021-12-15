@@ -27,12 +27,13 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 
 faut fix le refreshmapsfunct, ca freeze quand le dossier des maps n'est pas dédié juste pour les maps
 
-mettre de base le port 7777 dans le input text de joinserver
 
 
 faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+/mettre de base le port 7777 dans le input text de joinserver
 
 /faut que je regarde pk la popup directory doesn't exist ne s'affiche pas quand ya un mauvais chemin
 
