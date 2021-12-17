@@ -897,12 +897,11 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 
 				Workshop_filesize = fileSizeJson["Filesize"].asString();
 
-
 				cpr::Response workshop_steam_request_response = cpr::Get(cpr::Url{ "https://steamcommunity.com/sharedfiles/filedetails/?id=" + resultMapID });
-				WorkshopMapDescription = FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\">", "<script>").at(0);
+				WorkshopMapDescription = CleanHTML(FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\"", "/div>").at(0));
 				cvarManager->log("result : " + WorkshopMapDescription);
-				CleanHTML(WorkshopMapDescription);
-				cvarManager->log("parser : " + WorkshopMapDescription);
+				cvarManager->log("parser : " + CleanHTML(WorkshopMapDescription));
+				
 			}
 			else
 			{
@@ -1704,27 +1703,29 @@ float Pluginx64::DoRatio(float x, float y)
 }
 
 //https://www.geeksforgeeks.org/html-parser-in-c-cpp/
-void Pluginx64::CleanHTML(std::string& S)
+std::string Pluginx64::CleanHTML(std::string& S)
 {
 	// Store the length of the
 	// input string
 	int n = S.length();
 	int start = 0, end = 0;
+	int pos = 0;
 
-	while (end != n - 1)
+	std::string FinalResult = "";
+
+	while (pos != n - 1)
 	{
-		n = S.length();
 		// Traverse the string
-		for (int i = 0; i < n; i++) {
+		for (int i = pos; i < n; i++) {
 			// If S[i] is '>', update
 			// start to i+1 and break
-			if (S[i] == '<') {
-				start = i;
+			if (S[i] == '>') {
+				start = i + 1;
 				break;
 			}
 			if (i == n - 1)
 			{
-				return;
+				return FinalResult;
 			}
 		}
 
@@ -1737,31 +1738,23 @@ void Pluginx64::CleanHTML(std::string& S)
 		for (int i = start; i < n; i++) {
 			// If S[i] is '<', update
 			// end to i-1 and break
-			if (S[i] == '>') {
-				end = i;
+			if (S[i] == '<') {
+				end = i - 1;
+				pos = end + 1;
 				break;
 			}
 		}
 
-		std::string result;
 		// Print the characters in the
 		// range [start, end]
 		for (int j = start; j <= end; j++) {
-			result += S[j];
+			FinalResult += S[j];
 		}
 
-		//cvarManager->log("parser result : " + result);
-		if (result == "<br>")
-		{
-			S.replace(start, (end + 1) - start, "\n");
-		}
-		else
-		{
-			S.erase(start, (end + 1) - start);
-		}
-
+		FinalResult += " ";
 	}
 
+	return FinalResult;
 }
 
 //https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string

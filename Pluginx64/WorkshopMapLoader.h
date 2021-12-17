@@ -324,7 +324,7 @@ public:
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
-	void CleanHTML(std::string& S);
+	std::string CleanHTML(std::string& S);
 	void replaceAll(std::string& str, const std::string& from, const std::string& to);
 	void eraseAll(std::string& str, const std::string& from);
 

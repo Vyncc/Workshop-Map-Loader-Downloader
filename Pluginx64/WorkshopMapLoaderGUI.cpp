@@ -665,6 +665,10 @@ void Pluginx64::Render()
 					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, NULL, 0, false);
 					t1.detach();
 					*/
+					cpr::Response workshop_steam_request_response = cpr::Get(cpr::Url{ "https://steamcommunity.com/sharedfiles/filedetails/?id=1671658424" });
+					std::string WorkshopMapDescription = FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\"", "/div>").at(0);
+					cvarManager->log("result : " + WorkshopMapDescription);
+					cvarManager->log("parser : " + CleanHTML(WorkshopMapDescription));
 				}
 			}
 
