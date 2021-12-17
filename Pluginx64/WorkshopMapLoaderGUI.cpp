@@ -288,33 +288,54 @@ void Pluginx64::Render()
 		ImGui::OpenPopup("New Update");
 	}
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.14").x);
-		ImGui::Text("Changelog v1.14");
+		ImGui::Text("Changelog v1.14.1");
 		ImGui::NewLine();
 		ImGui::Text("Added :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text("-Multiplayer Support, you are now able to host/join a workshop map");
-		ImGui::Text("Check the multiplayer video tutorial linked on the plugin page(maybe not available yet) :");
-		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://bakkesplugins.com/plugins/view/223");
-		renderUnderLine(ImColor(3, 94, 252, 255));
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if (ImGui::IsMouseClicked(0))
-			{
-				ShellExecute(0, 0, L"https://bakkesplugins.com/plugins/view/223", 0, 0, SW_SHOW); //open link in webbrowser
-			}
-			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-		}
+		ImGui::Text("-2 different display mode for the maps :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.f);
+		ImGui::Image(MapsDisplayMode_Logo1_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : List of big buttons");
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.f);
+		ImGui::Image(MapsDisplayMode_Logo2_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : Grid, the number maps per line can be changed");
 		ImGui::NewLine();
-		ImGui::Text("-You can now search/download workshop maps from rocketleaguemaps.us");
+		ImGui::Text("-Controller support :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::Text("Use your XBox controller(or ds4/5 with ds4windows) to navigate on the plugin.");
 		ImGui::NewLine();
-		ImGui::Separator();
+		ImGui::Text("Controls :");
+		ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
+		ImGui::Text("Left joystick : move the cursor");
+		ImGui::Text("Right joystick : scroll");
+		ImGui::Text("LB/L1 : click");
 		ImGui::NewLine();
-		ImGui::Text("Searching from the Steam tab works again");
+		ImGui::Text("Change your sensitivity in Settings->Contoller");
+
+
 		ImGui::NewLine();
+		ImGui::Text("-You can now select the maps folder path directly on the plugin by clicking on \"Select maps folder\"");
+
+		ImGui::NewLine();
+
+		ImGui::Text("Fixed :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::NewLine();
+		ImGui::Text("-Searching from \"Search Workshop(Steam)\" tab works again");
+		
+		
+		ImGui::NewLine();
+		AlignRightNexIMGUItItem(100.f, 8.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
 			HasSeeNewUpdateAlert = true;
@@ -459,7 +480,7 @@ void Pluginx64::Render()
 			}
 
 
-			if (ImGui::Selectable("Open CookedPCConsole"))
+			if (ImGui::Selectable("Open CookedPCConsole Directory"))
 			{
 				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string());
 				LPCWSTR L_modsDir = w_modsDir.c_str();
@@ -665,10 +686,6 @@ void Pluginx64::Render()
 					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, NULL, 0, false);
 					t1.detach();
 					*/
-					cpr::Response workshop_steam_request_response = cpr::Get(cpr::Url{ "https://steamcommunity.com/sharedfiles/filedetails/?id=1671658424" });
-					std::string WorkshopMapDescription = FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\"", "/div>").at(0);
-					cvarManager->log("result : " + WorkshopMapDescription);
-					cvarManager->log("parser : " + CleanHTML(WorkshopMapDescription));
 				}
 			}
 
