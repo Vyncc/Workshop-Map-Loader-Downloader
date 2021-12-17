@@ -454,6 +454,153 @@ std::string Pluginx64::GetWorkshopIDByUrl(std::string workshopurl)
 
 //Steam Download & Search
 
+void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, Steam_MapResult mapResult, bool createJsonFile)
+{
+	std::string Workshop_url = workshopURL;
+	std::string Workshop_id;
+
+	if (workshopURL != "")
+	{
+		//get the workshop ID
+		Workshop_id = GetWorkshopIDByUrl(Workshop_url);
+	}
+	else
+	{
+		Workshop_id = mapResult.ID;
+	}
+	cvarManager->log("Workshop id : " + Workshop_id);
+
+
+	UserIsChoosingYESorNO = true;
+
+	while (UserIsChoosingYESorNO)
+	{
+		//while he is choosing
+		Sleep(100);
+	}
+
+	if (!AcceptTheDownload) //if user canceled the download
+	{
+		return;
+	}
+
+
+
+
+	std::string Workshop_Dl_Path = "";
+	std::string workshopSafeMapName = replace(mapResult.Name, *" ", *"_");
+	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-"};
+	for (auto special : specials)
+	{
+		eraseAll(workshopSafeMapName, special);
+	}
+
+	if (Dfolderpath.back() == '/' || Dfolderpath.back() == '\\') //if last character != /
+	{
+		Workshop_Dl_Path = Dfolderpath + workshopSafeMapName;
+	}
+	else
+	{
+		Workshop_Dl_Path = Dfolderpath + "/" + workshopSafeMapName;
+		cvarManager->log("A slash has been added a the end of the path");
+	}
+
+
+	try
+	{
+		fs::create_directory(Workshop_Dl_Path); //create directory for the map downloaded
+		cvarManager->log("Directory Created : " + Workshop_Dl_Path);
+
+	}
+	catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+	{
+		cvarManager->log(ex.what());
+		FolderErrorText = ex.what();
+		FolderErrorBool = true;
+		IsRetrievingWorkshopFiles = false;
+		return;
+	}
+
+
+	if (createJsonFile)
+	{
+		CreateJSONLocalWorkshopInfos(workshopSafeMapName, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
+		cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".json");
+	}
+
+
+	std::string download_url = "https://steamworkshop.jetfox.ovh/query.php?workshopid=" + Workshop_id;
+	cvarManager->log("Download URL : " + download_url);
+	std::string Folder_Path = Workshop_Dl_Path + "/" + workshopSafeMapName + ".zip";
+
+
+	IsRetrievingWorkshopFiles = false;
+	STEAM_IsDownloadingWorkshop = true;
+
+	cvarManager->log("Download Starting...");
+
+	//download test
+	CurlRequest req;
+	req.url = download_url;
+	req.progress_function = [this](double file_size, double downloaded, ...)
+	{
+		//cvarManager->log("Download progress : " + std::to_string(downloaded));
+		STEAM_Download_Progress = downloaded;
+	};
+
+	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
+		{
+			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
+			if (out_file)
+			{
+				out_file.write(data, size);
+
+				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
+				STEAM_IsDownloadingWorkshop = false;
+			}
+		});
+
+
+	while (STEAM_IsDownloadingWorkshop == true)
+	{
+		cvarManager->log("downloading...............");
+
+		STEAM_WorkshopDownload_Progress = STEAM_Download_Progress;
+		STEAM_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
+		Sleep(500);
+	}
+
+	if (unzipMethod == "Bat")
+	{
+		CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
+	}
+	else
+	{
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + Folder_Path + "' -DestinationPath '" + Workshop_Dl_Path + "'";
+		system(extractCommand.c_str());
+	}
+
+
+	int checkTime = 0; //this isn't good but I don't care
+	while (UdkInDirectory(Workshop_Dl_Path) == "Null")
+	{
+		cvarManager->log("Extracting zip file");
+		if (checkTime > 10)
+		{
+			cvarManager->log("Failed extracting the map zip file");
+			return;
+		}
+		Sleep(1000);
+		checkTime++;
+	}
+
+	cvarManager->log("File Extracted");
+
+	renameFileToUPK(Workshop_Dl_Path);
+
+}
+
+/*
 void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile)
 {
 	std::string Workshop_url = workshopURL;
@@ -472,8 +619,8 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 	IsRetrievingWorkshopFiles = true;
 
-	std::string request_url = "https://node03.steamworkshopdownloader.io/prod/api/download/request";
-	cpr::Response request_response = cpr::Post(cpr::Url{request_url}, cpr::Body{"{\"publishedFileId\":" + Workshop_id + "}"});
+	std::string request_url = "https://node04.steamworkshopdownloader.io/prod/api/download/request";
+	cpr::Response request_response = cpr::Post(cpr::Url{request_url}, cpr::Body{"{\"publishedFileId\":" + Workshop_id + ",\"downloadFormat\":\"raw\"}"});
 
 	if (request_response.status_code != 200)
 	{
@@ -491,7 +638,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	std::string Workshop_uuid = request_response.text.substr(9, request_response.text.length() - 11);
 
 	//get the state (if prepared)
-	std::string status_url = "https://node03.steamworkshopdownloader.io/prod/api/download/status";
+	std::string status_url = "https://node04.steamworkshopdownloader.io/prod/api/download/status";
 	cpr::Response state = cpr::Post(cpr::Url{status_url}, cpr::Body{"{\"uuids\":[\"" + Workshop_uuid + "\"]}:"});
 
 	if (state.status_code != 200)
@@ -506,17 +653,27 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	cvarManager->log("State : " + state.text);
 
 
+	//Parse state response json
+	Json::Value stateJson;
+	Json::Reader stateReader;
+
+	stateReader.parse(state.text, stateJson);
+
+
 	int NbMaxOfRequest = 0;
 
-	//while prepared is not in the state response, we send the request
-	while (state.text.find("prepared") != 59 && NbMaxOfRequest < 8)
-	{
-		//59 is the index "prepared" in the state response
+	std::string testtt = stateJson[Workshop_uuid]["status"].asString();
+	cvarManager->log("testtt : " + testtt);
 
+	//while prepared is not in the state response, we send the request
+	while (stateJson[Workshop_uuid]["status"].asString() != "prepared" && NbMaxOfRequest < 8)
+	{
 		cvarManager->log("Resending request...");
 
 		state = cpr::Post(cpr::Url{status_url}, cpr::Body{"{\"uuids\":[\"" + Workshop_uuid + "\"]}:"});
 		cvarManager->log("State : " + state.text);
+
+		stateReader.parse(state.text, stateJson);
 
 		NbMaxOfRequest++;
 		if (NbMaxOfRequest >= 8) //stopping the requests 
@@ -541,6 +698,14 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		Sleep(2000);
 	}
 
+	cvarManager->log("Found !");
+
+
+	std::string storageNode = stateJson[Workshop_uuid]["storageNode"].asString();
+	std::string storagePath = stateJson[Workshop_uuid]["storagePath"].asString();
+	cvarManager->log("storageNode : " + storageNode);
+	cvarManager->log("storagePath : " + storagePath);
+
 	UserIsChoosingYESorNO = true;
 
 	while (UserIsChoosingYESorNO)
@@ -555,138 +720,139 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		return;
 	}
 
-	if (state.text.find("prepared") != std::string::npos)
+
+
+	//Get the workshop map infos, name and size
+	std::string Workshop_request_url = "https://node04.steamworkshopdownloader.io/prod/api/details/file";
+	cpr::Response Workshop_request_response = cpr::Post(cpr::Url{Workshop_request_url}, cpr::Body{"[" + Workshop_id + "]:"});
+
+	if (Workshop_request_response.status_code != 200)
 	{
-		cvarManager->log("Found !");
-
-		//Get the workshop map infos, name and size
-		std::string Workshop_request_url = "https://node03.steamworkshopdownloader.io/prod/api/details/file";
-		cpr::Response Workshop_request_response = cpr::Post(cpr::Url{Workshop_request_url}, cpr::Body{"[" + Workshop_id + "]:"});
-
-		if (Workshop_request_response.status_code != 200)
-		{
-			cvarManager->log("Workshop_request_response.status_code : " + std::to_string(Workshop_request_response.status_code));
-			DownloadFailedErrorText = "Workshop_request_response : error " + std::to_string(Workshop_request_response.status_code);
-			DownloadFailed = true;
-			IsRetrievingWorkshopFiles = false;
-			return;
-		}
-
-		int WorkshopNameLenght = Workshop_request_response.text.find("\",\"file_description\"") - Workshop_request_response.text.find("\"title_disk_safe\":\"");
-		int WorkshopSizeLenght = Workshop_request_response.text.find("\",\"preview_file_size\"") - Workshop_request_response.text.find("\"file_size\":\"");
-
-		std::string Workshop_filename = Workshop_request_response.text.substr(Workshop_request_response.text.find("\"title_disk_safe\":\"") + 19, WorkshopNameLenght - 19);
-		cvarManager->log(Workshop_filename);
-
-		std::string Workshop_filesize = Workshop_request_response.text.substr(Workshop_request_response.text.find("\"file_size\":\"") + 13, WorkshopSizeLenght - 13);
-		cvarManager->log("File size : " + Workshop_filesize + "Bytes");
-
-
-		std::string Workshop_Dl_Path = "";
-
-		if (Dfolderpath.back() == '/' || Dfolderpath.back() == '\\') //if last character != /
-		{
-			Workshop_Dl_Path = Dfolderpath + Workshop_filename;
-		}
-		else
-		{
-			Workshop_Dl_Path = Dfolderpath + "/" + Workshop_filename;
-			cvarManager->log("A slash has been added a the end of the path");
-		}
-
-
-		try 
-		{
-			fs::create_directory(Workshop_Dl_Path); //create directory for the map downloaded
-			cvarManager->log("Directory Created : " + Workshop_Dl_Path);
-			
-		}
-		catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
-		{
-			cvarManager->log(ex.what());
-			FolderErrorText = ex.what();
-			FolderErrorBool = true;
-			IsRetrievingWorkshopFiles = false;
-			return;
-		}
-		
-
-		if (createJsonFile)
-		{
-			CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", Steam_MapResultList.at(index).Name, Steam_MapResultList.at(index).Author, Steam_MapResultList.at(index).Description, Steam_MapResultList.at(index).PreviewUrl);
-			cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
-		}
-
-		std::string download_url = "https://node03.steamworkshopdownloader.io/prod/api/download/transmit?uuid=" + Workshop_uuid;
-		cvarManager->log("Download URL : " + download_url);
-		std::string Folder_Path = Workshop_Dl_Path + "/" + Workshop_filename + ".zip";
-
-
+		cvarManager->log("Workshop_request_response.status_code : " + std::to_string(Workshop_request_response.status_code));
+		DownloadFailedErrorText = "Workshop_request_response : error " + std::to_string(Workshop_request_response.status_code);
+		DownloadFailed = true;
 		IsRetrievingWorkshopFiles = false;
-		STEAM_IsDownloadingWorkshop = true;
-
-		cvarManager->log("Download Starting...");
-		
-		//download test
-		CurlRequest req;
-		req.url = download_url;
-		req.progress_function = [this](double file_size, double downloaded, ...)
-		{
-			//cvarManager->log("Download progress : " + std::to_string(downloaded));
-			STEAM_Download_Progress = downloaded;
-		};
-
-		HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
-			{
-				std::ofstream out_file{ Folder_Path, std::ios_base::binary };
-				if (out_file)
-				{
-					out_file.write(data, size);
-
-					cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
-					STEAM_IsDownloadingWorkshop = false;
-				}
-			});
-
-
-		while (STEAM_IsDownloadingWorkshop == true)
-		{
-			cvarManager->log("downloading...............");
-
-			STEAM_WorkshopDownload_Progress = STEAM_Download_Progress;
-			STEAM_WorkshopDownload_FileSize = std::stoi(Workshop_filesize);
-			Sleep(500);
-		}
-		
-		if (unzipMethod == "Bat")
-		{
-			CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
-		}
-		else
-		{
-			std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + Folder_Path + "' -DestinationPath '" + Workshop_Dl_Path + "'";
-			system(extractCommand.c_str());
-		}
-
-
-		int checkTime = 0; //this isn't good but I don't care
-		while (UdkInDirectory(Workshop_Dl_Path) == "Null")
-		{
-			cvarManager->log("Extracting zip file");
-			if (checkTime > 10)
-			{
-				cvarManager->log("Failed extracting the map zip file");
-				return;
-			}
-			Sleep(1000);
-			checkTime++;
-		}
-
-		cvarManager->log("File Extracted");
-
-		renameFileToUPK(Workshop_Dl_Path);
+		return;
 	}
-}
+
+	//Parse response json
+	Json::Value fileJson;
+	Json::Reader fileReader;
+
+	fileReader.parse(Workshop_request_response.text, fileJson);
+
+	std::string Workshop_filename = fileJson[0]["title_disk_safe"].asString();
+	std::string Workshop_filesize = fileJson[0]["file_size"].asString();
+	cvarManager->log("Map name  : " + Workshop_filename);
+	cvarManager->log("File size : " + Workshop_filesize + "Bytes");
+
+
+	std::string Workshop_Dl_Path = "";
+
+	if (Dfolderpath.back() == '/' || Dfolderpath.back() == '\\') //if last character != /
+	{
+		Workshop_Dl_Path = Dfolderpath + Workshop_filename;
+	}
+	else
+	{
+		Workshop_Dl_Path = Dfolderpath + "/" + Workshop_filename;
+		cvarManager->log("A slash has been added a the end of the path");
+	}
+
+
+	try 
+	{
+		fs::create_directory(Workshop_Dl_Path); //create directory for the map downloaded
+		cvarManager->log("Directory Created : " + Workshop_Dl_Path);
+			
+	}
+	catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+	{
+		cvarManager->log(ex.what());
+		FolderErrorText = ex.what();
+		FolderErrorBool = true;
+		IsRetrievingWorkshopFiles = false;
+		return;
+	}
+		
+
+	if (createJsonFile)
+	{
+		CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", Steam_MapResultList.at(index).Name, Steam_MapResultList.at(index).Author, Steam_MapResultList.at(index).Description, Steam_MapResultList.at(index).PreviewUrl);
+		cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
+	}
+
+
+	std::string download_url = "https://" + storageNode + "/prod//storage/" + storagePath + "?uuid=" + Workshop_uuid;
+	cvarManager->log("Download URL : " + download_url);
+	std::string Folder_Path = Workshop_Dl_Path + "/" + Workshop_filename + ".zip";
+
+
+	IsRetrievingWorkshopFiles = false;
+	STEAM_IsDownloadingWorkshop = true;
+
+	cvarManager->log("Download Starting...");
+		
+	//download test
+	CurlRequest req;
+	req.url = download_url;
+	req.progress_function = [this](double file_size, double downloaded, ...)
+	{
+		//cvarManager->log("Download progress : " + std::to_string(downloaded));
+		STEAM_Download_Progress = downloaded;
+	};
+
+	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
+		{
+			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
+			if (out_file)
+			{
+				out_file.write(data, size);
+
+				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
+				STEAM_IsDownloadingWorkshop = false;
+			}
+		});
+
+
+	while (STEAM_IsDownloadingWorkshop == true)
+	{
+		cvarManager->log("downloading...............");
+
+		STEAM_WorkshopDownload_Progress = STEAM_Download_Progress;
+		STEAM_WorkshopDownload_FileSize = std::stoi(Workshop_filesize);
+		Sleep(500);
+	}
+		
+	if (unzipMethod == "Bat")
+	{
+		CreateUnzipBatchFile(Workshop_Dl_Path, Folder_Path);
+	}
+	else
+	{
+		std::string extractCommand = "powershell.exe Expand-Archive -LiteralPath '" + Folder_Path + "' -DestinationPath '" + Workshop_Dl_Path + "'";
+		system(extractCommand.c_str());
+	}
+
+
+	int checkTime = 0; //this isn't good but I don't care
+	while (UdkInDirectory(Workshop_Dl_Path) == "Null")
+	{
+		cvarManager->log("Extracting zip file");
+		if (checkTime > 10)
+		{
+			cvarManager->log("Failed extracting the map zip file");
+			return;
+		}
+		Sleep(1000);
+		checkTime++;
+	}
+
+	cvarManager->log("File Extracted");
+
+	renameFileToUPK(Workshop_Dl_Path);
+	
+}*/
 
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
@@ -710,30 +876,38 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		bool resultisImageLoaded;
 
 
-		std::string file_infos_request_url = "https://node03.steamworkshopdownloader.io/prod/api/details/file";
+		std::string file_infos_request_url = "https://steamworkshop.jetfox.ovh/query.php?filesize=" + resultMapID;
 
 		if (!Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\" + resultMapID + ".json")) //if json map infos doesn't exist
 		{
-			cpr::Response file_infos_request_response = cpr::Post(cpr::Url{ file_infos_request_url }, cpr::Body{ "[" + resultMapID + "]:" });
+			cpr::Response file_size_request_response = cpr::Get(cpr::Url{ file_infos_request_url });
 
 			//cvarManager->log("status code : " + std::to_string(file_infos_request_response.status_code));
 
 			std::string Workshop_filesize;
 			std::string WorkshopMapDescription;
 
-			if (file_infos_request_response.status_code == 200)
+			if (file_size_request_response.status_code == 200)
 			{
-				int WorkshopMapSizeLenght = file_infos_request_response.text.find("\",\"preview_file_size\"") - file_infos_request_response.text.find("\"file_size\":\"");
-				Workshop_filesize = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_size\":\"") + 13, WorkshopMapSizeLenght - 13);
+				//Parse state response json
+				Json::Value fileSizeJson;
+				Json::Reader fileSizeReader;
 
-				int WorkshopMapDescriptionLenght = file_infos_request_response.text.find("\",\"time_created\":") - file_infos_request_response.text.find("\"file_description\":\"");
-				WorkshopMapDescription = file_infos_request_response.text.substr(file_infos_request_response.text.find("\"file_description\":\"") + 20,
-					WorkshopMapDescriptionLenght - 20);
+				fileSizeReader.parse(file_size_request_response.text, fileSizeJson);
+
+				Workshop_filesize = fileSizeJson["Filesize"].asString();
+
+
+				cpr::Response workshop_steam_request_response = cpr::Get(cpr::Url{ "https://steamcommunity.com/sharedfiles/filedetails/?id=" + resultMapID });
+				WorkshopMapDescription = FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\">", "<script>").at(0);
+				cvarManager->log("result : " + WorkshopMapDescription);
+				CleanHTML(WorkshopMapDescription);
+				cvarManager->log("parser : " + WorkshopMapDescription);
 			}
 			else
 			{
-				Workshop_filesize = "error";
-				WorkshopMapDescription = "error";
+				Workshop_filesize = "n/a";
+				WorkshopMapDescription = "n/a";
 			}
 
 
@@ -1527,6 +1701,87 @@ float Pluginx64::DoRatio(float x, float y)
 {
 	float result = x / y;
 	return result;
+}
+
+//https://www.geeksforgeeks.org/html-parser-in-c-cpp/
+void Pluginx64::CleanHTML(std::string& S)
+{
+	// Store the length of the
+	// input string
+	int n = S.length();
+	int start = 0, end = 0;
+
+	while (end != n - 1)
+	{
+		n = S.length();
+		// Traverse the string
+		for (int i = 0; i < n; i++) {
+			// If S[i] is '>', update
+			// start to i+1 and break
+			if (S[i] == '<') {
+				start = i;
+				break;
+			}
+			if (i == n - 1)
+			{
+				return;
+			}
+		}
+
+		// Remove the blank space
+		while (S[start] == ' ') {
+			start++;
+		}
+
+		// Traverse the string
+		for (int i = start; i < n; i++) {
+			// If S[i] is '<', update
+			// end to i-1 and break
+			if (S[i] == '>') {
+				end = i;
+				break;
+			}
+		}
+
+		std::string result;
+		// Print the characters in the
+		// range [start, end]
+		for (int j = start; j <= end; j++) {
+			result += S[j];
+		}
+
+		//cvarManager->log("parser result : " + result);
+		if (result == "<br>")
+		{
+			S.replace(start, (end + 1) - start, "\n");
+		}
+		else
+		{
+			S.erase(start, (end + 1) - start);
+		}
+
+	}
+
+}
+
+//https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+void Pluginx64::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+	if (from.empty())
+		return;
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+	}
+}
+
+void Pluginx64::eraseAll(std::string& str, const std::string& from) {
+	if (from.empty())
+		return;
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.erase(start_pos, from.length());
+	}
 }
 
 

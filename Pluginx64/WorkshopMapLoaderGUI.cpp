@@ -117,7 +117,7 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Search Workshop(Steam)";
-		DlWorkshopByURLText = "Download Workshop By Url";
+		DlWorkshopByURLText = "Download Workshop By Url(not working)";
 		Label2Text = "Steam Workshop Url :";
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
@@ -208,7 +208,7 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Rechercher Un Workshop(Steam)";
-		DlWorkshopByURLText = "Telecharger Un Workshop Avec Une Url";
+		DlWorkshopByURLText = "Telecharger Un Workshop Avec Une Url(not working)";
 		Label2Text = "Url Du Workshop Steam :";
 		DownloadButtonText = "Telecharger";
 		Label3Text = "Rechercher Un Workshop :";
@@ -657,10 +657,14 @@ void Pluginx64::Render()
 				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
 				static char url[200] = "put the url of a workshop";
 				ImGui::InputText("##STEAMworkshopurl", url, IM_ARRAYSIZE(url));
+				
+				
 				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
 				{
-					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, "", true, 0, false);
+					/*
+					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, NULL, 0, false);
 					t1.detach();
+					*/
 				}
 			}
 
@@ -1431,7 +1435,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 			{
 				if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 				{
-					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
+					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult, true);
 					t2.detach();
 				}
 				else
@@ -1439,7 +1443,6 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 					if (!Directory_Or_File_Exists(fs::path(mapspath)))
 					{
 						ImGui::OpenPopup("Exists?");
-						cvarManager->log("CA MARCHE PAS PTN");
 					}
 
 					if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
