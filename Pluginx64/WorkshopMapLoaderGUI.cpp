@@ -52,15 +52,11 @@ void Pluginx64::Render()
 		float stickX = controller1.LeftStick_X();
 		float stickY = controller1.LeftStick_Y();
 
-
-
 		POINT point;
 		GetCursorPos(&point);
 
-
 		static bool L1WasPressed = false;
 		static bool BWasPressed = false;
-
 
 		if (controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && !L1WasPressed) {
 			cvarManager->log("Button L1 is pressed");
@@ -89,93 +85,14 @@ void Pluginx64::Render()
 
 		if (!controller1.LStick_InDeadzone())
 		{
-			//std::cout << point.x << "," << point.y << "\n"; //display mouse curosr pos
-
-			float ratio = DoRatio(stickX, stickY);
 			int pixelsX = 0;
 			int pixelsY = 0;
 
+			pixelsX = stickX * ControllerSensitivity;
+			pixelsY = stickY * ControllerSensitivity;
 
-			if (ratio > 0)
-			{
-				if (ratio >= 0.75f && ratio <= 1.25f)
-				{
-					pixelsX = 9;
-					pixelsY = 9;
-				}
-				if (ratio >= 0.25f && ratio <= 0.75f)
-				{
-					pixelsX = 6;
-					pixelsY = 12;
-				}
-				if (ratio >= 0.f && ratio <= 0.25f)
-				{
-					pixelsX = 0;
-					pixelsY = 9;
-				}
-				if (ratio >= 1.25f && ratio <= 2.5f)
-				{
-					pixelsX = 12;
-					pixelsY = 6;
-				}
-				if (ratio > 2.5f)
-				{
-					pixelsX = 9;
-					pixelsY = 0;
-				}
-			}
-
-			if (ratio < 0)
-			{
-				if (ratio <= -0.75f && ratio >= -1.25f)
-				{
-					pixelsX = 9;
-					pixelsY = -9;
-				}
-				if (ratio <= -0.25f && ratio >= -0.75f)
-				{
-					pixelsX = 6;
-					pixelsY = -12;
-				}
-				if (ratio <= 0.f && ratio >= -0.25f)
-				{
-					pixelsX = 0;
-					pixelsY = -9;
-				}
-				if (ratio <= -1.25f && ratio >= -2.5f)
-				{
-					pixelsX = 12;
-					pixelsY = -6;
-				}
-				if (ratio < -2.5f)
-				{
-					pixelsX = 9;
-					pixelsY = 0;
-				}
-			}
-
-			if (stickX < 0)
-			{
-				pixelsX = pixelsX - pixelsX - pixelsX; //transform pixelsX to negative value
-				pixelsY = pixelsY - pixelsY - pixelsY; //transform pixelsY to negative value
-			}
-
-			/*
-			if (std::abs(stickX) < 0.7f)
-			{
-				pixelsX = pixelsX / 2;
-			}
-			if (std::abs(stickY) < 0.7f)
-			{
-				pixelsY = pixelsY / 2;
-			}*/
-
-			float sensitivity = cvarManager->getCvar("workshopmaploader_controller_sens").getFloatValue();
-
-			pixelsX = (pixelsX * sensitivity) * std::abs(stickX);
-			pixelsY = (pixelsY * sensitivity) * std::abs(stickY);
-
-
+			//cvarManager->log("pixelX : " + std::to_string(pixelsX));
+			//cvarManager->log("pixelY : " + std::to_string(pixelsY));
 
 			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
 		}
@@ -200,7 +117,7 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Search Workshop(Steam)";
-		DlWorkshopByURLText = "Download Workshop By Url";
+		DlWorkshopByURLText = "Download Workshop By Url(not working)";
 		Label2Text = "Steam Workshop Url :";
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
@@ -291,7 +208,7 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Rechercher Un Workshop(Steam)";
-		DlWorkshopByURLText = "Telecharger Un Workshop Avec Une Url";
+		DlWorkshopByURLText = "Telecharger Un Workshop Avec Une Url(not working)";
 		Label2Text = "Url Du Workshop Steam :";
 		DownloadButtonText = "Telecharger";
 		Label3Text = "Rechercher Un Workshop :";
@@ -371,33 +288,54 @@ void Pluginx64::Render()
 		ImGui::OpenPopup("New Update");
 	}
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.14").x);
 		ImGui::Text("Changelog v1.14.1");
 		ImGui::NewLine();
 		ImGui::Text("Added :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text("-Multiplayer Support, you are now able to host/join a workshop map");
-		ImGui::Text("Check the multiplayer video tutorial linked on the plugin page(maybe not available yet) :");
-		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://bakkesplugins.com/plugins/view/223");
-		renderUnderLine(ImColor(3, 94, 252, 255));
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if (ImGui::IsMouseClicked(0))
-			{
-				ShellExecute(0, 0, L"https://bakkesplugins.com/plugins/view/223", 0, 0, SW_SHOW); //open link in webbrowser
-			}
-			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-		}
+		ImGui::Text("-2 different display mode for the maps :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.f);
+		ImGui::Image(MapsDisplayMode_Logo1_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : List of big buttons");
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.f);
+		ImGui::Image(MapsDisplayMode_Logo2_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : Grid, the number maps per line can be changed");
 		ImGui::NewLine();
-		ImGui::Text("-You can now search/download workshop maps from rocketleaguemaps.us");
+		ImGui::Text("-Controller support :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::Text("Use your XBox controller(or ds4/5 with ds4windows) to navigate on the plugin.");
 		ImGui::NewLine();
-		ImGui::Separator();
+		ImGui::Text("Controls :");
+		ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
+		ImGui::Text("Left joystick : move the cursor");
+		ImGui::Text("Right joystick : scroll");
+		ImGui::Text("LB/L1 : click");
 		ImGui::NewLine();
-		ImGui::Text("Searching from the Steam tab works again");
+		ImGui::Text("Change your sensitivity in Settings->Contoller");
+
+
 		ImGui::NewLine();
+		ImGui::Text("-You can now select the maps folder path directly on the plugin by clicking on \"Select maps folder\"");
+
+		ImGui::NewLine();
+
+		ImGui::Text("Fixed :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::NewLine();
+		ImGui::Text("-Searching from \"Search Workshop(Steam)\" tab works again");
+		
+		
+		ImGui::NewLine();
+		AlignRightNexIMGUItItem(100.f, 8.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
 			HasSeeNewUpdateAlert = true;
@@ -494,6 +432,21 @@ void Pluginx64::Render()
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Controller"))
+			{
+				if(ImGui::SliderInt("Sensitivity", &ControllerSensitivity, 1.f, 30.f))
+				{
+					SaveInCFG();
+				}
+
+				if(ImGui::SliderInt("Scroll Sensitivity", &ControllerScrollSensitivity, 1.f, 30.f))
+				{
+					SaveInCFG();
+				}
+
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::Selectable("Download Textures"))
 			{
 				DownloadTexturesBool = true;
@@ -527,7 +480,7 @@ void Pluginx64::Render()
 			}
 
 
-			if (ImGui::Selectable("Open CookedPCConsole"))
+			if (ImGui::Selectable("Open CookedPCConsole Directory"))
 			{
 				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string());
 				LPCWSTR L_modsDir = w_modsDir.c_str();
@@ -725,10 +678,14 @@ void Pluginx64::Render()
 				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
 				static char url[200] = "put the url of a workshop";
 				ImGui::InputText("##STEAMworkshopurl", url, IM_ARRAYSIZE(url));
+				
+				
 				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
 				{
-					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, "", true, 0, false);
+					/*
+					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, NULL, 0, false);
 					t1.detach();
+					*/
 				}
 			}
 
@@ -1080,7 +1037,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 	{
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
 		float buttonWidth = (windowWidth - ((nbTilesPerLine - 1) * 8)) / nbTilesPerLine;
-		int nbTilesOnTheActualLine = 0;
+		int nbTilesOnTheCurrentLine = 0;
 
 		for (auto map : MapList)
 		{
@@ -1187,12 +1144,12 @@ void Pluginx64::renderMaps(Gamepad controller)
 			else
 			{
 				renderMaps_DisplayMode_1(curMap, buttonWidth);
-				nbTilesOnTheActualLine++;
+				nbTilesOnTheCurrentLine++;
 				ImGui::PopID();
 				ID++;
-				if (nbTilesOnTheActualLine == nbTilesPerLine)
+				if (nbTilesOnTheCurrentLine == nbTilesPerLine)
 				{
-					nbTilesOnTheActualLine = 0;
+					nbTilesOnTheCurrentLine = 0;
 					ImGui::NewLine();
 				}
 				else
@@ -1203,23 +1160,13 @@ void Pluginx64::renderMaps(Gamepad controller)
 		}
 
 
-		float rightStickX = controller.RightStick_X();
 		float rightStickY = controller.RightStick_Y();
-
-
 
 		if (controller.Connected())
 		{
 			if (!controller.RStick_InDeadzone())
 			{
-				if (rightStickY < 0)
-				{
-					ImGui::SetScrollY(ImGui::GetScrollY() + std::abs(rightStickY * 10));
-				}
-				if (rightStickY > 0)
-				{
-					ImGui::SetScrollY(ImGui::GetScrollY() - std::abs(rightStickY * 10));
-				}
+				ImGui::SetScrollY(ImGui::GetScrollY() - (rightStickY * ControllerScrollSensitivity));
 			}
 		}
 
@@ -1508,7 +1455,7 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 			{
 				if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 				{
-					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult.ID, false, i, true);
+					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult, true);
 					t2.detach();
 				}
 				else
@@ -1516,7 +1463,6 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 					if (!Directory_Or_File_Exists(fs::path(mapspath)))
 					{
 						ImGui::OpenPopup("Exists?");
-						cvarManager->log("CA MARCHE PAS PTN");
 					}
 
 					if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
@@ -2360,7 +2306,7 @@ void Pluginx64::renderJoinServerPopup()
 
 		ImGui::Text("PORT :");
 		ImGui::SameLine();
-		static char PORT[200] = "";
+		static char PORT[200] = "7777";
 		ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
 
 		std::string str_IP = std::string(IP);

@@ -69,6 +69,8 @@ public:
 	*/
 
 	void checkOpenMenuWithController(CanvasWrapper canvas);
+	int ControllerSensitivity = 10;
+	int ControllerScrollSensitivity = 10;
 
 
 	//Issues Encountered
@@ -283,7 +285,7 @@ public:
 
 	//Related to download
 	//Steam
-	void STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, std::string workshopid, bool WorkshopIDByUrl, int index, bool createJsonFile);
+	void STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, Steam_MapResult mapResult, bool createJsonFile);
 	std::string GetWorkshopIDByUrl(std::string workshopurl);
 	void CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath);
 	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription, std::string mapPreviewUrl);
@@ -320,6 +322,9 @@ public:
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
+	std::string CleanHTML(std::string& S);
+	void replaceAll(std::string& str, const std::string& from, const std::string& to);
+	void eraseAll(std::string& str, const std::string& from);
 
 
 	//ImGui SettingsWindow Functions
