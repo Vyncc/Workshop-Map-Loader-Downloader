@@ -172,6 +172,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Gamepad.h" />
     <ClInclude Include="IMGUI\imconfig.h" />
     <ClInclude Include="IMGUI\imgui.h" />
     <ClInclude Include="IMGUI\imguivariouscontrols.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="WorkshopMapLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="IMGUI\imgui.cpp" />
     <ClCompile Include="IMGUI\imguivariouscontrols.cpp" />
     <ClCompile Include="IMGUI\imgui_additions.cpp" />

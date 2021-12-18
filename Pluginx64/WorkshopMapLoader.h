@@ -4,6 +4,8 @@
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 
+#include "Gamepad.h"
+
 
 struct Map
 {
@@ -65,6 +67,14 @@ public:
 	int heightTest;
 	float fontSizeTest = 0.f;
 	*/
+
+	void checkOpenMenuWithController(CanvasWrapper canvas);
+
+
+	//Issues Encountered
+	void CheckIssuesEncountered();
+	std::vector<std::string> IssuesEncountered;
+	bool HasSeenIssuesEncountered = true;
 
 	
 	//Host multiplayer game
@@ -309,6 +319,7 @@ public:
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
+	float DoRatio(float x, float y);
 
 
 	//ImGui SettingsWindow Functions
@@ -350,8 +361,10 @@ public:
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
 
+	void renderFileExplorer();
 
-	void renderMaps();
+
+	void renderMaps(Gamepad controller);
 	void renderMaps_DisplayMode_0(Map map);
 	void renderMaps_DisplayMode_1(Map map, float buttonWidth);
 

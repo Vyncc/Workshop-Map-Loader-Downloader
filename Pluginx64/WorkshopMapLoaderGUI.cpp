@@ -44,6 +44,143 @@ void Pluginx64::Render()
 		return;
 	}
 
+	Gamepad controller1 = Gamepad(1);
+
+	controller1.Update();
+	if (controller1.Connected())
+	{
+		float stickX = controller1.LeftStick_X();
+		float stickY = controller1.LeftStick_Y();
+
+
+
+		POINT point;
+		GetCursorPos(&point);
+
+
+		static bool L1WasPressed = false;
+		static bool BWasPressed = false;
+
+
+		if (controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && !L1WasPressed) {
+			cvarManager->log("Button L1 is pressed");
+			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); //Left click down
+			L1WasPressed = true;
+		}
+		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && L1WasPressed)
+		{
+			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //Left click realease
+			cvarManager->log("Button L1 is realeased");
+			L1WasPressed = false;
+		}
+
+
+		if (controller1.checkButtonPress(XINPUT_GAMEPAD_B) && !BWasPressed) {
+			cvarManager->log("Button B is pressed");
+			BWasPressed = true;
+		}
+		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_B) && BWasPressed)
+		{
+			isWindowOpen_ = false;
+			cvarManager->log("Button B is realeased");
+			BWasPressed = false;
+		}
+
+
+		if (!controller1.LStick_InDeadzone())
+		{
+			//std::cout << point.x << "," << point.y << "\n"; //display mouse curosr pos
+
+			float ratio = DoRatio(stickX, stickY);
+			int pixelsX = 0;
+			int pixelsY = 0;
+
+
+			if (ratio > 0)
+			{
+				if (ratio >= 0.75f && ratio <= 1.25f)
+				{
+					pixelsX = 9;
+					pixelsY = 9;
+				}
+				if (ratio >= 0.25f && ratio <= 0.75f)
+				{
+					pixelsX = 6;
+					pixelsY = 12;
+				}
+				if (ratio >= 0.f && ratio <= 0.25f)
+				{
+					pixelsX = 0;
+					pixelsY = 9;
+				}
+				if (ratio >= 1.25f && ratio <= 2.5f)
+				{
+					pixelsX = 12;
+					pixelsY = 6;
+				}
+				if (ratio > 2.5f)
+				{
+					pixelsX = 9;
+					pixelsY = 0;
+				}
+			}
+
+			if (ratio < 0)
+			{
+				if (ratio <= -0.75f && ratio >= -1.25f)
+				{
+					pixelsX = 9;
+					pixelsY = -9;
+				}
+				if (ratio <= -0.25f && ratio >= -0.75f)
+				{
+					pixelsX = 6;
+					pixelsY = -12;
+				}
+				if (ratio <= 0.f && ratio >= -0.25f)
+				{
+					pixelsX = 0;
+					pixelsY = -9;
+				}
+				if (ratio <= -1.25f && ratio >= -2.5f)
+				{
+					pixelsX = 12;
+					pixelsY = -6;
+				}
+				if (ratio < -2.5f)
+				{
+					pixelsX = 9;
+					pixelsY = 0;
+				}
+			}
+
+			if (stickX < 0)
+			{
+				pixelsX = pixelsX - pixelsX - pixelsX; //transform pixelsX to negative value
+				pixelsY = pixelsY - pixelsY - pixelsY; //transform pixelsY to negative value
+			}
+
+			/*
+			if (std::abs(stickX) < 0.7f)
+			{
+				pixelsX = pixelsX / 2;
+			}
+			if (std::abs(stickY) < 0.7f)
+			{
+				pixelsY = pixelsY / 2;
+			}*/
+
+			float sensitivity = cvarManager->getCvar("workshopmaploader_controller_sens").getFloatValue();
+
+			pixelsX = (pixelsX * sensitivity) * std::abs(stickX);
+			pixelsY = (pixelsY * sensitivity) * std::abs(stickY);
+
+
+
+			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
+		}
+	}
+
 	if (!FR)
 	{
 		//1st Tab
@@ -270,6 +407,33 @@ void Pluginx64::Render()
 		ImGui::EndPopup();
 	}
 
+
+	if (!HasSeenIssuesEncountered)
+	{
+		ImGui::OpenPopup("Issues Encountered");
+	}
+	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	if (ImGui::BeginPopupModal("Issues Encountered", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Warning :").x);
+		ImGui::Text("Warning :");
+		ImGui::NewLine();
+
+		for (auto issue : IssuesEncountered)
+		{
+			ImGui::Text(issue.c_str());
+		}
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(100.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			HasSeenIssuesEncountered = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
 	
 
 	if (ImGui::BeginMenuBar())
@@ -415,8 +579,8 @@ void Pluginx64::Render()
 			ImGui::Text(Label1Text.c_str()); // "Put the folder's path of the maps, don't forget to add a  /  at the end."
 
 
-			CenterNexIMGUItItem(620.f);
-			ImGui::SetNextItemWidth(620.f);
+			CenterNexIMGUItItem(628.f);
+			ImGui::SetNextItemWidth(628.f);
 			ImGui::InputText("##workshopurl123", MapsFolderPathBuf, IM_ARRAYSIZE(MapsFolderPathBuf));
 			ImGui::SameLine();
 			if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
@@ -428,9 +592,17 @@ void Pluginx64::Render()
 				ImGui::Text("");
 			}
 
-			CenterNexIMGUItItem(620.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
+			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button(SavePathText.c_str(), ImVec2(306.f, 32.f))) // "Save Path"
+			if (ImGui::Button("Select maps folder", ImVec2(204.f, 32.f))) // "Select maps folder"
+			{
+				ImGui::OpenPopup("Select maps folder");
+			}
+			renderFileExplorer();
+
+			ImGui::SameLine();
+
+			if (ImGui::Button(SavePathText.c_str(), ImVec2(204.f, 32.f))) // "Save Path"
 			{
 				if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\"))
 				{
@@ -446,7 +618,7 @@ void Pluginx64::Render()
 
 			std::vector<std::string> missingTexturesFiles = CheckExist_TexturesFiles();
 
-			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(306.f, 32.f))) // "Refresh Maps"
+			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(204.f, 32.f))) // "Refresh Maps"
 			{
 				if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
 				{
@@ -541,7 +713,7 @@ void Pluginx64::Render()
 
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
 
-			renderMaps();
+			renderMaps(controller1);
 
 			ImGui::EndTabItem();
 		}
@@ -887,7 +1059,7 @@ void Pluginx64::Render()
 
 
 
-void Pluginx64::renderMaps()
+void Pluginx64::renderMaps(Gamepad controller)
 {
 	std::vector<Map> NoUpk_MapList;
 	std::vector<Map> Good_MapList;
@@ -1029,6 +1201,28 @@ void Pluginx64::renderMaps()
 				}
 			}
 		}
+
+
+		float rightStickX = controller.RightStick_X();
+		float rightStickY = controller.RightStick_Y();
+
+
+
+		if (controller.Connected())
+		{
+			if (!controller.RStick_InDeadzone())
+			{
+				if (rightStickY < 0)
+				{
+					ImGui::SetScrollY(ImGui::GetScrollY() + std::abs(rightStickY * 10));
+				}
+				if (rightStickY > 0)
+				{
+					ImGui::SetScrollY(ImGui::GetScrollY() - std::abs(rightStickY * 10));
+				}
+			}
+		}
+
 	}
 	ImGui::EndChild();
 }
@@ -1089,8 +1283,7 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 				}
 			}
 			
-
-			//responsive description but it takes too much ressources and causes fps issues for not very good pc (my pc lmao)
+			//responsive description but it takes too much ressources and causes fps issues for not good PC (like my PC xD)
 			/*
 			float descriptionWidth = ((windowWidth - 214) * 0.867f);
 			std::string mapDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
@@ -2044,10 +2237,6 @@ void Pluginx64::renderFolderErrorPopup()
 		ImGui::Text("Error : ");
 		ImGui::Text(FolderErrorText.c_str()); // error message
 		ImGui::NewLine();
-		ImGui::NewLine();
-		ImGui::Text("if the error message is an acces denied, it means the maps folder need administrator acces,");
-		ImGui::Text("so you need to change the location of the maps folder to a place that doesn't need it (ex : desktop)");
-		ImGui::NewLine();
 
 		CenterNexIMGUItItem(100.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
@@ -2208,6 +2397,113 @@ void Pluginx64::renderJoinServerPopup()
 		ImGui::EndPopup();
 	}
 }
+
+
+void Pluginx64::renderFileExplorer()
+{
+	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal("Select maps folder", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char newFolderName[200] = "";
+
+		static char fullPathBuff[200] = "C:/";
+		std::filesystem::path currentPath = fullPathBuff;
+
+		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
+		{
+			ImGui::Columns(2, 0, true);
+			ImGui::SetColumnWidth(0, 40.f);
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
+			if(ImGui::Selectable("<--"))
+			{
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+
+			ImGui::NextColumn();
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
+			ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
+			currentPath = fullPathBuff;
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("New Folder", ImVec2(100.f, 19.f)))
+			{
+				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
+				ImGui::OpenPopup("Folder Name");
+			}
+			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
+				if (ImGui::Button("Confirm", ImVec2(100.f, 25.f)))
+				{
+					try
+					{
+						std::filesystem::create_directory(currentPath.string() + "/" + newFolderName);
+					}
+					catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+					{
+						cvarManager->log(ex.what());
+					}
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			ImGui::EndChild();
+		}
+		
+		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
+		{
+			try
+			{
+				for (const auto& dir : fs::directory_iterator(currentPath))
+				{
+					if (dir.is_directory())
+					{
+						if (ImGui::Selectable(dir.path().filename().string().c_str()))
+						{
+							strncpy(fullPathBuff, dir.path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+						}
+					}
+				}
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log("error : " + std::string(ex.what()));
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+
+			ImGui::EndChild();
+		}
+
+		if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("Select", ImVec2(100.f, 30.f)))
+		{
+			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
+			SaveInCFG();
+			ImGui::CloseCurrentPopup();
+		}
+		
+		ImGui::EndPopup();
+	}
+}
+
 
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()

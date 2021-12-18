@@ -25,6 +25,10 @@ faut que je fasse un #define pour la taille des bouttons que j'utilise tout le t
 
 peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, peut etre mettre genre une icone en mode pour dire que tu peux direct rejoindre un server
 
+faut fix le refreshmapsfunct, ca freeze quand le dossier des maps n'est pas dédié juste pour les maps
+
+mettre de base le port 7777 dans le input text de joinserver
+
 
 faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

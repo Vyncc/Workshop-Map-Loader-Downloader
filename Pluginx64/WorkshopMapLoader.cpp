@@ -21,6 +21,9 @@ std::string GameSetting::GetSelectedValue()
 
 void Pluginx64::onLoad()
 {
+	cvarManager->registerCvar("workshopmaploader_controller_sens", "0.5");
+	gameWrapper->RegisterDrawable(std::bind(&Pluginx64::checkOpenMenuWithController, this, std::placeholders::_1));
+
 	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
 	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
@@ -50,6 +53,10 @@ void Pluginx64::onLoad()
 
 	JoinServerBool = false;
 	DownloadTexturesBool = false;
+
+
+	std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
+	t1.detach();
 
 
 	try
@@ -120,7 +127,34 @@ void Pluginx64::onLoad()
 
 
 
+void Pluginx64::checkOpenMenuWithController(CanvasWrapper canvas)
+{
+	Gamepad ds4 = Gamepad(1);
 
+	ds4.Update();
+
+	if (gameWrapper->IsInOnlineGame())
+		return;
+
+	if (ds4.Connected())
+	{
+		static bool ButtonsWasPressed = false;
+
+		if (ds4.checkButtonPress(XINPUT_GAMEPAD_LEFT_THUMB) && ds4.checkButtonPress(XINPUT_GAMEPAD_RIGHT_THUMB) && !ButtonsWasPressed)
+		{
+			ButtonsWasPressed = true;
+		}
+		else if (!ds4.checkButtonPress(XINPUT_GAMEPAD_LEFT_THUMB) && !ds4.checkButtonPress(XINPUT_GAMEPAD_RIGHT_THUMB) && ButtonsWasPressed)
+		{
+			gameWrapper->Execute([&](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("togglemenu " + GetMenuName());
+				});
+			ButtonsWasPressed = false;
+		}
+	}
+	
+}
 
 
 
@@ -443,7 +477,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	if (request_response.status_code != 200)
 	{
 		cvarManager->log("request_response.status_code : " + std::to_string(request_response.status_code));
-		DownloadFailedErrorText = "request_response : error " + std::to_string(request_response.status_code);
+		DownloadFailedErrorText = " error " + std::to_string(request_response.status_code);
 		DownloadFailed = true;
 		IsRetrievingWorkshopFiles = false;
 		return;
@@ -1436,38 +1470,10 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 
 	if (myfile.is_open())
 	{
-		int i = 0;
 		while (std::getline(myfile, line))
 		{
-			if (i == 0)
-			{
-				CfgInfosList.push_back(line.substr(18, line.length() - 19)); // pushback folderPath
-			}
-			if (i == 1)
-			{
-				CfgInfosList.push_back(line.substr(12, line.length() - 13)); // pushback language
-			}
-			if (i == 2)
-			{
-				CfgInfosList.push_back(line.substr(15, line.length() - 16)); //pushback UnzipMethod
-			}
-			if (i == 3)
-			{
-				CfgInfosList.push_back(line.substr(24, line.length() - 25)); //pushback HasSeeNewUpdateAlert
-			}
-			if (i == 4)
-			{
-				CfgInfosList.push_back(line.substr(11, line.length() - 12)); //pushback dontask
-			}
-			if (i == 5)
-			{
-				CfgInfosList.push_back(line.substr(19, line.length() - 20)); //pushback mapsDisplayMode
-			}
-			if (i == 6)
-			{
-				CfgInfosList.push_back(line.substr(18, line.length() - 19)); //pushback nbTilesPerLine
-			}
-			i++;
+			std::string value = FindAllSubstringInAString(line, "\"", "\"").at(0);
+			CfgInfosList.push_back(value.substr(0, value.find("\"")));
 		}
 		myfile.close();
 	}
@@ -1512,6 +1518,39 @@ bool Pluginx64::FileIsInDirectoryRecursive(std::string dirPath, std::string file
 		}
 	}
 	return false;
+}
+
+float Pluginx64::DoRatio(float x, float y)
+{
+	float result = x / y;
+	return result;
+}
+
+
+//Issues Encountered
+void Pluginx64::CheckIssuesEncountered()
+{
+	IssuesEncountered.clear();
+
+	cpr::Response request_response = cpr::Get(cpr::Url{ "https://bakkesplugins.com/plugins/view/223" });
+	if (request_response.status_code != 200)
+	{
+		cvarManager->log("CheckIssuesEncountered : error " + std::to_string(request_response.status_code));
+		return;
+	}
+
+	std::vector<std::string> issuesEncountered = FindAllSubstringInAString(request_response.text, "<h2>Issues Encountered</h2>", "<p>This plugin allows you :</p>");
+
+	if (issuesEncountered.size() == 0) {cvarManager->log("No Issues Encountered"); return;}
+
+	cvarManager->log("Issues Encountered :");
+	for (auto item : FindAllSubstringInAString(issuesEncountered.at(0), "<li>", "</li>"))
+	{
+		cvarManager->log("- " + item);
+		IssuesEncountered.push_back(item);
+	}
+
+	HasSeenIssuesEncountered = false;
 }
 
 
