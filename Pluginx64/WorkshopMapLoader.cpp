@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.14.1", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15", 0)
 
 
 namespace
@@ -32,14 +32,14 @@ void Pluginx64::onLoad()
 	std::string Data_WorkshopMapLoader_Path = BakkesmodPath + "data\\WorkshopMapLoader\\";
 
 	//Load logos
-	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\steamlogo.png", false, true);
-	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\rlmapslogo.png", false, true);
+	SteamLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/steamlogo.png", false, true);
+	RLMAPSLogoImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/rlmapslogo.png", false, true);
 
 	//Load display mode images
-	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo1.png", false, true);
-	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo2.png", false, true);
-	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo1_white.png", false, true);
-	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "images\\logo2_white.png", false, true);
+	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo1.png", false, true);
+	MapsDisplayMode_Logo2_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2.png", false, true);
+	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo1_selected.png", false, true);
+	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2_selected.png", false, true);
 
 	STEAM_browsing = false;
 	RLMAPS_browsing = false;
@@ -284,6 +284,11 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 					{
 						map.JsonFile = file.path().string();
 						hasFoundJSON = true;
+
+						std::vector<std::string> MapInfosList = GetJSONLocalMapInfos(map.JsonFile);
+						map.mapName = MapInfosList.at(0);
+						map.mapDescription = MapInfosList.at(1);
+						map.mapAuthor = MapInfosList.at(2);
 
 						//cvarManager->log("Folder name  : " + CurrentMapDirectory.filename().string());
 						cvarManager->log("JSON name  : " + file.path().filename().string());
@@ -607,17 +612,25 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 	Steam_MapResultList.clear();
 
 	cpr::Response request_response = cpr::Get(cpr::Url{fullurl});
-	
-	STEAM_NumberOfMapsFound = FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>").size(); //get number of maps there is on the page
 
-	for (int i = 0; i < FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>").size(); i++)
+	std::vector<std::string> resultMapNameList = FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>");
+	std::vector<std::string> resultsMapIDList = FindAllSubstringInAString(request_response.text, "<div id=\"sharedfile_", "\" class=\"workshopItemPreviewHolder \"");
+	std::vector<std::string> resultsMapPreviewUrlList = FindAllSubstringInAString(request_response.text, "class=\"workshopItemPreviewImage \" src=\"", "\">");
+	std::vector<std::string> resultsMapAuthorList = FindAllSubstringInAString(request_response.text, "myworkshopfiles/?appid=252950\">", "</a>");
+	std::vector<std::string> resultsDescriptionList = FindAllSubstringInAString(request_response.text, "SharedFileBindMouseHover", "</script>");
+
+
+	STEAM_NumberOfMapsFound = resultMapNameList.size(); //get number of maps there is on the page
+
+
+	for (int i = 0; i < resultMapNameList.size(); i++)
 	{
-		std::string resultMapName = FindAllSubstringInAString(request_response.text, "workshopItemTitle ellipsis\">", "</div>").at(i);
-		std::string resultMapID = FindAllSubstringInAString(request_response.text, "<div id=\"sharedfile_", "\" class=\"workshopItemPreviewHolder \"").at(i);
-		std::string resultMapPreviewUrl = FindAllSubstringInAString(request_response.text, "class=\"workshopItemPreviewImage \" src=\"", "\">").at(i);
-		std::string resultMapAuthor = FindAllSubstringInAString(request_response.text, "myworkshopfiles/?appid=252950\">", "</a>").at(i);
+		std::string resultMapName = resultMapNameList.at(i);
+		std::string resultMapID = resultsMapIDList.at(i);
+		std::string resultMapPreviewUrl = resultsMapPreviewUrlList.at(i);
+		std::string resultMapAuthor = resultsMapAuthorList.at(i);
 		std::string resultSize;
-		std::string resultDescription;
+		std::string resultDescription = resultsDescriptionList.at(i);
 		std::filesystem::path resultImagePath;
 		std::shared_ptr<ImageWrapper> resultImage;
 		bool resultisImageLoaded;
@@ -636,17 +649,22 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 
 			if (file_size_request_response.status_code == 200)
 			{
-				//Parse state response json
+				//Parse map size json
 				Json::Value fileSizeJson;
 				Json::Reader fileSizeReader;
 
 				fileSizeReader.parse(file_size_request_response.text, fileSizeJson);
-
 				Workshop_filesize = fileSizeJson["Filesize"].asString();
 
-				cpr::Response workshop_steam_request_response = cpr::Get(cpr::Url{ "https://steamcommunity.com/sharedfiles/filedetails/?id=" + resultMapID });
-				WorkshopMapDescription = CleanHTML(FindAllSubstringInAString(workshop_steam_request_response.text, "<div class=\"workshopItemDescription\" id=\"highlightContent\"", "/div>").at(0));
-				
+
+				//Parse map description json
+				std::string descriptionJSONText = resultDescription.substr(33, resultDescription.length() - 41);
+				Json::Value descriptionJson;
+				Json::Reader descriptionReader;
+
+				descriptionReader.parse(descriptionJSONText, descriptionJson);
+				WorkshopMapDescription = descriptionJson["description"].asString();
+				CleanHTML(WorkshopMapDescription);
 			}
 			else
 			{
@@ -1448,29 +1466,29 @@ float Pluginx64::DoRatio(float x, float y)
 }
 
 //https://www.geeksforgeeks.org/html-parser-in-c-cpp/
-std::string Pluginx64::CleanHTML(std::string& S)
+void Pluginx64::CleanHTML(std::string& S)
 {
+	if (S == "")
+		return;
 	// Store the length of the
 	// input string
 	int n = S.length();
 	int start = 0, end = 0;
-	int pos = 0;
 
-	std::string FinalResult = "";
-
-	while (pos != n - 1)
+	while (end != n - 1)
 	{
+		n = S.length();
 		// Traverse the string
-		for (int i = pos; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			// If S[i] is '>', update
 			// start to i+1 and break
-			if (S[i] == '>') {
-				start = i + 1;
+			if (S[i] == '<') {
+				start = i;
 				break;
 			}
 			if (i == n - 1)
 			{
-				return FinalResult;
+				return;
 			}
 		}
 
@@ -1483,23 +1501,31 @@ std::string Pluginx64::CleanHTML(std::string& S)
 		for (int i = start; i < n; i++) {
 			// If S[i] is '<', update
 			// end to i-1 and break
-			if (S[i] == '<') {
-				end = i - 1;
-				pos = end + 1;
+			if (S[i] == '>') {
+				end = i;
 				break;
 			}
 		}
 
+		std::string result;
 		// Print the characters in the
 		// range [start, end]
 		for (int j = start; j <= end; j++) {
-			FinalResult += S[j];
+			result += S[j];
 		}
 
-		FinalResult += " ";
+		//cvarManager->log("parser result : " + result);
+		if (result == "<br>")
+		{
+			S.replace(start, (end + 1) - start, "\n");
+		}
+		else
+		{
+			S.erase(start, (end + 1) - start);
+		}
+
 	}
 
-	return FinalResult;
 }
 
 //https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
@@ -1520,6 +1546,34 @@ void Pluginx64::eraseAll(std::string& str, const std::string& from) {
 	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
 		str.erase(start_pos, from.length());
 	}
+}
+
+std::vector<std::string> Pluginx64::GetDrives()
+{
+	std::vector<std::string> Drives;
+	int iCounter = 0;
+	int iASCIILetter = (int)'a';
+
+	DWORD dwDrivesMask = GetLogicalDrives();
+
+	if (dwDrivesMask == 0) {
+		printf("Failed to acquire mask of drives.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Drives available:\n");
+	//extract the drives from the mask using 
+	//logical and-ing with & and bitshift operator <<
+	while (iCounter < 24) {
+		if (dwDrivesMask & (1 << iCounter)) {
+			printf("%c:\\ \n", iASCIILetter + iCounter);
+			char driveLetter = iASCIILetter + iCounter;
+			std::string str(1, driveLetter);
+			Drives.push_back(str);
+		}
+		iCounter++;
+	}
+	return Drives;
 }
 
 

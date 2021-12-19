@@ -9,6 +9,10 @@
 
 struct Map
 {
+	std::string mapName;
+	std::string mapDescription;
+	std::string mapAuthor;
+
 	std::filesystem::path Folder; //Map folder
 	std::filesystem::path UpkFile; //Map(.upk) in the map directory
 	std::filesystem::path ZipFile; //Map(.zip) in the map directory
@@ -55,6 +59,15 @@ struct GameSetting
 	std::string GetSelectedValue();
 };
 
+struct mapButtonPos
+{
+	ImVec2 rectMin;
+	ImVec2 rectMax;
+	ImVec2 cursorPos;
+	bool isDisplayed;
+};
+
+//Hey Jerry or Martinn, have a good time reviewing my awful code ;)
 
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
@@ -68,6 +81,12 @@ public:
 	float fontSizeTest = 0.f;
 	*/
 
+	bool isHoveringMapButton;
+
+	ImVec2 MapButtonChild_TopPos;
+	std::vector<mapButtonPos> mapButtonList;
+	int selectedButton = 0;
+
 	void checkOpenMenuWithController(CanvasWrapper canvas);
 	int ControllerSensitivity = 10;
 	int ControllerScrollSensitivity = 10;
@@ -77,6 +96,8 @@ public:
 	void CheckIssuesEncountered();
 	std::vector<std::string> IssuesEncountered;
 	bool HasSeenIssuesEncountered = true;
+
+
 
 	
 	//Host multiplayer game
@@ -322,9 +343,10 @@ public:
 	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
-	std::string CleanHTML(std::string& S);
+	void CleanHTML(std::string& S);
 	void replaceAll(std::string& str, const std::string& from, const std::string& to);
 	void eraseAll(std::string& str, const std::string& from);
+	std::vector<std::string> GetDrives();
 
 
 	//ImGui SettingsWindow Functions
@@ -335,7 +357,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.14.1 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15 | Made By Vync";
 
 	void Render() override;
 	std::string GetMenuName() override;
@@ -355,6 +377,7 @@ public:
 	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
 
 	//Popups
+	void renderNewUpdatePopup();
 	void renderInfoPopup(const char* popupName, const char* label);
 	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc);
 	void renderFolderErrorPopup();
@@ -387,6 +410,7 @@ public:
 	//1st Tab
 	std::string Tab1MapLoaderText;
 	std::string Label1Text; //Put the folder's path of the maps, don't forget to add a  /  at the end.
+	std::string SelectMapsFolderText;
 	std::string RefreshMapsButtonText;
 	std::string SavePathText;
 	std::string MapsPerLineText;

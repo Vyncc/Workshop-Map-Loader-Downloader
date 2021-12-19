@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d %~dp0
-Call :UnZipFile "C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\maps\impossible_rings\" "C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\maps\impossible_rings\impossible_rings.zip"
+Call :UnZipFile "C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\workshopmaps\Minigolf\" "C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\workshopmaps\Minigolf\Minigolf.udk.zip"
 exit /b
 
 :UnZipFile <ExtractTo> <newzipfile>

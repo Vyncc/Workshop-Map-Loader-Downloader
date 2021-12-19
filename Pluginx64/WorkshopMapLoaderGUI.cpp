@@ -66,6 +66,7 @@ void Pluginx64::Render()
 		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && L1WasPressed)
 		{
 			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //Left click realease
+
 			cvarManager->log("Button L1 is realeased");
 			L1WasPressed = false;
 		}
@@ -97,12 +98,14 @@ void Pluginx64::Render()
 			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
 		}
 	}
+	
 
 	if (!FR)
 	{
 		//1st Tab
 		Tab1MapLoaderText = "Map Loader";
 		Label1Text = "Put the path of the maps folder :";
+		SelectMapsFolderText = "Select maps folder";
 		RefreshMapsButtonText = "Refresh Maps";
 		SavePathText = "Save Path";
 		MapsPerLineText = "Maps Per Line :";
@@ -193,6 +196,7 @@ void Pluginx64::Render()
 		//1st Tab
 		Tab1MapLoaderText = "Charger Map";
 		Label1Text = "Mets le chemin du dossier des maps :";
+		SelectMapsFolderText = "Choisir Le Dossier Des Maps";
 		RefreshMapsButtonText = "Rafraichir Les Maps";
 		SavePathText = "Sauvegarder Le Chemin";
 		MapsPerLineText = "Maps Par Ligne :";
@@ -287,63 +291,8 @@ void Pluginx64::Render()
 	{
 		ImGui::OpenPopup("New Update");
 	}
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
-	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.14").x);
-		ImGui::Text("Changelog v1.14.1");
-		ImGui::NewLine();
-		ImGui::Text("Added :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::NewLine();
-		ImGui::Text("-2 different display mode for the maps :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.f);
-		ImGui::Image(MapsDisplayMode_Logo1_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
-		ImGui::Text(" : List of big buttons");
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.f);
-		ImGui::Image(MapsDisplayMode_Logo2_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
-		ImGui::Text(" : Grid, the number maps per line can be changed");
-		ImGui::NewLine();
-		ImGui::Text("-Controller support :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::Text("Use your XBox controller(or ds4/5 with ds4windows) to navigate on the plugin.");
-		ImGui::NewLine();
-		ImGui::Text("Controls :");
-		ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
-		ImGui::Text("Left joystick : move the cursor");
-		ImGui::Text("Right joystick : scroll");
-		ImGui::Text("LB/L1 : click");
-		ImGui::NewLine();
-		ImGui::Text("Change your sensitivity in Settings->Contoller");
-
-
-		ImGui::NewLine();
-		ImGui::Text("-You can now select the maps folder path directly on the plugin by clicking on \"Select maps folder\"");
-
-		ImGui::NewLine();
-
-		ImGui::Text("Fixed :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::NewLine();
-		ImGui::Text("-Searching from \"Search Workshop(Steam)\" tab works again");
-		
-		
-		ImGui::NewLine();
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			HasSeeNewUpdateAlert = true;
-			SaveInCFG();
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
+	renderNewUpdatePopup();
+	
 
 
 	if (!HasSeenIssuesEncountered)
@@ -488,6 +437,22 @@ void Pluginx64::Render()
 				ShellExecute(NULL, L"open", L_modsDir, NULL, NULL, SW_SHOWDEFAULT);
 			}
 
+			ImGui::Separator();
+
+			ImGui::Text("Join Community Workshop Games discord server :");
+			ImGui::SameLine();
+			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.gg/AEKXeAeD");
+			renderUnderLine(ImColor(3, 94, 252, 255));
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				if (ImGui::IsMouseClicked(0))
+				{
+					ShellExecute(0, 0, L"https://discord.gg/AEKXeAeD", 0, 0, SW_SHOW); //open link in browser
+				}
+				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -547,7 +512,7 @@ void Pluginx64::Render()
 
 			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button("Select maps folder", ImVec2(204.f, 32.f))) // "Select maps folder"
+			if (ImGui::Button(SelectMapsFolderText.c_str(), ImVec2(204.f, 32.f))) // "Select maps folder"
 			{
 				ImGui::OpenPopup("Select maps folder");
 			}
@@ -1018,6 +983,8 @@ void Pluginx64::Render()
 
 void Pluginx64::renderMaps(Gamepad controller)
 {
+	mapButtonList.clear();
+
 	std::vector<Map> NoUpk_MapList;
 	std::vector<Map> Good_MapList;
 
@@ -1032,7 +999,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 	ImGui::SliderFloat("fontsize", &fontSizeTest, 0.f, 1.f);
 	*/
 	
-
+	MapButtonChild_TopPos = ImGui::GetCursorScreenPos();
 	if (ImGui::BeginChild("#MapsLauncherButtons"))
 	{
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
@@ -1094,7 +1061,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 				}
 				else
 				{
-					mapName = GetJSONLocalMapInfos(curMap.JsonFile).at(0);
+					mapName = curMap.mapName;
 				}
 
 
@@ -1125,11 +1092,11 @@ void Pluginx64::renderMaps(Gamepad controller)
 					ImGui::EndPopup();
 				}
 			}
-
 			ImGui::PopID();
 			ID++;
 		}
 
+		std::vector<bool> isHoveringMapButtonList;
 
 		for (auto curMap : Good_MapList)
 		{
@@ -1157,18 +1124,168 @@ void Pluginx64::renderMaps(Gamepad controller)
 					ImGui::SameLine();
 				}
 			}
+
+			if (ImGui::IsItemHovered())
+			{
+				//cvarManager->log(std::to_string(ID));
+				isHoveringMapButtonList.push_back(true);
+				selectedButton = ID - 1;
+			}
+			else
+			{
+				isHoveringMapButtonList.push_back(false);
+			}
+		}
+
+		for (int i = 0; i < isHoveringMapButtonList.size(); i++)
+		{
+			isHoveringMapButton = false;
+
+			if (isHoveringMapButtonList.at(i) == true)
+			{
+				isHoveringMapButton = true;
+				break;
+			}
 		}
 
 
 		float rightStickY = controller.RightStick_Y();
 
+		static bool DpadUpWasPressed = false;
+		static bool DpadDownWasPressed = false;
+		static bool DpadLeftWasPressed = false;
+		static bool DpadRightWasPressed = false;
+
 		if (controller.Connected())
 		{
+			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_UP) && !DpadUpWasPressed) {
+				//cvarManager->log("dpad up is pressed");
+				DpadUpWasPressed = true;
+			}
+			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_UP) && DpadUpWasPressed)
+			{
+				if (selectedButton != 0)
+				{
+					if(MapsDisplayMode == 0)
+						selectedButton -= 1;
+					if(MapsDisplayMode == 1 && (selectedButton - nbTilesPerLine) >= 0)
+						selectedButton -= nbTilesPerLine;
+				}
+				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+				if (buttonMap.isDisplayed)
+				{
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+				else
+				{
+					ImGui::SetScrollY(ImGui::GetScrollY() - (MapButtonChild_TopPos.y - buttonMap.rectMin.y));
+					buttonMap.cursorPos.y += (MapButtonChild_TopPos.y - buttonMap.rectMin.y);
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+				
+
+				//cvarManager->log("dpad up is realeased");
+				DpadUpWasPressed = false;
+			}
+
+			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_DOWN) && !DpadDownWasPressed) {
+				//cvarManager->log("dpad down is pressed");
+				DpadDownWasPressed = true;
+			}
+			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_DOWN) && DpadDownWasPressed)
+			{
+				if (selectedButton != mapButtonList.size() - 1)
+				{
+					if (MapsDisplayMode == 0)
+						selectedButton += 1;
+					if (MapsDisplayMode == 1)
+					{
+						if ((selectedButton + nbTilesPerLine) > mapButtonList.size() - 1)
+						{
+							selectedButton = mapButtonList.size() - 1;
+						}
+						else
+						{
+							selectedButton += nbTilesPerLine;
+						}
+					}
+				}
+				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+				if (buttonMap.isDisplayed)
+				{
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+				else
+				{
+					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+
+				//cvarManager->log("dpad down is realeased");
+				DpadDownWasPressed = false;
+			}
+
+			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_LEFT) && !DpadLeftWasPressed) {
+				//cvarManager->log("dpad left is pressed");
+				DpadLeftWasPressed = true;
+			}
+			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_LEFT) && DpadLeftWasPressed)
+			{
+				if (MapsDisplayMode == 1 && selectedButton != 0)
+					selectedButton -= 1;
+
+
+				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+				if (buttonMap.isDisplayed)
+				{
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+				else
+				{
+					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+
+				//cvarManager->log("dpad left is realeased");
+				DpadLeftWasPressed = false;
+			}
+
+			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_RIGHT) && !DpadRightWasPressed) {
+				//cvarManager->log("dpad right is pressed");
+				DpadRightWasPressed = true;
+			}
+			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_RIGHT) && DpadRightWasPressed)
+			{
+				if (MapsDisplayMode == 1 && selectedButton < mapButtonList.size() - 1)
+					selectedButton ++;
+				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+				if (buttonMap.isDisplayed)
+				{
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+				else
+				{
+					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+				}
+
+				//cvarManager->log("dpad right is realeased");
+				DpadRightWasPressed = false;
+			}
+
 			if (!controller.RStick_InDeadzone())
 			{
 				ImGui::SetScrollY(ImGui::GetScrollY() - (rightStickY * ControllerScrollSensitivity));
 			}
 		}
+
 
 	}
 	ImGui::EndChild();
@@ -1183,18 +1300,39 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
 
-
+		
 		if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
 		{
 			ImGui::OpenPopup("LaunchMode");
 		}
 		renderLaunchModePopup(map);
 
+		mapButtonPos buttonMap;
+		buttonMap.rectMin = ImGui::GetItemRectMin();
+		//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
+		buttonMap.rectMax = ImGui::GetItemRectMax();
+		//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
+		buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
+
+		if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
+		{
+			//cvarManager->log(map.mapName + " : visible");
+			buttonMap.isDisplayed = true;
+		}
+		else
+		{
+			//cvarManager->log(map.mapName + " : non visible");
+			buttonMap.isDisplayed = false;
+		}
+
+
+		mapButtonList.push_back(buttonMap);
 
 		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
 		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
 		ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
+
 
 
 		draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
@@ -1218,18 +1356,19 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		else
 		{
 			
-			std::string GoodDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
-			if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 150)
+			std::string GoodDescription = map.mapDescription;
+			if (map.mapDescription.length() > 150)
 			{
 				GoodDescription.insert(145, "\n");
 
-				if (GetJSONLocalMapInfos(map.JsonFile).at(1).length() > 280)
+				if (map.mapDescription.length() > 280)
 				{
 					GoodDescription.erase(280);
 					GoodDescription.append("...");
 				}
 			}
 			
+
 			//responsive description but it takes too much ressources and causes fps issues for not good PC (like my PC xD)
 			/*
 			float descriptionWidth = ((windowWidth - 214) * 0.867f);
@@ -1253,10 +1392,10 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 			*/
 
 			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
-				GetJSONLocalMapInfos(map.JsonFile).at(0).c_str()); //Map title
+				map.mapName.c_str()); //Map title
 			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 40.f), ImColor(200, 200, 200, 255), GoodDescription.c_str()); //Map Description
 			draw_list->AddText(fontA, 15.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 90.f), ImColor(0, 200, 255, 255),
-				std::string(ResultByText.c_str() + GetJSONLocalMapInfos(map.JsonFile).at(2)).c_str()); // "By " Map Author
+				std::string(ResultByText.c_str() + map.mapAuthor).c_str()); // "By " Map Author
 		}
 
 		ImGui::EndGroup();
@@ -1293,6 +1432,29 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 		}
 		renderLaunchModePopup(map);
 
+
+		mapButtonPos buttonMap;
+		buttonMap.rectMin = ImGui::GetItemRectMin();
+		//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
+		buttonMap.rectMax = ImGui::GetItemRectMax();
+		//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
+		buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
+
+		if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
+		{
+			//cvarManager->log(map.mapName + " : visible");
+			buttonMap.isDisplayed = true;
+		}
+		else
+		{
+			//cvarManager->log(map.mapName + " : non visible");
+			buttonMap.isDisplayed = false;
+		}
+
+
+		mapButtonList.push_back(buttonMap);
+
+
 		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
 		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 29.f);
@@ -1315,7 +1477,7 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 		ImFont* fontA = ImGui::GetDefaultFont();
 
 		
-		std::string mapTitle = GetJSONLocalMapInfos(map.JsonFile).at(0);
+		std::string mapTitle = map.mapName;
 		if (ImGui::CalcTextSize(mapTitle.c_str()).x > (buttonWidth * 0.808f))
 		{
 			mapTitle = LimitTextSize(mapTitle, (buttonWidth * 0.808f) - ImGui::CalcTextSize("...").x) + "...";
@@ -1900,6 +2062,11 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 {
 	if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		if (isHoveringMapButton)
+		{
+			SetCursorPos(857, 522);
+		}
+
 		if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
 		{
 			gameWrapper->Execute([&, curMap](GameWrapper* gw)
@@ -1910,6 +2077,7 @@ void Pluginx64::renderLaunchModePopup(Map curMap)
 
 			ImGui::CloseCurrentPopup();
 		}
+
 
 		ImGui::SameLine();
 
@@ -2344,6 +2512,85 @@ void Pluginx64::renderJoinServerPopup()
 	}
 }
 
+void Pluginx64::renderNewUpdatePopup()
+{
+	//ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15").x);
+		ImGui::Text("Changelog v1.15");
+		ImGui::NewLine();
+		ImGui::Text("Added :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::NewLine();
+		ImGui::Text("-2 different display modes for the maps :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.f);
+		ImGui::Image(MapsDisplayMode_Logo1_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : List of big buttons (default)");
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.f);
+		ImGui::Image(MapsDisplayMode_Logo2_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
+		ImGui::SameLine();
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+		ImGui::Text(" : Grid, the number of maps per line can be changed");
+		ImGui::NewLine();
+		ImGui::Text("-Controller support :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::Text("Use your XBox controller(or ds4 with ds4windows) to navigate on the plugin.");
+		ImGui::NewLine();
+		ImGui::Text("Controls :");
+		ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
+		ImGui::Text("DPAD arrows : navigate through the maps");
+		ImGui::Text("Left joystick : move the cursor");
+		ImGui::Text("Right joystick : scroll");
+		ImGui::Text("LB/L1 : click");
+		ImGui::Text("B/O : close the menu");
+		ImGui::NewLine();
+		ImGui::Text("Change your sensitivity in Settings->Contoller");
+
+
+		ImGui::NewLine();
+		ImGui::Text("-You can now select the maps folder path directly on the plugin by clicking on \"Select maps folder\"");
+
+		ImGui::NewLine();
+
+		ImGui::Text("Fixed :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::NewLine();
+		ImGui::Text("-Searching from \"Search Workshop(Steam)\" tab works again");
+		ImGui::NewLine();
+
+		ImGui::Separator();
+		ImGui::NewLine();
+		ImGui::Text("Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and to participate in events.");
+		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.gg/AEKXeAeD");
+		renderUnderLine(ImColor(3, 94, 252, 255));
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if (ImGui::IsMouseClicked(0))
+			{
+				ShellExecute(0, 0, L"https://discord.gg/AEKXeAeD", 0, 0, SW_SHOW); //open link in browser
+			}
+			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+		}
+
+
+		ImGui::NewLine();
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			HasSeeNewUpdateAlert = true;
+			SaveInCFG();
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
 
 void Pluginx64::renderFileExplorer()
 {
@@ -2352,7 +2599,7 @@ void Pluginx64::renderFileExplorer()
 	{
 		static char newFolderName[200] = "";
 
-		static char fullPathBuff[200] = "C:/";
+		static char fullPathBuff[256] = "C:/";
 		std::filesystem::path currentPath = fullPathBuff;
 
 		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
@@ -2368,8 +2615,24 @@ void Pluginx64::renderFileExplorer()
 
 			ImGui::NextColumn();
 
+			std::vector<std::string> Drives = GetDrives();
+
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
-			ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
+			if(ImGui::BeginCombo("", fullPathBuff))
+			{
+				for (auto drive : Drives)
+				{
+					drive += ":/";
+					if (ImGui::Selectable(drive.c_str()))
+					{
+						strncpy(fullPathBuff, drive.c_str(), IM_ARRAYSIZE(fullPathBuff));
+						currentPath = fullPathBuff;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			//ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
 			currentPath = fullPathBuff;
 
 			ImGui::SameLine();
