@@ -295,11 +295,10 @@ void Pluginx64::Render()
 	
 
 
-	if (!HasSeenIssuesEncountered)
+	if (!HasSeenIssuesEncountered && HasSeeNewUpdateAlert)
 	{
 		ImGui::OpenPopup("Issues Encountered");
 	}
-	ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 	if (ImGui::BeginPopupModal("Issues Encountered", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		CenterNexIMGUItItem(ImGui::CalcTextSize("Warning :").x);
@@ -383,6 +382,18 @@ void Pluginx64::Render()
 
 			if (ImGui::BeginMenu("Controller"))
 			{
+				if (ImGui::BeginMenu("Controlls"))
+				{
+					ImGui::Text("Controls :");
+					ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
+					ImGui::Text("DPAD arrows : navigate through the maps");
+					ImGui::Text("Left joystick : move the cursor");
+					ImGui::Text("Right joystick : scroll");
+					ImGui::Text("LB/L1 : click");
+					ImGui::Text("B/O : close the menu");
+					ImGui::EndMenu();
+				}
+
 				if(ImGui::SliderInt("Sensitivity", &ControllerSensitivity, 1.f, 30.f))
 				{
 					SaveInCFG();
@@ -1034,6 +1045,26 @@ void Pluginx64::renderMaps(Gamepad controller)
 				}
 				renderExtractMapFilesPopup(curMap);
 
+				mapButtonPos buttonMap;
+				buttonMap.rectMin = ImGui::GetItemRectMin();
+				//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
+				buttonMap.rectMax = ImGui::GetItemRectMax();
+				//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
+				buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
+
+				if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
+				{
+					//cvarManager->log(map.mapName + " : visible");
+					buttonMap.isDisplayed = true;
+				}
+				else
+				{
+					//cvarManager->log(map.mapName + " : non visible");
+					buttonMap.isDisplayed = false;
+				}
+
+
+				mapButtonList.push_back(buttonMap);
 
 				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 				ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
@@ -2565,7 +2596,7 @@ void Pluginx64::renderNewUpdatePopup()
 
 		ImGui::Separator();
 		ImGui::NewLine();
-		ImGui::Text("Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and to participate in events.");
+		ImGui::Text("Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.");
 		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.gg/AEKXeAeD");
 		renderUnderLine(ImColor(3, 94, 252, 255));
 		if (ImGui::IsItemHovered())
@@ -2632,7 +2663,6 @@ void Pluginx64::renderFileExplorer()
 				ImGui::EndCombo();
 			}
 
-			//ImGui::InputText("##fullPathInputText", fullPathBuff, IM_ARRAYSIZE(fullPathBuff));
 			currentPath = fullPathBuff;
 
 			ImGui::SameLine();

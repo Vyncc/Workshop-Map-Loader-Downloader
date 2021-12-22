@@ -16,6 +16,10 @@ juste à ce moment la)
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
 
+faut que fasse un menu help
+
+faut j'ajoute les controls de la mannette qq part
+
 faire une meilleurs description en survolant un result de map
 
 faut que je test avaec la manette quand ya des maps pas extract
