@@ -451,14 +451,14 @@ void Pluginx64::Render()
 
 			ImGui::Text("Join Community Workshop Games discord server :");
 			ImGui::SameLine();
-			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.gg/AEKXeAeD");
+			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.com/invite/KVgmf9JFpZ");
 			renderUnderLine(ImColor(3, 94, 252, 255));
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 				if (ImGui::IsMouseClicked(0))
 				{
-					ShellExecute(0, 0, L"https://discord.gg/AEKXeAeD", 0, 0, SW_SHOW); //open link in browser
+					ShellExecute(0, 0, L"https://discord.com/invite/KVgmf9JFpZ", 0, 0, SW_SHOW); //open link in browser
 				}
 				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
 			}
@@ -1212,24 +1212,27 @@ void Pluginx64::renderMaps(Gamepad controller)
 			}
 			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_UP) && DpadUpWasPressed)
 			{
-				if (selectedButton != 0)
+				if (mapButtonList.size() > 0)
 				{
-					if(MapsDisplayMode == 0)
-						selectedButton -= 1;
-					if(MapsDisplayMode == 1 && (selectedButton - nbTilesPerLine) >= 0)
-						selectedButton -= nbTilesPerLine;
-				}
-				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+					if (selectedButton != 0)
+					{
+						if (MapsDisplayMode == 0)
+							selectedButton -= 1;
+						if (MapsDisplayMode == 1 && (selectedButton - nbTilesPerLine) >= 0)
+							selectedButton -= nbTilesPerLine;
+					}
+					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
 
-				if (buttonMap.isDisplayed)
-				{
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-				}
-				else
-				{
-					ImGui::SetScrollY(ImGui::GetScrollY() - (MapButtonChild_TopPos.y - buttonMap.rectMin.y));
-					buttonMap.cursorPos.y += (MapButtonChild_TopPos.y - buttonMap.rectMin.y);
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					if (buttonMap.isDisplayed)
+					{
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
+					else
+					{
+						ImGui::SetScrollY(ImGui::GetScrollY() - (MapButtonChild_TopPos.y - buttonMap.rectMin.y));
+						buttonMap.cursorPos.y += (MapButtonChild_TopPos.y - buttonMap.rectMin.y);
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
 				}
 				
 
@@ -1243,33 +1246,36 @@ void Pluginx64::renderMaps(Gamepad controller)
 			}
 			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_DOWN) && DpadDownWasPressed)
 			{
-				if (selectedButton != mapButtonList.size() - 1)
+				if (mapButtonList.size() > 0)
 				{
-					if (MapsDisplayMode == 0)
-						selectedButton += 1;
-					if (MapsDisplayMode == 1)
+					if (selectedButton != mapButtonList.size() - 1)
 					{
-						if ((selectedButton + nbTilesPerLine) > mapButtonList.size() - 1)
+						if (MapsDisplayMode == 0)
+							selectedButton += 1;
+						if (MapsDisplayMode == 1)
 						{
-							selectedButton = mapButtonList.size() - 1;
-						}
-						else
-						{
-							selectedButton += nbTilesPerLine;
+							if ((selectedButton + nbTilesPerLine) > mapButtonList.size() - 1)
+							{
+								selectedButton = mapButtonList.size() - 1;
+							}
+							else
+							{
+								selectedButton += nbTilesPerLine;
+							}
 						}
 					}
-				}
-				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
 
-				if (buttonMap.isDisplayed)
-				{
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-				}
-				else
-				{
-					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					if (buttonMap.isDisplayed)
+					{
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
+					else
+					{
+						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
 				}
 
 				//cvarManager->log("dpad down is realeased");
@@ -1282,22 +1288,26 @@ void Pluginx64::renderMaps(Gamepad controller)
 			}
 			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_LEFT) && DpadLeftWasPressed)
 			{
-				if (MapsDisplayMode == 1 && selectedButton != 0)
-					selectedButton -= 1;
-
-
-				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
-
-				if (buttonMap.isDisplayed)
+				if (mapButtonList.size() > 0)
 				{
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					if (MapsDisplayMode == 1 && selectedButton != 0)
+						selectedButton -= 1;
+
+
+					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+					if (buttonMap.isDisplayed)
+					{
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
+					else
+					{
+						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
 				}
-				else
-				{
-					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-				}
+
 
 				//cvarManager->log("dpad left is realeased");
 				DpadLeftWasPressed = false;
@@ -1309,19 +1319,23 @@ void Pluginx64::renderMaps(Gamepad controller)
 			}
 			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_RIGHT) && DpadRightWasPressed)
 			{
-				if (MapsDisplayMode == 1 && selectedButton < mapButtonList.size() - 1)
-					selectedButton ++;
-				mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+				if (mapButtonList.size() > 0)
+				{
+					if (MapsDisplayMode == 1 && selectedButton < mapButtonList.size() - 1)
+						selectedButton++;
 
-				if (buttonMap.isDisplayed)
-				{
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-				}
-				else
-				{
-					ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-					buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-					SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
+
+					if (buttonMap.isDisplayed)
+					{
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
+					else
+					{
+						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
+						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
+						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
+					}
 				}
 
 				//cvarManager->log("dpad right is realeased");
@@ -2614,14 +2628,14 @@ void Pluginx64::renderNewUpdatePopup()
 		ImGui::Separator();
 		ImGui::NewLine();
 		ImGui::Text("Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.");
-		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.gg/AEKXeAeD");
+		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.com/invite/KVgmf9JFpZ");
 		renderUnderLine(ImColor(3, 94, 252, 255));
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 			if (ImGui::IsMouseClicked(0))
 			{
-				ShellExecute(0, 0, L"https://discord.gg/AEKXeAeD", 0, 0, SW_SHOW); //open link in browser
+				ShellExecute(0, 0, L"https://discord.com/invite/KVgmf9JFpZ", 0, 0, SW_SHOW); //open link in browser
 			}
 			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
 		}

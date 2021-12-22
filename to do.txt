@@ -16,13 +16,7 @@ juste à ce moment la)
 
 pouvoir choisir le dossier ou on met les maps dans cookedPCConsole
 
-faut que fasse un menu help
-
-faut j'ajoute les controls de la mannette qq part
-
 faire une meilleurs description en survolant un result de map
-
-faut que je test avaec la manette quand ya des maps pas extract
 
 pouvoir ajouter un mot de passe pour le serveur
 
@@ -37,6 +31,10 @@ faut fix le refreshmapsfunct, ca freeze quand le dossier des maps n'est pas déd
 faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Fait :
+
+/faut j'ajoute les controls de la mannette qq part
+
+/faut que fasse un menu help
 
 /mettre de base le port 7777 dans le input text de joinserver
 

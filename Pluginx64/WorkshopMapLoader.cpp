@@ -236,6 +236,7 @@ std::vector<std::string> Pluginx64::GetJSONLocalMapInfos(std::string jsonFilePat
 void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 {
 	MapList.clear();
+	selectedButton = 0;
 
 	std::vector<std::filesystem::path> MapsDirectories;
 
