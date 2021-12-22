@@ -92,8 +92,6 @@ void Pluginx64::onLoad()
 		ControllerScrollSensitivity = std::stoi(CFGVariablesList.at(8));
 
 
-
-
 		if (CFGVariablesList.at(1) == "0")
 		{
 			FR = false;
@@ -119,11 +117,17 @@ void Pluginx64::onLoad()
 		FR = false;
 		unzipMethod = "Powershell";
 		HasSeeNewUpdateAlert = false;
+		dontAsk = 0;
+		MapsDisplayMode = 0;
+		nbTilesPerLine = 6;
+		ControllerSensitivity = 10;
+		ControllerScrollSensitivity = 10;
+		SaveInCFG();
 	}
 
 	strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 
-	cvarManager->log("The bakkesmod path : " + BakkesmodPath);
+	//cvarManager->log("The bakkesmod path : " + BakkesmodPath);
 }
 
 

@@ -384,7 +384,6 @@ void Pluginx64::Render()
 			{
 				if (ImGui::BeginMenu("Controlls"))
 				{
-					ImGui::Text("Controls :");
 					ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
 					ImGui::Text("DPAD arrows : navigate through the maps");
 					ImGui::Text("Left joystick : move the cursor");
@@ -483,6 +482,24 @@ void Pluginx64::Render()
 		if (ImGui::Selectable("LastUpdate", false, 0, ImVec2{63, 14}))
 		{
 			HasSeeNewUpdateAlert = false;
+		}
+
+		if (ImGui::BeginMenu("Help"))
+		{
+			ImGui::Text("Read the tutorial and Bugs/Issues Known on the plugin page.");
+			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://bakkesplugins.com/plugins/view/223");
+			renderUnderLine(ImColor(3, 94, 252, 255));
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+				if (ImGui::IsMouseClicked(0))
+				{
+					ShellExecute(0, 0, L"https://bakkesplugins.com/plugins/view/223", 0, 0, SW_SHOW); //open link in browser
+				}
+				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+			}
+
+			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("Credits"))
