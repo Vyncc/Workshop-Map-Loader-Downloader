@@ -495,8 +495,6 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	}
 
 
-
-
 	std::string Workshop_Dl_Path = "";
 	std::string workshopSafeMapName = replace(mapResult.Name, *" ", *"_");
 	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-"};
@@ -1099,7 +1097,8 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	cvarManager->log("Download URL : " + download_url);
 	std::string Folder_Path = Workshop_Dl_Path + "/" + mapResult.ZipName;
 
-
+	RLMAPS_WorkshopDownload_Progress = 0;
+	RLMAPS_Download_Progress = 0;
 	RLMAPS_IsDownloadingWorkshop = true;
 
 	cvarManager->log("Download Starting...");
@@ -1111,7 +1110,10 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	{
 		//cvarManager->log("Download progress : " + std::to_string(downloaded));
 		RLMAPS_Download_Progress = downloaded;
+		RLMAPS_WorkshopDownload_FileSize = file_size;
 	};
+
+	
 
 	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
 		{
@@ -1125,13 +1127,11 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 			}
 		});
 
-
 	while (RLMAPS_IsDownloadingWorkshop == true)
 	{
 		cvarManager->log("downloading...............");
 
 		RLMAPS_WorkshopDownload_Progress = RLMAPS_Download_Progress;
-		RLMAPS_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
 		Sleep(500);
 	}
 
