@@ -542,6 +542,8 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	std::string Folder_Path = Workshop_Dl_Path + "/" + workshopSafeMapName + ".zip";
 
 
+	STEAM_WorkshopDownload_Progress = 0;
+	STEAM_Download_Progress = 0;
 	IsRetrievingWorkshopFiles = false;
 	STEAM_IsDownloadingWorkshop = true;
 
@@ -554,6 +556,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	{
 		//cvarManager->log("Download progress : " + std::to_string(downloaded));
 		STEAM_Download_Progress = downloaded;
+		STEAM_WorkshopDownload_FileSize = file_size;
 	};
 
 	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
@@ -574,7 +577,6 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 		cvarManager->log("downloading...............");
 
 		STEAM_WorkshopDownload_Progress = STEAM_Download_Progress;
-		STEAM_WorkshopDownload_FileSize = std::stoi(mapResult.Size);
 		Sleep(500);
 	}
 
@@ -1051,16 +1053,21 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 	std::string Workshop_Dl_Path = "";
-	std::string Workshop_filename = replace(mapResult.Name, *" ", *"_"); //replace spaces by underscores
+	std::string workshopSafeMapName = replace(mapResult.Name, *" ", *"_"); //replace spaces by underscores
+	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-" };
+	for (auto special : specials)
+	{
+		eraseAll(workshopSafeMapName, special);
+	}
 
 
 	if (folderpath.back() == '/' || folderpath.back() == '\\')
 	{
-		Workshop_Dl_Path = folderpath + Workshop_filename;
+		Workshop_Dl_Path = folderpath + workshopSafeMapName;
 	}
 	else  //if last character != /
 	{
-		Workshop_Dl_Path = folderpath + "/" + Workshop_filename;
+		Workshop_Dl_Path = folderpath + "/" + workshopSafeMapName;
 		cvarManager->log("A slash has been added a the end of the path");
 	}
 
@@ -1079,13 +1086,13 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 
-	CreateJSONLocalWorkshopInfos(Workshop_filename, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
-	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + Workshop_filename + ".json");
+	CreateJSONLocalWorkshopInfos(workshopSafeMapName, Workshop_Dl_Path + "/", mapResult.Name, mapResult.Author, mapResult.Description, mapResult.PreviewUrl);
+	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".json");
 
 	if (Directory_Or_File_Exists(mapResult.ImagePath))
 	{
-		fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + Workshop_filename + ".jfif"); //copy preview to map directory
-		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + Workshop_filename + ".jfif");
+		fs::copy(mapResult.ImagePath, Workshop_Dl_Path + "/" + workshopSafeMapName + ".jfif"); //copy preview to map directory
+		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".jfif");
 	}
 	else
 	{
