@@ -1677,24 +1677,32 @@ void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char map
 			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
 			if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"
 			{
-				if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+				if (mapResult.IsMapAvailable)
 				{
-					std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult, true);
-					t2.detach();
+					if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
+					{
+						std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult, true);
+						t2.detach();
+					}
+					else
+					{
+						if (!Directory_Or_File_Exists(fs::path(mapspath)))
+						{
+							ImGui::OpenPopup("Exists?");
+						}
+
+						if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+						{
+							ImGui::OpenPopup("Downloading?");
+						}
+					}
 				}
 				else
 				{
-					if (!Directory_Or_File_Exists(fs::path(mapspath)))
-					{
-						ImGui::OpenPopup("Exists?");
-					}
-
-					if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
-					{
-						ImGui::OpenPopup("Downloading?");
-					}
+					ImGui::OpenPopup("Map Unavaiable");
 				}
 			}
+			renderMapUnavaiablePopup();
 
 			//Popup if maps directory doesn't exist
 			renderInfoPopup("Exists?", DirNotExistText.c_str());
@@ -2770,6 +2778,21 @@ void Pluginx64::renderFileExplorer()
 			ImGui::CloseCurrentPopup();
 		}
 		
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderMapUnavaiablePopup()
+{
+	if (ImGui::BeginPopupModal("Map Unavaiable", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("This map is unvailable to download, wait few seconds");
+
+		if (ImGui::Button("OK"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 }

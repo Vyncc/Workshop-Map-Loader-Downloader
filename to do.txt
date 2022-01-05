@@ -26,7 +26,7 @@ peut etre montrer une liste des maps qu'il y a deja dans CookedPCConsole/mods/, 
 
 faut fix le refreshmapsfunct, ca freeze quand le dossier des maps n'est pas dédié juste pour les maps, comme ca je pourrait call refreshmapsfunct quand je select le maps folder
 
-
+retirer les boutton que j'ai oublier d'enlever dans le settingsGUI
 
 faut que je fix les bugs de responsive pour les results maps, que je fasse responsive pour les descriptions etc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

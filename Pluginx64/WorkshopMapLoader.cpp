@@ -18,7 +18,6 @@ std::string GameSetting::GetSelectedValue()
 }
 
 
-
 void Pluginx64::onLoad()
 {
 	gameWrapper->RegisterDrawable(std::bind(&Pluginx64::checkOpenMenuWithController, this, std::placeholders::_1));
@@ -687,7 +686,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		{
 			resultSize = GetJSONSearchMapInfos(BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\" + resultMapID + ".json").at(0);
 			resultDescription = GetJSONSearchMapInfos(BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\" + resultMapID + ".json").at(1);
-			cvarManager->log("Optimisation : JSON exists so no download");
+			cvarManager->log("Optimisation : JSON exists");
 		}
 
 		if (!Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\" + resultMapID + ".jfif")) //if preview image doesn't exist
@@ -705,19 +704,32 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
 		resultisImageLoaded = true;
 
-
 		Steam_MapResult result;
 		result.Name = resultMapName;
 		result.ID = resultMapID;
 		result.PreviewUrl = resultMapPreviewUrl;
 		result.Author = resultMapAuthor;
-		result.Size = resultSize;
 		result.Description = resultDescription;
 		result.ImagePath = resultImagePath;
 		result.Image = resultImage;
 		result.isImageLoaded = resultisImageLoaded;
+		result.Size = resultSize;
+		if (resultSize != "0")
+		{
+			result.IsMapAvailable = true;
+		}
+		else
+		{
+			result.IsMapAvailable = false;
+		}
 
 		Steam_MapResultList.push_back(result);
+
+		if (resultSize == "0")
+		{
+			std::thread t1(&Pluginx64::CheckIfMapIsAvailable, this, i);
+			t1.detach();
+		}
 	}
 
 	//get the href(url) of other pages if there are
@@ -775,6 +787,31 @@ std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePa
 }
 
 
+void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
+{
+	std::string Workshop_filesize = "0";
+
+	while (Workshop_filesize == "0")
+	{
+		//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " is unvailable, wait few seconds.");
+		cpr::Response file_size_request_response = cpr::Get(cpr::Url{ "https://steamworkshop.jetfox.ovh/query.php?filesize=" + Steam_MapResultList.at(mapIndex).ID });
+
+		if (file_size_request_response.status_code == 200)
+		{
+			//Parse map size json
+			Json::Value fileSizeJson;
+			Json::Reader fileSizeReader;
+
+			fileSizeReader.parse(file_size_request_response.text, fileSizeJson);
+			Workshop_filesize = fileSizeJson["Filesize"].asString();
+		}
+
+		Sleep(4000);
+	}
+	Steam_MapResultList.at(mapIndex).Size = Workshop_filesize;
+	Steam_MapResultList.at(mapIndex).IsMapAvailable = true;
+	//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " IS NOW AVAILABLE");
+}
 
 
 

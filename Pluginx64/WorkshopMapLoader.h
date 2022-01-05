@@ -32,6 +32,7 @@ struct Steam_MapResult
 	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
 	std::shared_ptr<ImageWrapper> Image;
 	bool isImageLoaded;
+	bool IsMapAvailable;
 };
 
 struct RLMAPS_MapResult
@@ -80,6 +81,8 @@ public:
 	int heightTest;
 	float fontSizeTest = 0.f;
 	*/
+
+	
 
 	bool isHoveringMapButton;
 
@@ -286,6 +289,7 @@ public:
 	bool STEAM_browsing;
 	float widthBrowseGroup;
 	std::shared_ptr<ImageWrapper> SteamLogoImage;
+	void CheckIfMapIsAvailable(int mapIndex);
 
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
@@ -388,6 +392,7 @@ public:
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
+	void renderMapUnavaiablePopup();
 
 	void renderFileExplorer();
 

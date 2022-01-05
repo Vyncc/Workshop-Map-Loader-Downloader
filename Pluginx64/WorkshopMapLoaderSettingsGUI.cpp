@@ -39,26 +39,6 @@ void Pluginx64::RenderSettings()
 		ImGui::OpenPopup("BindSet");
 	}
 
-	if (ImGui::Button("check issuesencountered"))
-	{
-		std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
-		t1.detach();
-	}
-
-	if (ImGui::Button("Open file explorer"))
-	{
-		ImGui::OpenPopup("Select maps folder");
-	}
-	renderFileExplorer();
-
-	if (ImGui::Button("Set Bind for controller : RightThumbStick + LeftThumbStick"))
-	{
-		gameWrapper->Execute([&](GameWrapper* gw) {
-			cvarManager->setBind("XboxTypeS_LeftThumbStick+XboxTypeS_RightThumbStick", "togglemenu WorkshopMapLoaderMenu");
-			cvarManager->log("New key bind set : XboxTypeS_LeftThumbStick+XboxTypeS_RightThumbStick  -> togglemenu WorkshopMapLoaderMenu");
-			});
-	}
-
 	ImGui::Separator();
 	ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 }
