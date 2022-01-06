@@ -496,7 +496,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 	std::string Workshop_Dl_Path = "";
 	std::string workshopSafeMapName = replace(mapResult.Name, *" ", *"_");
-	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-"};
+	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-", "#"};
 	for (auto special : specials)
 	{
 		eraseAll(workshopSafeMapName, special);
@@ -612,6 +612,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
+	SearchRequestCounter++;
 	STEAM_Searching = true;
 	Steam_MapResultList.clear();
 
@@ -789,9 +790,11 @@ std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePa
 
 void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 {
+	static int ActualSearchRequest = SearchRequestCounter;
+
 	std::string Workshop_filesize = "0";
 
-	while (Workshop_filesize == "0")
+	while (Workshop_filesize == "0" && ActualSearchRequest != SearchRequestCounter)
 	{
 		//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " is unvailable, wait few seconds.");
 		cpr::Response file_size_request_response = cpr::Get(cpr::Url{ "https://steamworkshop.jetfox.ovh/query.php?filesize=" + Steam_MapResultList.at(mapIndex).ID });
@@ -805,9 +808,12 @@ void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 			fileSizeReader.parse(file_size_request_response.text, fileSizeJson);
 			Workshop_filesize = fileSizeJson["Filesize"].asString();
 		}
-
 		Sleep(4000);
 	}
+
+	if (ActualSearchRequest != SearchRequestCounter)
+		return;
+
 	Steam_MapResultList.at(mapIndex).Size = Workshop_filesize;
 	Steam_MapResultList.at(mapIndex).IsMapAvailable = true;
 	//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " IS NOW AVAILABLE");

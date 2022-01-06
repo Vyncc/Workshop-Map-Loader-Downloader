@@ -2786,13 +2786,12 @@ void Pluginx64::renderMapUnavaiablePopup()
 {
 	if (ImGui::BeginPopupModal("Map Unavaiable", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("This map is unvailable to download, wait few seconds");
+		ImGui::Text("This map is unvailable to download for few seconds, wait");
 
 		if (ImGui::Button("OK"))
 		{
 			ImGui::CloseCurrentPopup();
 		}
-
 		ImGui::EndPopup();
 	}
 }

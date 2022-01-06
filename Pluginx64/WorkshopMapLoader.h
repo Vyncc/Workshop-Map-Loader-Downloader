@@ -83,7 +83,7 @@ public:
 	*/
 
 	
-
+	int SearchRequestCounter = 0;
 	bool isHoveringMapButton;
 
 	ImVec2 MapButtonChild_TopPos;
