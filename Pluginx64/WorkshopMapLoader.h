@@ -29,7 +29,7 @@ struct Steam_MapResult
 	std::string Description;
 	std::string PreviewUrl;
 	std::string Author;
-	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
+	std::string ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
 	std::shared_ptr<ImageWrapper> Image;
 	bool isImageLoaded;
 	bool IsMapAvailable;
@@ -68,6 +68,7 @@ struct mapButtonPos
 	bool isDisplayed;
 };
 
+
 //Hey Jerry or Martinn, have a good time reviewing my awful code ;)
 
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
@@ -82,7 +83,6 @@ public:
 	float fontSizeTest = 0.f;
 	*/
 
-	
 	int SearchRequestCounter = 0;
 	bool isHoveringMapButton;
 
@@ -260,6 +260,7 @@ public:
 	std::string rlmaps_offset_url = "http://usa2.rocketleaguemaps.tk/api/getmultimapoffset.php?offset=";
 	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
+	bool OpenSupportMePopup = false;
 
 
 	//Local Maps
@@ -393,6 +394,7 @@ public:
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
 	void renderMapUnavaiablePopup();
+	void renderSupportMePopup();
 
 	void renderFileExplorer();
 

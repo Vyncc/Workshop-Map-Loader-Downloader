@@ -179,7 +179,7 @@ void Pluginx64::Render()
 		//ExtractMapFiles
 		EMFMessageText1 = "The map isn't extracted from ";
 		EMFMessageText2 = "\nChoose an extract method (you need to click on refresh maps after extracting) :";
-		EMFStillDoesntWorkText = "Still doesn't work";
+		EMFStillDoesntWorkText = "Still not working";
 		//ExtractManually
 		EMLabelText = "If both of the extract methods didn't work, you need to extract the files manually of ";
 
@@ -292,6 +292,12 @@ void Pluginx64::Render()
 		ImGui::OpenPopup("New Update");
 	}
 	renderNewUpdatePopup();
+
+	if (OpenSupportMePopup)
+	{
+		ImGui::OpenPopup("Support Me");
+	}
+	renderSupportMePopup();
 	
 
 
@@ -484,22 +490,9 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
-		if (ImGui::BeginMenu("Help"))
+		if (ImGui::Selectable("Support Me", false, 0, ImVec2{ 63, 14 }))
 		{
-			ImGui::Text("Read the tutorial and Bugs/Issues Known on the plugin page.");
-			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://bakkesplugins.com/plugins/view/223");
-			renderUnderLine(ImColor(3, 94, 252, 255));
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-				if (ImGui::IsMouseClicked(0))
-				{
-					ShellExecute(0, 0, L"https://bakkesplugins.com/plugins/view/223", 0, 0, SW_SHOW); //open link in browser
-				}
-				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-			}
-
-			ImGui::EndMenu();
+			OpenSupportMePopup = true;
 		}
 
 		if (ImGui::BeginMenu("Credits"))
@@ -2788,7 +2781,8 @@ void Pluginx64::renderMapUnavaiablePopup()
 	{
 		ImGui::Text("This map is unvailable to download for few seconds, wait");
 
-		if (ImGui::Button("OK"))
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
@@ -2796,6 +2790,35 @@ void Pluginx64::renderMapUnavaiablePopup()
 	}
 }
 
+void Pluginx64::renderSupportMePopup()
+{
+	if (ImGui::BeginPopupModal("Support Me", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.");
+
+		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://www.patreon.com/WorkshopMapLoader");
+		renderUnderLine(ImColor(3, 94, 252, 255));
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if (ImGui::IsMouseClicked(0))
+			{
+				ShellExecute(0, 0, L"https://www.patreon.com/WorkshopMapLoader", 0, 0, SW_SHOW); //open link in web browser
+			}
+			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+		}
+
+		ImGui::NewLine();
+
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			OpenSupportMePopup = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
 
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()

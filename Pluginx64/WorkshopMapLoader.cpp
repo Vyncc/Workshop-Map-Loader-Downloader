@@ -509,7 +509,7 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 	else
 	{
 		Workshop_Dl_Path = Dfolderpath + "/" + workshopSafeMapName;
-		cvarManager->log("A slash has been added a the end of the path");
+		//cvarManager->log("A slash has been added a the end of the path");
 	}
 
 
@@ -609,12 +609,13 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 }
 
-
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
 	SearchRequestCounter++;
 	STEAM_Searching = true;
 	Steam_MapResultList.clear();
+
+	bool PreviewQueueStarted = false;
 
 	cpr::Response request_response = cpr::Get(cpr::Url{fullurl});
 
@@ -623,7 +624,6 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 	std::vector<std::string> resultsMapPreviewUrlList = FindAllSubstringInAString(request_response.text, "class=\"workshopItemPreviewImage \" src=\"", "\">");
 	std::vector<std::string> resultsMapAuthorList = FindAllSubstringInAString(request_response.text, "myworkshopfiles/?appid=252950\">", "</a>");
 	std::vector<std::string> resultsDescriptionList = FindAllSubstringInAString(request_response.text, "SharedFileBindMouseHover", "</script>");
-
 
 	STEAM_NumberOfMapsFound = resultMapNameList.size(); //get number of maps there is on the page
 
@@ -636,9 +636,9 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		std::string resultMapAuthor = resultsMapAuthorList.at(i);
 		std::string resultSize;
 		std::string resultDescription = resultsDescriptionList.at(i);
-		std::filesystem::path resultImagePath;
+		std::string resultImagePath;
 		std::shared_ptr<ImageWrapper> resultImage;
-		bool resultisImageLoaded;
+		bool resultisImageLoaded = false;
 
 
 		std::string file_infos_request_url = "https://steamworkshop.jetfox.ovh/query.php?filesize=" + resultMapID;
@@ -705,6 +705,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
 		resultisImageLoaded = true;
 
+
 		Steam_MapResult result;
 		result.Name = resultMapName;
 		result.ID = resultMapID;
@@ -725,6 +726,7 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		}
 
 		Steam_MapResultList.push_back(result);
+
 
 		if (resultSize == "0")
 		{
@@ -797,15 +799,15 @@ void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 	while (Workshop_filesize == "0" && ActualSearchRequest != SearchRequestCounter)
 	{
 		//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " is unvailable, wait few seconds.");
-		cpr::Response file_size_request_response = cpr::Get(cpr::Url{ "https://steamworkshop.jetfox.ovh/query.php?filesize=" + Steam_MapResultList.at(mapIndex).ID });
+		cpr::Response file_size_request = cpr::Get(cpr::Url{ "https://steamworkshop.jetfox.ovh/query.php?filesize=" + Steam_MapResultList.at(mapIndex).ID });
 
-		if (file_size_request_response.status_code == 200)
+		if (file_size_request.status_code == 200)
 		{
 			//Parse map size json
 			Json::Value fileSizeJson;
 			Json::Reader fileSizeReader;
 
-			fileSizeReader.parse(file_size_request_response.text, fileSizeJson);
+			fileSizeReader.parse(file_size_request.text, fileSizeJson);
 			Workshop_filesize = fileSizeJson["Filesize"].asString();
 		}
 		Sleep(4000);
@@ -1097,7 +1099,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 
 	std::string Workshop_Dl_Path = "";
 	std::string workshopSafeMapName = replace(mapResult.Name, *" ", *"_"); //replace spaces by underscores
-	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-" };
+	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-", "#" };
 	for (auto special : specials)
 	{
 		eraseAll(workshopSafeMapName, special);
@@ -1111,7 +1113,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	else  //if last character != /
 	{
 		Workshop_Dl_Path = folderpath + "/" + workshopSafeMapName;
-		cvarManager->log("A slash has been added a the end of the path");
+		//cvarManager->log("A slash has been added a the end of the path");
 	}
 
 
@@ -1492,7 +1494,7 @@ void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePa
 
 	HttpWrapper::SendCurlRequest(req, L_PATH, [this, File_Path](int code, std::wstring out_path)
 		{
-			cvarManager->log("IMAGE PREVIEW DONWLOADED : " + File_Path);
+			cvarManager->log("PREVIEW DONWLOADED : " + File_Path);
 			IsDownloadingPreview = false;
 		});
 
