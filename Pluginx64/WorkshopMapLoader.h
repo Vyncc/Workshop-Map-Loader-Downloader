@@ -414,6 +414,28 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////  Text Variables
 
+	//Menubar
+	std::string SettingsText;
+	std::string MultiplayerText;
+	std::string LastUpdateText;
+	std::string SupportMeText;
+	std::string SupportMePopupText;
+	std::string JoinCWGText;
+	std::string OpenCPCCText;
+	std::string NoMapsCanBeJoinText;
+	std::string MapsJoinableText;
+	std::string DlTexturesText;
+	std::string LanguageText;
+	std::string ExtractMethodText;
+	std::string WarningText;
+
+	//Controller settings
+	std::string ControllerText;
+	std::string ControllsText;
+	std::string ScrollSensitivityText;
+	std::string SensitivityText;
+	std::string ControllsLitText[6];
+
 	//1st Tab
 	std::string Tab1MapLoaderText;
 	std::string Label1Text; //Put the folder's path of the maps, don't forget to add a  /  at the end.
@@ -495,4 +517,12 @@ public:
 	std::string DLTTexturesInstalledText;
 	std::string CloseText;
 	std::string DontAskText;
+
+	//MapsUnavailable
+	std::string MapsUnavailableText;
+
+	//File Explorer
+	std::string NewFolderText;
+	std::string ConfirmText;
+	std::string SelectText;
 };

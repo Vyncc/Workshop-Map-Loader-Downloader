@@ -6,11 +6,7 @@ faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on cho
 
 pouvoir cancel la recherche
 
-corrigé trad : still doesn't work par still not working
-
 pouvoir afficher les maps dans l'ordre qu'on veut
-
-faut que je traduise les textes
 
 
 faire le responsive avec les descriptions des maps grace a LimitTextSize() (j'ai essayé mais trop de pertes d'fps a cause du while(dans LimitTextSize()) qui tourne

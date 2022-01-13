@@ -102,6 +102,33 @@ void Pluginx64::Render()
 
 	if (!FR)
 	{
+		//Menubar
+		SettingsText = "Settings";
+		MultiplayerText = "Multiplayer";
+		LastUpdateText = "Last Update";
+		SupportMeText = "Support Me";
+		SupportMePopupText = "You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+		JoinCWGText = "Join Community Workshop Games discord server :";
+		OpenCPCCText = "Open CookedPCConsole Directory";
+		NoMapsCanBeJoinText = "No maps can be joined";
+		MapsJoinableText = "Maps joinable";
+		DlTexturesText = "Download Textures";
+		LanguageText = "Language";
+		ExtractMethodText = "Extract Method";
+		WarningText = "Warning :";
+
+		//Controller settings
+		ControllerText = "Controller";
+		ControllsText = "Controlls";
+		ScrollSensitivityText = "Scroll Sensitivity";
+		SensitivityText = "Sensitivity";
+		ControllsLitText[0] = "Left Thumb + Right Thumb : open/close the menu";
+		ControllsLitText[1] = "DPAD arrows : navigate through the maps";
+		ControllsLitText[2] = "Left joystick : move the cursor";
+		ControllsLitText[3] = "Right joystick : scroll";
+		ControllsLitText[4] = "LB/L1 : click";
+		ControllsLitText[5] = "B/O : close the menu";
+
 		//1st Tab
 		Tab1MapLoaderText = "Map Loader";
 		Label1Text = "Put the path of the maps folder :";
@@ -190,9 +217,44 @@ void Pluginx64::Render()
 		DLTTexturesInstalledText = "Workshop textures installed !";
 		CloseText = "Close";
 		DontAskText = "Don't ask me again";
+
+		//MapsUnavailable
+		MapsUnavailableText = "This map is unvailable to download for few seconds, wait.";
+
+		//File Explorer
+		NewFolderText = "New Folder";
+		ConfirmText = "Confirm";
+		SelectText = "Select";
 	}
 	else
 	{
+		//Menubar
+		SettingsText = "Parametres";
+		MultiplayerText = "Multijoueur";
+		LastUpdateText = "Derniere Maj";
+		SupportMeText = "Me Supporter";
+		SupportMePopupText = "Vous pouvez vous abonner a mon patreon si vous voulez me supporter et si vous pensez que mon travail le merite. Merci."; //You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.
+		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
+		OpenCPCCText = "Ouvrir le dossier CookedPCConsole";
+		NoMapsCanBeJoinText = "Aucune map ne peut etre rejoint";
+		MapsJoinableText = "Maps rejoignables";
+		DlTexturesText = "Telecharger les textures";
+		LanguageText = "Langue";
+		ExtractMethodText = "Methode d'extraction";
+		WarningText = "Attention :";
+
+		//Controller settings
+		ControllerText = "Manette";
+		ControllsText = "Commandes";
+		ScrollSensitivityText = "Sensibilite du defilement";
+		SensitivityText = "Sensibilite";
+		ControllsLitText[0] = "Pouce Gauche + Pouce Droit : ouvrir/fermer le menu";
+		ControllsLitText[1] = "Fleches : naviguer dans les maps";
+		ControllsLitText[2] = "Joystick Gauche : bouger la souris";
+		ControllsLitText[3] = "Joystick Droit : faire defiler";
+		ControllsLitText[4] = "LB/L1 : cliquer";
+		ControllsLitText[5] = "B/O : fermer le menu";
+
 		//1st Tab
 		Tab1MapLoaderText = "Charger Map";
 		Label1Text = "Mets le chemin du dossier des maps :";
@@ -284,6 +346,14 @@ void Pluginx64::Render()
 		DLTTexturesInstalledText = "Textures des workshops installees!";
 		CloseText = "Fermer";
 		DontAskText = "Ne plus me demander";
+
+		//MapsUnavailable
+		MapsUnavailableText = "Cette map est indisponible pendant quelques secondes, attends.";
+
+		//File Explorer
+		NewFolderText = "Nouv. Dossier";
+		ConfirmText = "Confirmer";
+		SelectText = "Selectionner";
 	}
 
 
@@ -307,8 +377,8 @@ void Pluginx64::Render()
 	}
 	if (ImGui::BeginPopupModal("Issues Encountered", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		CenterNexIMGUItItem(ImGui::CalcTextSize("Warning :").x);
-		ImGui::Text("Warning :");
+		CenterNexIMGUItItem(ImGui::CalcTextSize(WarningText.c_str()).x);
+		ImGui::Text(WarningText.c_str()); //"Warning"
 		ImGui::NewLine();
 
 		for (auto issue : IssuesEncountered)
@@ -330,9 +400,9 @@ void Pluginx64::Render()
 
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("Settings"))
+		if (ImGui::BeginMenu(SettingsText.c_str())) //"Settings"
 		{
-			if (ImGui::BeginMenu("Extract Method"))
+			if (ImGui::BeginMenu(ExtractMethodText.c_str()))
 			{
 				if (ImGui::Selectable("Batch File Method"))
 				{
@@ -366,11 +436,10 @@ void Pluginx64::Render()
 					ImGui::Text(" : Selected");
 				}
 
-
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Language"))
+			if (ImGui::BeginMenu(LanguageText.c_str())) //"Language"
 			{
 				if (ImGui::Selectable("French"))
 				{
@@ -386,25 +455,25 @@ void Pluginx64::Render()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Controller"))
+			if (ImGui::BeginMenu(ControllerText.c_str())) //"Controller"
 			{
-				if (ImGui::BeginMenu("Controlls"))
+				if (ImGui::BeginMenu(ControllsText.c_str()))
 				{
-					ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
-					ImGui::Text("DPAD arrows : navigate through the maps");
-					ImGui::Text("Left joystick : move the cursor");
-					ImGui::Text("Right joystick : scroll");
-					ImGui::Text("LB/L1 : click");
-					ImGui::Text("B/O : close the menu");
+					ImGui::Text(ControllsLitText[0].c_str()); //"Left Thumb + Right Thumb : open/close the menu"
+					ImGui::Text(ControllsLitText[1].c_str()); //"DPAD arrows : navigate through the maps"
+					ImGui::Text(ControllsLitText[2].c_str()); //"Left joystick : move the cursor"
+					ImGui::Text(ControllsLitText[3].c_str()); //"Right joystick : scroll"
+					ImGui::Text(ControllsLitText[4].c_str()); //"LB/L1 : click"
+					ImGui::Text(ControllsLitText[5].c_str()); //"B/O : close the menu"
 					ImGui::EndMenu();
 				}
 
-				if(ImGui::SliderInt("Sensitivity", &ControllerSensitivity, 1.f, 30.f))
+				if(ImGui::SliderInt(SensitivityText.c_str(), &ControllerSensitivity, 1.f, 30.f)) //"Sensitivity"
 				{
 					SaveInCFG();
 				}
 
-				if(ImGui::SliderInt("Scroll Sensitivity", &ControllerScrollSensitivity, 1.f, 30.f))
+				if(ImGui::SliderInt(ScrollSensitivityText.c_str(), &ControllerScrollSensitivity, 1.f, 30.f)) //"ScrollSensitivity"
 				{
 					SaveInCFG();
 				}
@@ -412,7 +481,7 @@ void Pluginx64::Render()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::Selectable("Download Textures"))
+			if (ImGui::Selectable(DlTexturesText.c_str())) //"Download Textures"
 			{
 				DownloadTexturesBool = true;
 			}
@@ -421,9 +490,9 @@ void Pluginx64::Render()
 		}
 
 
-		if (ImGui::BeginMenu("Multiplayer"))
+		if (ImGui::BeginMenu(MultiplayerText.c_str())) //"Multiplayer"
 		{
-			if (ImGui::BeginMenu("Maps joinable"))
+			if (ImGui::BeginMenu(MapsJoinableText.c_str())) //"Maps Joinable"
 			{
 				if (MapsAlreadyInCPCC.size() != 0)
 				{
@@ -434,18 +503,18 @@ void Pluginx64::Render()
 				}
 				else
 				{
-					ImGui::Text("No maps can be join");
+					ImGui::Text(NoMapsCanBeJoinText.c_str()); //"No maps can be joined"
 				}
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::Selectable("Join Server"))
+			if (ImGui::Selectable(JoinServerText.c_str())) //"Join Server"
 			{
 				JoinServerBool = true;
 			}
 
 
-			if (ImGui::Selectable("Open CookedPCConsole Directory"))
+			if (ImGui::Selectable(OpenCPCCText.c_str())) //"Open CookedPCConsole Directory"
 			{
 				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string());
 				LPCWSTR L_modsDir = w_modsDir.c_str();
@@ -455,7 +524,7 @@ void Pluginx64::Render()
 
 			ImGui::Separator();
 
-			ImGui::Text("Join Community Workshop Games discord server :");
+			ImGui::Text(JoinCWGText.c_str()); //"Join Community Workshop Games discord server :"
 			ImGui::SameLine();
 			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.com/invite/KVgmf9JFpZ");
 			renderUnderLine(ImColor(3, 94, 252, 255));
@@ -485,12 +554,12 @@ void Pluginx64::Render()
 		renderDownloadTexturesPopup(CheckExist_TexturesFiles());
 
 
-		if (ImGui::Selectable("LastUpdate", false, 0, ImVec2{63, 14}))
+		if (ImGui::Selectable(LastUpdateText.c_str(), false, 0, ImGui::CalcTextSize(LastUpdateText.c_str())))
 		{
 			HasSeeNewUpdateAlert = false;
 		}
 
-		if (ImGui::Selectable("Support Me", false, 0, ImVec2{ 63, 14 }))
+		if (ImGui::Selectable(SupportMeText.c_str(), false, 0, ImGui::CalcTextSize(SupportMeText.c_str())))
 		{
 			OpenSupportMePopup = true;
 		}
@@ -1139,13 +1208,42 @@ void Pluginx64::renderMaps(Gamepad controller)
 
 		std::vector<bool> isHoveringMapButtonList;
 
-		for (auto curMap : Good_MapList)
+		for (int i = 0; i < Good_MapList.size(); i++)
 		{
+			Map curMap = Good_MapList[i];
 			ImGui::PushID(ID); //needed to make the button work
 
 			if (MapsDisplayMode == 0)
 			{
 				renderMaps_DisplayMode_0(curMap);
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					// Set payload to carry the index of our item (could be anything)
+					ImGui::SetDragDropPayload("DND_DEMO_CELL", &i, sizeof(int));
+
+					// Display preview (could be anything, e.g. when dragging an image we could decide to display
+					// the filename and a small preview of the image, etc.)
+					ImGui::EndDragDropSource();
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(int));
+						int payload_n = *(const int*)payload->Data;
+						
+						//https://stackoverflow.com/questions/45447361/how-to-move-certain-elements-of-stdvector-to-a-new-index-within-the-vector
+						if (payload_n > i)
+							std::rotate(MapList.rend() - payload_n - 1, MapList.rend() - payload_n, MapList.rend() - i);
+						else
+							std::rotate(MapList.begin() + payload_n, MapList.begin() + payload_n + 1, MapList.begin() + i + 1);
+							
+					}
+					ImGui::EndDragDropTarget();
+				}
+
 				ImGui::PopID();
 				ID++;
 			}
@@ -1361,6 +1459,8 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 			ImGui::OpenPopup("LaunchMode");
 		}
 		renderLaunchModePopup(map);
+
+
 
 		mapButtonPos buttonMap;
 		buttonMap.rectMin = ImGui::GetItemRectMin();
@@ -2699,7 +2799,7 @@ void Pluginx64::renderFileExplorer()
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("New Folder", ImVec2(100.f, 19.f)))
+			if (ImGui::Button(NewFolderText.c_str(), ImVec2(100.f, 19.f)))
 			{
 				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
 				ImGui::OpenPopup("Folder Name");
@@ -2707,7 +2807,7 @@ void Pluginx64::renderFileExplorer()
 			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
-				if (ImGui::Button("Confirm", ImVec2(100.f, 25.f)))
+				if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 25.f)))
 				{
 					try
 					{
@@ -2722,7 +2822,7 @@ void Pluginx64::renderFileExplorer()
 
 				ImGui::SameLine();
 
-				if (ImGui::Button("Cancel", ImVec2(100.f, 25.f)))
+				if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
 				{
 					ImGui::CloseCurrentPopup();
 				}
@@ -2756,7 +2856,7 @@ void Pluginx64::renderFileExplorer()
 			ImGui::EndChild();
 		}
 
-		if (ImGui::Button("Cancel", ImVec2(100.f, 30.f)))
+		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
@@ -2764,7 +2864,7 @@ void Pluginx64::renderFileExplorer()
 		ImGui::SameLine();
 
 		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("Select", ImVec2(100.f, 30.f)))
+		if (ImGui::Button(SelectText.c_str(), ImVec2(100.f, 30.f))) //"Select"
 		{
 			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
 			SaveInCFG();
@@ -2779,7 +2879,7 @@ void Pluginx64::renderMapUnavaiablePopup()
 {
 	if (ImGui::BeginPopupModal("Map Unavaiable", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("This map is unvailable to download for few seconds, wait");
+		ImGui::Text(MapsUnavailableText.c_str()); //"This map is unvailable to download for few seconds, wait"
 
 		AlignRightNexIMGUItItem(100.f, 8.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
@@ -2794,7 +2894,7 @@ void Pluginx64::renderSupportMePopup()
 {
 	if (ImGui::BeginPopupModal("Support Me", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.");
+		ImGui::Text(SupportMePopupText.c_str());
 
 		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://www.patreon.com/WorkshopMapLoader");
 		renderUnderLine(ImColor(3, 94, 252, 255));
