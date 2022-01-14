@@ -367,6 +367,7 @@ public:
 	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15 | Made By Vync";
 
 	//Quick search ctrl+f
+	void renderQuickSearch();
 	bool isQuickSearchDisplayed = false;
 	bool QuickSearch_Searching = false;
 	char QuickSearch_KeyWordBuf[128];

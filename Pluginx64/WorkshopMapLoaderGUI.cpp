@@ -612,7 +612,6 @@ void Pluginx64::Render()
 			CenterNexIMGUItItem(ImGui::CalcTextSize(Label1Text.c_str()).x);
 			ImGui::Text(Label1Text.c_str()); // "Put the folder's path of the maps, don't forget to add a  /  at the end."
 
-
 			CenterNexIMGUItItem(628.f);
 			ImGui::SetNextItemWidth(628.f);
 			ImGui::InputText("##workshopurl123", MapsFolderPathBuf, IM_ARRAYSIZE(MapsFolderPathBuf));
@@ -745,39 +744,7 @@ void Pluginx64::Render()
 				ImGui::Separator();
 			}
 
-			static bool QuickSearch_FirstDisaplayed = true;
-			if (isQuickSearchDisplayed)
-			{
-				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + 3.f, ImGui::GetCursorPosY() - 26.f));
-				ImGui::BeginGroup();
-				{
-					ImGui::Text("Search :");
-					ImGui::SameLine();
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 3.f);
-					ImGui::SetNextItemWidth(230.f);
-					if (QuickSearch_FirstDisaplayed)
-					{
-						ImGui::SetKeyboardFocusHere(0);
-						QuickSearch_FirstDisaplayed = false;
-					}
-					ImGui::InputText("##QuickSearch", QuickSearch_KeyWordBuf, IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
-					ImGui::SameLine();
-					if (ImGui::Selectable("X", false, 0, ImGui::CalcTextSize("X")))
-					{
-						strncpy(QuickSearch_KeyWordBuf, "", IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
-						isQuickSearchDisplayed = false;
-					}
-
-					ImGui::EndGroup();
-				}
-
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 22.f);
-			}
-			else
-			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 16.f);
-				QuickSearch_FirstDisaplayed = true;
-			}
+			renderQuickSearch();
 
 			renderMaps(controller1);
 
@@ -1725,6 +1692,43 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 			}
 			ImGui::EndPopup();
 		}
+	}
+}
+
+void Pluginx64::renderQuickSearch()
+{
+	static bool QuickSearch_FirstDisaplayed = true;
+	if (isQuickSearchDisplayed)
+	{
+		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + 3.f, ImGui::GetCursorPosY() - 26.f));
+		ImGui::BeginGroup();
+		{
+			ImGui::Text("Search :");
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 3.f);
+			ImGui::SetNextItemWidth(230.f);
+			if (QuickSearch_FirstDisaplayed)
+			{
+				ImGui::SetKeyboardFocusHere(0);
+				QuickSearch_FirstDisaplayed = false;
+			}
+			ImGui::InputText("##QuickSearch", QuickSearch_KeyWordBuf, IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
+			ImGui::SameLine();
+			if (ImGui::Selectable("X", false, 0, ImGui::CalcTextSize("X")))
+			{
+				strncpy(QuickSearch_KeyWordBuf, "", IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
+				isQuickSearchDisplayed = false;
+			}
+
+			ImGui::EndGroup();
+		}
+
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 22.f);
+	}
+	else
+	{
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 16.f);
+		QuickSearch_FirstDisaplayed = true;
 	}
 }
 
