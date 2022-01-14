@@ -100,6 +100,32 @@ void Pluginx64::Render()
 	}
 	
 
+	//Ctrl + F
+	static bool CtrlFPressed = false;
+
+	if ((GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('F') & 0x8000) && !CtrlFPressed)
+	{
+		//cvarManager->log("ctrl+f pressed");
+		CtrlFPressed = true;
+	}
+	else if(!(GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('F') & 0x8000) && CtrlFPressed)
+	{
+		strncpy(QuickSearch_KeyWordBuf, "", IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
+
+		if (!isQuickSearchDisplayed)
+		{
+			isQuickSearchDisplayed = true;
+		}
+		else
+		{
+			isQuickSearchDisplayed = false;
+		}
+
+		//cvarManager->log("ctrl+f released");
+		CtrlFPressed = false;
+	}
+
+
 	if (!FR)
 	{
 		//Menubar
@@ -719,7 +745,39 @@ void Pluginx64::Render()
 				ImGui::Separator();
 			}
 
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
+			static bool QuickSearch_FirstDisaplayed = true;
+			if (isQuickSearchDisplayed)
+			{
+				ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + 3.f, ImGui::GetCursorPosY() - 26.f));
+				ImGui::BeginGroup();
+				{
+					ImGui::Text("Search :");
+					ImGui::SameLine();
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 3.f);
+					ImGui::SetNextItemWidth(230.f);
+					if (QuickSearch_FirstDisaplayed)
+					{
+						ImGui::SetKeyboardFocusHere(0);
+						QuickSearch_FirstDisaplayed = false;
+					}
+					ImGui::InputText("##QuickSearch", QuickSearch_KeyWordBuf, IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
+					ImGui::SameLine();
+					if (ImGui::Selectable("X", false, 0, ImGui::CalcTextSize("X")))
+					{
+						strncpy(QuickSearch_KeyWordBuf, "", IM_ARRAYSIZE(QuickSearch_KeyWordBuf));
+						isQuickSearchDisplayed = false;
+					}
+
+					ImGui::EndGroup();
+				}
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 22.f);
+			}
+			else
+			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 16.f);
+				QuickSearch_FirstDisaplayed = true;
+			}
 
 			renderMaps(controller1);
 
@@ -1208,22 +1266,30 @@ void Pluginx64::renderMaps(Gamepad controller)
 
 		std::vector<bool> isHoveringMapButtonList;
 
-		for (int i = 0; i < Good_MapList.size(); i++)
+		if (std::string(QuickSearch_KeyWordBuf) != "") //if there is something to find
 		{
-			Map curMap = Good_MapList[i];
+			Good_MapList = QuickSearch_GetMapList(std::string(QuickSearch_KeyWordBuf));
+			QuickSearch_Searching = true;
+		}
+		else
+		{
+			QuickSearch_Searching = false;
+		}
+
+		for (auto curMap : Good_MapList)
+		{
 			ImGui::PushID(ID); //needed to make the button work
 
 			if (MapsDisplayMode == 0)
 			{
 				renderMaps_DisplayMode_0(curMap);
 
+				//not working well
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
 					// Set payload to carry the index of our item (could be anything)
-					ImGui::SetDragDropPayload("DND_DEMO_CELL", &i, sizeof(int));
+					ImGui::SetDragDropPayload("DND_DEMO_CELL", &ID, sizeof(int));
 
-					// Display preview (could be anything, e.g. when dragging an image we could decide to display
-					// the filename and a small preview of the image, etc.)
 					ImGui::EndDragDropSource();
 				}
 
@@ -1235,10 +1301,10 @@ void Pluginx64::renderMaps(Gamepad controller)
 						int payload_n = *(const int*)payload->Data;
 						
 						//https://stackoverflow.com/questions/45447361/how-to-move-certain-elements-of-stdvector-to-a-new-index-within-the-vector
-						if (payload_n > i)
-							std::rotate(MapList.rend() - payload_n - 1, MapList.rend() - payload_n, MapList.rend() - i);
+						if (payload_n > ID)
+							std::rotate(MapList.rend() - payload_n - 1, MapList.rend() - payload_n, MapList.rend() - ID);
 						else
-							std::rotate(MapList.begin() + payload_n, MapList.begin() + payload_n + 1, MapList.begin() + i + 1);
+							std::rotate(MapList.begin() + payload_n, MapList.begin() + payload_n + 1, MapList.begin() + ID + 1);
 							
 					}
 					ImGui::EndDragDropTarget();

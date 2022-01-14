@@ -6,6 +6,8 @@
 
 #include "Gamepad.h"
 
+//#include <WinUser.h>
+
 
 struct Map
 {
@@ -77,11 +79,11 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	/*
+	
 	int widthTest;
 	int heightTest;
 	float fontSizeTest = 0.f;
-	*/
+	
 
 	int SearchRequestCounter = 0;
 	bool isHoveringMapButton;
@@ -363,6 +365,12 @@ public:
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
 	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15 | Made By Vync";
+
+	//Quick search ctrl+f
+	bool isQuickSearchDisplayed = false;
+	bool QuickSearch_Searching = false;
+	char QuickSearch_KeyWordBuf[128];
+	std::vector<Map> QuickSearch_GetMapList(std::string keyWord);
 
 	void Render() override;
 	std::string GetMenuName() override;

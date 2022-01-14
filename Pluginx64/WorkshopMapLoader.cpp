@@ -956,6 +956,26 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 	RLMAPS_Searching = false;
 }
 
+
+//Quick search ctrl+f
+std::vector<Map> Pluginx64::QuickSearch_GetMapList(std::string keyWord)
+{
+	std::vector<Map> List;
+	for (auto map : MapList)
+	{
+		std::string mapName = map.mapName;
+
+		std::transform(mapName.begin(), mapName.end(), mapName.begin(), ::tolower); //transform a string to lowercase
+		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
+
+		if (mapName.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
+		{
+			List.push_back(map);
+		}
+	}
+	return List;
+}
+
 void Pluginx64::GetResultsBrowseMaps(int offset)
 {
 	RLMAPS_Searching = true;
@@ -1659,6 +1679,7 @@ void Pluginx64::CheckIssuesEncountered()
 
 	HasSeenIssuesEncountered = false;
 }
+
 
 
 
