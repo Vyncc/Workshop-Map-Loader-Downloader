@@ -1251,6 +1251,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 			{
 				renderMaps_DisplayMode_0(curMap);
 
+				/*
 				//not working well
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 				{
@@ -1275,7 +1276,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 							
 					}
 					ImGui::EndDragDropTarget();
-				}
+				}*/
 
 				ImGui::PopID();
 				ID++;
