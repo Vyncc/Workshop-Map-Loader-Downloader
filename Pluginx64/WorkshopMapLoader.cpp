@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.1", 0)
 
 
 namespace
@@ -611,7 +611,6 @@ void Pluginx64::STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfol
 
 void Pluginx64::StartSearchRequest(std::string fullurl)
 {
-	SearchRequestCounter++;
 	STEAM_Searching = true;
 	Steam_MapResultList.clear();
 
@@ -705,7 +704,6 @@ void Pluginx64::StartSearchRequest(std::string fullurl)
 		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
 		resultisImageLoaded = true;
 
-
 		Steam_MapResult result;
 		result.Name = resultMapName;
 		result.ID = resultMapID;
@@ -792,13 +790,11 @@ std::vector<std::string> Pluginx64::GetJSONSearchMapInfos(std::string jsonFilePa
 
 void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 {
-	static int ActualSearchRequest = SearchRequestCounter;
-
 	std::string Workshop_filesize = "0";
 
-	while (Workshop_filesize == "0" && ActualSearchRequest != SearchRequestCounter)
+	while (Workshop_filesize == "0")
 	{
-		//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " is unvailable, wait few seconds.");
+		cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " is unvailable, wait few seconds.");
 		cpr::Response file_size_request = cpr::Get(cpr::Url{ "https://steamworkshop.jetfox.ovh/query.php?filesize=" + Steam_MapResultList.at(mapIndex).ID });
 
 		if (file_size_request.status_code == 200)
@@ -813,12 +809,10 @@ void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 		Sleep(4000);
 	}
 
-	if (ActualSearchRequest != SearchRequestCounter)
-		return;
-
 	Steam_MapResultList.at(mapIndex).Size = Workshop_filesize;
 	Steam_MapResultList.at(mapIndex).IsMapAvailable = true;
-	//cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " IS NOW AVAILABLE");
+	CreateJSONSearchWorkshopInfos(Steam_MapResultList.at(mapIndex).ID, BakkesmodPath + "data\\WorkshopMapLoader\\Search\\json\\", Workshop_filesize, Steam_MapResultList.at(mapIndex).Description);
+	cvarManager->log(Steam_MapResultList.at(mapIndex).Name + " IS NOW AVAILABLE");
 }
 
 

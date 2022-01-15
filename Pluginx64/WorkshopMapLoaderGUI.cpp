@@ -133,7 +133,8 @@ void Pluginx64::Render()
 		MultiplayerText = "Multiplayer";
 		LastUpdateText = "Last Update";
 		SupportMeText = "Support Me";
-		SupportMePopupText = "You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+		SupportMePopupText = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+		DonateText = "Donate :";
 		JoinCWGText = "Join Community Workshop Games discord server :";
 		OpenCPCCText = "Open CookedPCConsole Directory";
 		NoMapsCanBeJoinText = "No maps can be joined";
@@ -258,8 +259,9 @@ void Pluginx64::Render()
 		SettingsText = "Parametres";
 		MultiplayerText = "Multijoueur";
 		LastUpdateText = "Derniere Maj";
-		SupportMeText = "Me Supporter";
-		SupportMePopupText = "Vous pouvez vous abonner a mon patreon si vous voulez me supporter et si vous pensez que mon travail le merite. Merci."; //You can subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.
+		SupportMeText = "Me Soutenir";
+		SupportMePopupText = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail le merite. Merci.";
+		DonateText = "Faire un don :";
 		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
 		OpenCPCCText = "Ouvrir le dossier CookedPCConsole";
 		NoMapsCanBeJoinText = "Aucune map ne peut etre rejoint";
@@ -551,18 +553,7 @@ void Pluginx64::Render()
 			ImGui::Separator();
 
 			ImGui::Text(JoinCWGText.c_str()); //"Join Community Workshop Games discord server :"
-			ImGui::SameLine();
-			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.com/invite/KVgmf9JFpZ");
-			renderUnderLine(ImColor(3, 94, 252, 255));
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-				if (ImGui::IsMouseClicked(0))
-				{
-					ShellExecute(0, 0, L"https://discord.com/invite/KVgmf9JFpZ", 0, 0, SW_SHOW); //open link in browser
-				}
-				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-			}
+			renderLink("https://discord.com/invite/KVgmf9JFpZ");
 
 			ImGui::EndMenu();
 		}
@@ -2223,6 +2214,24 @@ void Pluginx64::renderUnderLine(ImColor col_)
 	ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
 }
 
+void Pluginx64::renderLink(std::string link)
+{
+	std::wstring w_LINK = s2ws(link);
+	LPCWSTR L_LINK = w_LINK.c_str();
+
+	ImGui::TextColored(ImColor(3, 94, 252, 255), link.c_str());
+	renderUnderLine(ImColor(3, 94, 252, 255));
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+		if (ImGui::IsMouseClicked(0))
+		{
+			ShellExecute(0, 0, L_LINK, 0, 0, SW_SHOW); //open link in web browser
+		}
+		renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+	}
+}
+
 void Pluginx64::renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function)
 {
 	ImGui::BeginGroup();
@@ -2503,17 +2512,7 @@ void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 			ImGui::Text(txt.c_str());
 			ImGui::Text("Tutorial : ");
 			ImGui::SameLine();
-			ImGui::TextColored(ImColor(3, 94, 252, 255), "https://youtu.be/mI2PqkissiQ?t=124");
-			renderUnderLine(ImColor(3, 94, 252, 255));
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-				if (ImGui::IsMouseClicked(0))
-				{
-					ShellExecute(0, 0, L"https://youtu.be/mI2PqkissiQ?t=124", 0, 0, SW_SHOW); //open the video tutorial in browser
-				}
-				renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-			}
+			renderLink("https://youtu.be/mI2PqkissiQ?t=124");
 			ImGui::NewLine();
 			float buttonWidth = ImGui::CalcTextSize(OpenMapDirText.c_str()).x + 8.f;
 			CenterNexIMGUItItem(buttonWidth + 100.f);
@@ -2748,72 +2747,71 @@ void Pluginx64::renderJoinServerPopup()
 
 void Pluginx64::renderNewUpdatePopup()
 {
-	//ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowWidth() / 2, ImGui::GetWindowHeight() / 2), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	static bool french = false;
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15").x);
-		ImGui::Text("Changelog v1.15");
+		std::string AddedText;
+		std::string CtrlFText;
+		std::string DonateText;
+		std::string SupportMeText2;
+		std::string SupportMeText3;
+		std::string CWGDiscordText;
+		if (!french)
+		{
+			AddedText = "Added :";
+			CtrlFText = "-Shortcut Ctrl + F : Search maps by name in \"Map Loader\" tab";
+			DonateText = "Donate :";
+			SupportMeText2 = "Support Me :";
+			SupportMeText3 = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+			CWGDiscordText = "Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.";
+		}
+		else
+		{
+			AddedText = "Ajouts :";
+			CtrlFText = "-Raccourcis Ctrl + F : Recherche de maps par nom dans l'onglet \"Charger Map\"";
+			DonateText = "Faire un don :";
+			SupportMeText2 = "Me Soutenir :";
+			SupportMeText3 = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail le merite. Merci.";
+			CWGDiscordText = "Rejoignez le serveur discord Community Workshop Games pour jouer aux maps workshop en multijoueur avec la communaute, et participez aux evenements.";
+		}
+		ImGui::Checkbox("French", &french);
+
 		ImGui::NewLine();
-		ImGui::Text("Added :");
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15.1").x);
+		ImGui::Text("Changelog v1.15.1");
+		ImGui::NewLine();
+		ImGui::Text(AddedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text("-2 different display modes for the maps :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.f);
-		ImGui::Image(MapsDisplayMode_Logo1_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
-		ImGui::Text(" : List of big buttons (default)");
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 10.f);
-		ImGui::Image(MapsDisplayMode_Logo2_Image->GetImGuiTex(), ImVec2(36.f, 36.f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1));
-		ImGui::SameLine();
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.f);
-		ImGui::Text(" : Grid, the number of maps per line can be changed");
-		ImGui::NewLine();
-		ImGui::Text("-Controller support :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::Text("Use your XBox controller(or ds4 with ds4windows) to navigate on the plugin.");
-		ImGui::NewLine();
-		ImGui::Text("Controls :");
-		ImGui::Text("Left Thumb + Right Thumb : open/close the menu");
-		ImGui::Text("DPAD arrows : navigate through the maps");
-		ImGui::Text("Left joystick : move the cursor");
-		ImGui::Text("Right joystick : scroll");
-		ImGui::Text("LB/L1 : click");
-		ImGui::Text("B/O : close the menu");
-		ImGui::NewLine();
-		ImGui::Text("Change your sensitivity in Settings->Contoller");
-
+		ImGui::Text(CtrlFText.c_str());
 
 		ImGui::NewLine();
-		ImGui::Text("-You can now select the maps folder path directly on the plugin by clicking on \"Select maps folder\"");
-
 		ImGui::NewLine();
-
-		ImGui::Text("Fixed :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::NewLine();
-		ImGui::Text("-Searching from \"Search Workshop(Steam)\" tab works again");
-		ImGui::NewLine();
-
 		ImGui::Separator();
 		ImGui::NewLine();
-		ImGui::Text("Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.");
-		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://discord.com/invite/KVgmf9JFpZ");
-		renderUnderLine(ImColor(3, 94, 252, 255));
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if (ImGui::IsMouseClicked(0))
-			{
-				ShellExecute(0, 0, L"https://discord.com/invite/KVgmf9JFpZ", 0, 0, SW_SHOW); //open link in browser
-			}
-			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-		}
 
+		ImGui::Text(SupportMeText2.c_str());
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::Text(SupportMeText3.c_str());
+
+		ImGui::Text("Patreon :");
+		ImGui::SameLine();
+		renderLink("https://www.patreon.com/WorkshopMapLoader");
+
+		ImGui::Text(DonateText.c_str()); //"Donate :"
+		ImGui::SameLine();
+		renderLink("https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q");
 
 		ImGui::NewLine();
+		ImGui::NewLine();
+
+		ImGui::Text("Community Workshop Games :");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::Text(CWGDiscordText.c_str());
+		renderLink("https://discord.com/invite/KVgmf9JFpZ");
+
+		ImGui::NewLine();
+
 		AlignRightNexIMGUItItem(100.f, 8.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
@@ -2967,17 +2965,15 @@ void Pluginx64::renderSupportMePopup()
 	{
 		ImGui::Text(SupportMePopupText.c_str());
 
-		ImGui::TextColored(ImColor(3, 94, 252, 255), "https://www.patreon.com/WorkshopMapLoader");
-		renderUnderLine(ImColor(3, 94, 252, 255));
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-			if (ImGui::IsMouseClicked(0))
-			{
-				ShellExecute(0, 0, L"https://www.patreon.com/WorkshopMapLoader", 0, 0, SW_SHOW); //open link in web browser
-			}
-			renderUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
-		}
+		ImGui::NewLine();
+
+		ImGui::Text("Patreon :");
+		ImGui::SameLine();
+		renderLink("https://www.patreon.com/WorkshopMapLoader");
+
+		ImGui::Text(DonateText.c_str()); //"Donate"
+		ImGui::SameLine();
+		renderLink("https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q");
 
 		ImGui::NewLine();
 

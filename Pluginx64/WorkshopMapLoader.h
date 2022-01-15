@@ -79,11 +79,11 @@ public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	
+	/*
 	int widthTest;
 	int heightTest;
 	float fontSizeTest = 0.f;
-	
+	*/
 
 	int SearchRequestCounter = 0;
 	bool isHoveringMapButton;
@@ -364,7 +364,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15.1 | Made By Vync";
 
 	//Quick search ctrl+f
 	void renderQuickSearch();
@@ -383,6 +383,7 @@ public:
 	void OnClose() override;
 
 	void renderUnderLine(ImColor col_);
+	void renderLink(std::string link);
 	void renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function);
 	void CenterNexIMGUItItem(float itemWidth);
 	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
@@ -429,6 +430,7 @@ public:
 	std::string LastUpdateText;
 	std::string SupportMeText;
 	std::string SupportMePopupText;
+	std::string DonateText;
 	std::string JoinCWGText;
 	std::string OpenCPCCText;
 	std::string NoMapsCanBeJoinText;
