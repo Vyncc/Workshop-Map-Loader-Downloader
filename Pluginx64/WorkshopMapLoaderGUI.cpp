@@ -133,7 +133,7 @@ void Pluginx64::Render()
 		MultiplayerText = "Multiplayer";
 		LastUpdateText = "Last Update";
 		SupportMeText = "Support Me";
-		SupportMePopupText = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+		SupportMePopupText = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves. Thank you.";
 		DonateText = "Donate :";
 		JoinCWGText = "Join Community Workshop Games discord server :";
 		OpenCPCCText = "Open CookedPCConsole Directory";
@@ -260,7 +260,7 @@ void Pluginx64::Render()
 		MultiplayerText = "Multijoueur";
 		LastUpdateText = "Derniere Maj";
 		SupportMeText = "Me Soutenir";
-		SupportMePopupText = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail le merite. Merci.";
+		SupportMePopupText = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail merite. Merci.";
 		DonateText = "Faire un don :";
 		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
 		OpenCPCCText = "Ouvrir le dossier CookedPCConsole";
@@ -2762,7 +2762,7 @@ void Pluginx64::renderNewUpdatePopup()
 			CtrlFText = "-Shortcut Ctrl + F : Search maps by name in \"Map Loader\" tab";
 			DonateText = "Donate :";
 			SupportMeText2 = "Support Me :";
-			SupportMeText3 = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves it. Thank you.";
+			SupportMeText3 = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves. Thank you.";
 			CWGDiscordText = "Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.";
 		}
 		else
@@ -2771,14 +2771,15 @@ void Pluginx64::renderNewUpdatePopup()
 			CtrlFText = "-Raccourcis Ctrl + F : Recherche de maps par nom dans l'onglet \"Charger Map\"";
 			DonateText = "Faire un don :";
 			SupportMeText2 = "Me Soutenir :";
-			SupportMeText3 = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail le merite. Merci.";
+			SupportMeText3 = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail merite. Merci.";
 			CWGDiscordText = "Rejoignez le serveur discord Community Workshop Games pour jouer aux maps workshop en multijoueur avec la communaute, et participez aux evenements.";
 		}
-		ImGui::Checkbox("French", &french);
 
 		ImGui::NewLine();
 		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15.1").x);
 		ImGui::Text("Changelog v1.15.1");
+		ImGui::NewLine();
+		ImGui::Checkbox("French", &french);
 		ImGui::NewLine();
 		ImGui::Text(AddedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));
