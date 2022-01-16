@@ -53,10 +53,10 @@ void Pluginx64::onLoad()
 	DownloadTexturesBool = false;
 
 
-	std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
+	std::thread t1(&Pluginx64::API_GetInformations, this);
 	t1.detach();
 
-	std::thread t2(&Pluginx64::GetPatrons, this);
+	std::thread t2(&Pluginx64::API_GetPatrons, this);
 	t2.detach();
 
 
@@ -1589,7 +1589,8 @@ void Pluginx64::CleanHTML(std::string& S)
 		}
 
 		//cvarManager->log("parser result : " + result);
-		if (result == "<br>")
+		//replace "<br>" or "</br>" by "\n"
+		if (result == "<br>" || result == "</br>")
 		{
 			S.replace(start, (end + 1) - start, "\n");
 		}
@@ -1650,37 +1651,9 @@ std::vector<std::string> Pluginx64::GetDrives()
 	return Drives;
 }
 
-//Issues Encountered
-void Pluginx64::CheckIssuesEncountered()
+void Pluginx64::API_GetPatrons()
 {
-	IssuesEncountered.clear();
-
-	cpr::Response request_response = cpr::Get(cpr::Url{ "https://bakkesplugins.com/plugins/view/223" });
-	if (request_response.status_code != 200)
-	{
-		cvarManager->log("CheckIssuesEncountered : error " + std::to_string(request_response.status_code));
-		return;
-	}
-
-	std::vector<std::string> issuesEncountered = FindAllSubstringInAString(request_response.text, "<h2>Issues Encountered</h2>", "<p>This plugin allows you :</p>");
-
-	if (issuesEncountered.size() == 0) {cvarManager->log("No Issues Encountered"); return;}
-
-	cvarManager->log("Issues Encountered :");
-	for (auto item : FindAllSubstringInAString(issuesEncountered.at(0), "<li>", "</li>"))
-	{
-		cvarManager->log("- " + item);
-		IssuesEncountered.push_back(item);
-	}
-
-	HasSeenIssuesEncountered = false;
-}
-
-
-
-void Pluginx64::GetPatrons()
-{
-	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/patreons" });
+	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/patrons" });
 	if (request_response.status_code != 200)
 	{
 		cvarManager->log("GetPatrons : error " + std::to_string(request_response.status_code));
@@ -1703,6 +1676,35 @@ void Pluginx64::GetPatrons()
 	}
 }
 
+void Pluginx64::API_GetInformations()
+{
+	API_Information.type = "";
+	API_Information.message = "";
+
+	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/informations" });
+	if (request_response.status_code != 200)
+	{
+		cvarManager->log("API_GetInformations : error " + std::to_string(request_response.status_code));
+		return;
+	}
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+	reader.parse(request_response.text, actualJson);
+
+	const Json::Value Type = actualJson["Type"];
+	const Json::Value Message = actualJson["Message"];
+
+	if(Type == "error") { cvarManager->log("No informations to display"); return; }
+
+	API_Information.type = Type.asString();
+	API_Information.message = Message.asString();
+	CleanHTML(API_Information.message);
+	//cvarManager->log("API_Information :\ntype : " + API_Information.type + "\nmessage : " + API_Information.message);
+
+	HasSeenAPI_Information = false;
+}
 
 
 

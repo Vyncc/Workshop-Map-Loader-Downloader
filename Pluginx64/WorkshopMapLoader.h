@@ -70,6 +70,11 @@ struct mapButtonPos
 	bool isDisplayed;
 };
 
+struct API_Informations
+{
+	std::string type;
+	std::string message;
+};
 
 //Hey Jerry or Martinn, have a good time reviewing my awful code ;)
 
@@ -97,16 +102,14 @@ public:
 	int ControllerScrollSensitivity = 10;
 
 
-	//Issues Encountered
-	void CheckIssuesEncountered();
-	std::vector<std::string> IssuesEncountered;
-	bool HasSeenIssuesEncountered = true;
-
-
+	//API
 	//Patrons
-	void GetPatrons();
+	void API_GetPatrons();
 	std::vector<std::string> PatronsList;
-
+	//Informations to display
+	void API_GetInformations();
+	API_Informations API_Information;
+	bool HasSeenAPI_Information = true;
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server

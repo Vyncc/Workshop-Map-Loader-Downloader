@@ -142,7 +142,6 @@ void Pluginx64::Render()
 		DlTexturesText = "Download Textures";
 		LanguageText = "Language";
 		ExtractMethodText = "Extract Method";
-		WarningText = "Warning :";
 
 		//Controller settings
 		ControllerText = "Controller";
@@ -269,7 +268,6 @@ void Pluginx64::Render()
 		DlTexturesText = "Telecharger les textures";
 		LanguageText = "Langue";
 		ExtractMethodText = "Methode d'extraction";
-		WarningText = "Attention :";
 
 		//Controller settings
 		ControllerText = "Manette";
@@ -398,26 +396,25 @@ void Pluginx64::Render()
 	renderSupportMePopup();
 
 
-	if (!HasSeenIssuesEncountered && HasSeeNewUpdateAlert)
+	if (!HasSeenAPI_Information && HasSeeNewUpdateAlert)
 	{
-		ImGui::OpenPopup("Issues Encountered");
+		ImGui::OpenPopup("Information");
 	}
-	if (ImGui::BeginPopupModal("Issues Encountered", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::BeginPopupModal("Information", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		CenterNexIMGUItItem(ImGui::CalcTextSize(WarningText.c_str()).x);
-		ImGui::Text(WarningText.c_str()); //"Warning"
-		ImGui::NewLine();
-
-		for (auto issue : IssuesEncountered)
+		if (!API_Information.type.empty())
 		{
-			ImGui::Text(issue.c_str());
+			CenterNexIMGUItItem(ImGui::CalcTextSize(API_Information.type.c_str()).x);
+			ImGui::Text(API_Information.type.c_str());
+			ImGui::NewLine();
+			ImGui::Text(API_Information.message.c_str());
 		}
 		ImGui::NewLine();
 
 		CenterNexIMGUItItem(100.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
 		{
-			HasSeenIssuesEncountered = true;
+			HasSeenAPI_Information = true;
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
@@ -2989,15 +2986,6 @@ void Pluginx64::renderSupportMePopup()
 		ImGui::Text("Thanks very much to all the patrons.");
 		renderUnderLine(ImColor(255, 255, 255, 150));
 
-		/*need to remove
-		ImGui::SameLine();
-		static int patronInt = 0;
-		if (ImGui::Button("add"))
-		{
-			PatronsList.push_back("patron " + std::to_string(patronInt));
-			patronInt++;
-		}*/
-
 		ImGui::NewLine();
 
 		float LinesCount = float(PatronsList.size()) / 3.f;
@@ -3015,10 +3003,11 @@ void Pluginx64::renderSupportMePopup()
 
 		ImGui::BeginChild("##PatronsListChild", ImVec2{800.f, height}, true);
 
-		ImGui::Columns(3, 0, true);
 
 		if (PatronsList.size() > 0)
 		{
+			ImGui::Columns(3, 0, true);
+
 			for (int i = 0; i < PatronsList.size(); i++)
 			{
 				std::string patron = PatronsList[i];
@@ -3031,6 +3020,10 @@ void Pluginx64::renderSupportMePopup()
 
 				ImGui::NextColumn();
 			}
+		}
+		else
+		{
+			ImGui::Text("Error getting patrons list");
 		}
 
 		ImGui::EndChild();
