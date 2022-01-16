@@ -8,8 +8,6 @@ pouvoir cancel la recherche
 
 pouvoir afficher les maps dans l'ordre qu'on veut
 
-je dois bouger la checkbox french
-
 
 faire le responsive avec les descriptions des maps grace a LimitTextSize() (j'ai essayé mais trop de pertes d'fps a cause du while(dans LimitTextSize()) qui tourne
 pour chaque map, mais je pense que je peux le faire quand meme en appellant la fonction juste quand je redimensionne la fenetre, du coup les drops de fps se feront

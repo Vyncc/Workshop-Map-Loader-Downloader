@@ -56,6 +56,9 @@ void Pluginx64::onLoad()
 	std::thread t1(&Pluginx64::CheckIssuesEncountered, this);
 	t1.detach();
 
+	std::thread t2(&Pluginx64::GetPatrons, this);
+	t2.detach();
+
 
 	try
 	{
@@ -1647,7 +1650,6 @@ std::vector<std::string> Pluginx64::GetDrives()
 	return Drives;
 }
 
-
 //Issues Encountered
 void Pluginx64::CheckIssuesEncountered()
 {
@@ -1672,6 +1674,33 @@ void Pluginx64::CheckIssuesEncountered()
 	}
 
 	HasSeenIssuesEncountered = false;
+}
+
+
+
+void Pluginx64::GetPatrons()
+{
+	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/patreons" });
+	if (request_response.status_code != 200)
+	{
+		cvarManager->log("GetPatrons : error " + std::to_string(request_response.status_code));
+		return;
+	}
+
+	//Parse response json
+	Json::Value actualJson;
+	Json::Reader reader;
+	reader.parse(request_response.text, actualJson);
+
+	const Json::Value segments = actualJson["patrons_List"];
+
+	for (int i = 0; i < segments.size(); ++i)
+	{
+		std::string PatronName = segments[i].asString();
+
+		PatronsList.push_back(PatronName);
+		//cvarManager->log("Name : " + PatronName);
+	}
 }
 
 

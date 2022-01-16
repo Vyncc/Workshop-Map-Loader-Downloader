@@ -132,7 +132,7 @@ void Pluginx64::Render()
 		SettingsText = "Settings";
 		MultiplayerText = "Multiplayer";
 		LastUpdateText = "Last Update";
-		SupportMeText = "Support Me";
+		SupportMeText = "Support Me & Patrons";
 		SupportMePopupText = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves. Thank you.";
 		DonateText = "Donate :";
 		JoinCWGText = "Join Community Workshop Games discord server :";
@@ -259,7 +259,7 @@ void Pluginx64::Render()
 		SettingsText = "Parametres";
 		MultiplayerText = "Multijoueur";
 		LastUpdateText = "Derniere Maj";
-		SupportMeText = "Me Soutenir";
+		SupportMeText = "Me Soutenir & Patrons";
 		SupportMePopupText = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail merite. Merci.";
 		DonateText = "Faire un don :";
 		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
@@ -393,10 +393,9 @@ void Pluginx64::Render()
 
 	if (OpenSupportMePopup)
 	{
-		ImGui::OpenPopup("Support Me");
+		ImGui::OpenPopup("Support Me & Patrons");
 	}
 	renderSupportMePopup();
-	
 
 
 	if (!HasSeenIssuesEncountered && HasSeeNewUpdateAlert)
@@ -2962,24 +2961,82 @@ void Pluginx64::renderMapUnavaiablePopup()
 
 void Pluginx64::renderSupportMePopup()
 {
-	if (ImGui::BeginPopupModal("Support Me", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	//ImGui::SetNextWindowSizeConstraints(ImVec2{ 10.f, 10.f }, ImVec2{ 800.f, 500.f });
+	if (ImGui::BeginPopupModal("Support Me & Patrons", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(ImGui::CalcTextSize(SupportMePopupText.c_str()).x);
 		ImGui::Text(SupportMePopupText.c_str());
 
 		ImGui::NewLine();
 
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Patreon :").x + ImGui::CalcTextSize(" https://www.patreon.com/WorkshopMapLoader").x);
 		ImGui::Text("Patreon :");
 		ImGui::SameLine();
 		renderLink("https://www.patreon.com/WorkshopMapLoader");
 
+		CenterNexIMGUItItem(ImGui::CalcTextSize(DonateText.c_str()).x + ImGui::CalcTextSize(" https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q").x);
 		ImGui::Text(DonateText.c_str()); //"Donate"
 		ImGui::SameLine();
 		renderLink("https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q");
 
 		ImGui::NewLine();
+		ImGui::Separator();
+		ImGui::NewLine();
+
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Thanks very much to all the patrons.").x);
+		ImGui::Text("Thanks very much to all the patrons.");
+		renderUnderLine(ImColor(255, 255, 255, 150));
+
+		/*need to remove
+		ImGui::SameLine();
+		static int patronInt = 0;
+		if (ImGui::Button("add"))
+		{
+			PatronsList.push_back("patron " + std::to_string(patronInt));
+			patronInt++;
+		}*/
+
+		ImGui::NewLine();
+
+		float LinesCount = float(PatronsList.size()) / 3.f;
+		if (LinesCount - int(LinesCount) != 0.f)
+		{
+			LinesCount++;
+		}
+		if (LinesCount >= 30)
+		{
+			LinesCount = 30;
+		}
+		float height = int(LinesCount) * 17 + 12;
+
+		//cvarManager->log("LinesCount : " + std::to_string(int(LinesCount)));
+
+		ImGui::BeginChild("##PatronsListChild", ImVec2{800.f, height}, true);
+
+		ImGui::Columns(3, 0, true);
+
+		if (PatronsList.size() > 0)
+		{
+			for (int i = 0; i < PatronsList.size(); i++)
+			{
+				std::string patron = PatronsList[i];
+
+				//center patron in column
+				auto windowWidth = ImGui::GetContentRegionAvailWidth();
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (windowWidth - ImGui::CalcTextSize(patron.c_str()).x) * 0.5f);
+
+				ImGui::Text(patron.c_str());
+
+				ImGui::NextColumn();
+			}
+		}
+
+		ImGui::EndChild();
 
 		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		if (ImGui::Button(CloseText.c_str(), ImVec2(100.f, 25.f)))
 		{
 			OpenSupportMePopup = false;
 			ImGui::CloseCurrentPopup();

@@ -103,6 +103,9 @@ public:
 	bool HasSeenIssuesEncountered = true;
 
 
+	//Patrons
+	void GetPatrons();
+	std::vector<std::string> PatronsList;
 
 	
 	//Host multiplayer game
