@@ -341,7 +341,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				}
 
 
-				if (!hasFoundUPK && fileExtension == ".upk")
+				if (!hasFoundUPK && fileExtension == ".upk" && !UpkIsTexture(file.path().filename().string()))
 				{
 					map.UpkFile = file.path();
 					hasFoundUPK = true;
@@ -1704,6 +1704,18 @@ void Pluginx64::API_GetInformations()
 	//cvarManager->log("API_Information :\ntype : " + API_Information.type + "\nmessage : " + API_Information.message);
 
 	HasSeenAPI_Information = false;
+}
+
+bool Pluginx64::UpkIsTexture(std::string fileName)
+{
+	for (std::string texture : WorkshopTexturesFilesList)
+	{
+		if (texture == fileName)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
