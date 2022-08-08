@@ -42,6 +42,7 @@ struct RLMAPS_MapResult
 	std::string ID;
 	std::string Name;
 	std::string ZipName;
+	std::string mapDownload;
 	std::string Size;
 	std::string ShortDescription;
 	std::string Description;
@@ -70,11 +71,6 @@ struct mapButtonPos
 	bool isDisplayed;
 };
 
-struct API_Informations
-{
-	std::string type;
-	std::string message;
-};
 
 //Hey Jerry or Martinn, have a good time reviewing my awful code ;)
 
@@ -97,19 +93,17 @@ public:
 	std::vector<mapButtonPos> mapButtonList;
 	int selectedButton = 0;
 
+	bool UseController = false;
 	void checkOpenMenuWithController(CanvasWrapper canvas);
 	int ControllerSensitivity = 10;
 	int ControllerScrollSensitivity = 10;
 
 
-	//API
-	//Patrons
-	void API_GetPatrons();
-	std::vector<std::string> PatronsList;
-	//Informations to display
-	void API_GetInformations();
-	API_Informations API_Information;
-	bool HasSeenAPI_Information = true;
+
+
+
+
+
 	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server
@@ -256,16 +250,17 @@ public:
 	//Variables
 	std::string BakkesmodPath;
 	std::string MapsFolderPath;
+	std::string PluginVersion = "1.15.1";
 	static bool FR;
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
 	int dontAsk = 0;
-	bool JoinServerBool;
-	bool DownloadTexturesBool;
+	bool JoinServerBool = false;
+	bool DownloadTexturesBool = false;
 	std::string IfNoPreviewImagePath;
 	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
 	std::string rlmaps_url = "http://rocketleaguemaps.us/api/getmultimap.php";
-	std::string rlmaps_offset_url = "http://usa2.rocketleaguemaps.tk/api/getmultimapoffset.php?offset=";
+	std::string rlmaps_offset_url = "http://www.rocketleaguemaps.us/api/getmultimapoffset.php?offset=";
 	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
 	bool OpenSupportMePopup = false;
@@ -295,7 +290,7 @@ public:
 	std::vector<std::string> GetJSONSearchMapInfos(std::string jsonFilePath);
 	bool STEAM_Searching = false;
 	int STEAM_NumberOfMapsFound;
-	bool STEAM_browsing;
+	bool STEAM_browsing = false;
 	float widthBrowseGroup;
 	std::shared_ptr<ImageWrapper> SteamLogoImage;
 	void CheckIfMapIsAvailable(int mapIndex);
@@ -303,16 +298,16 @@ public:
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
-	int RLMAPS_PageSelected;
+	int RLMAPS_PageSelected = 0;
 	void GetResults(std::string searchType, std::string keyWord);
 	void GetResultsBrowseMaps(int offset);
 	int GetNBOfMapsOnSite();
-	int CurrentPage;
-	int NBOfMapsOnSite;
+	int CurrentPage = 0;
+	int NBOfMapsOnSite = 0;
 	std::vector<int> listBrowsePages();
-	bool RLMAPS_Searching;
+	bool RLMAPS_Searching = false;
 	int RLMAPS_NumberOfMapsFound;
-	bool RLMAPS_browsing;
+	bool RLMAPS_browsing = false;
 	std::shared_ptr<ImageWrapper> RLMAPSLogoImage;
 
 
@@ -360,7 +355,6 @@ public:
 	void replaceAll(std::string& str, const std::string& from, const std::string& to);
 	void eraseAll(std::string& str, const std::string& from);
 	std::vector<std::string> GetDrives();
-	bool UpkIsTexture(std::string fileName);
 
 
 	//ImGui SettingsWindow Functions

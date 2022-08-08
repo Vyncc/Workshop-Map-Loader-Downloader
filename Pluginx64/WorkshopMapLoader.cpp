@@ -40,24 +40,7 @@ void Pluginx64::onLoad()
 	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo1_selected.png", false, true);
 	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2_selected.png", false, true);
 
-	STEAM_browsing = false;
-	RLMAPS_browsing = false;
-	RLMAPS_Searching = false;
-	CurrentPage = 0; //starts at 0
-	NBOfMapsOnSite = 0;
 
-	RLMAPS_PageSelected = 0;
-
-
-	JoinServerBool = false;
-	DownloadTexturesBool = false;
-
-
-	std::thread t1(&Pluginx64::API_GetInformations, this);
-	t1.detach();
-
-	std::thread t2(&Pluginx64::API_GetPatrons, this);
-	t2.detach();
 
 
 	try
@@ -67,7 +50,7 @@ void Pluginx64::onLoad()
 			if (dir.is_directory())
 			{
 				for (const auto& file : fs::recursive_directory_iterator(dir.path()))
-					if (!file.is_directory())
+					if (!file.is_directory() && file.path().extension().string() == ".upk")
 					{
 						MapsAlreadyInCPCC.push_back(file.path());
 						cvarManager->log("Map already in cpcc : " + file.path().filename().string());
@@ -84,6 +67,7 @@ void Pluginx64::onLoad()
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
 	{
 		std::vector<std::string> CFGVariablesList = GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg");
+
 		cvarManager->log("Workshop Maps Folder : " + CFGVariablesList.at(0));
 		MapsFolderPath = CFGVariablesList.at(0);
 		unzipMethod = CFGVariablesList.at(2);
@@ -93,29 +77,45 @@ void Pluginx64::onLoad()
 		ControllerSensitivity = std::stoi(CFGVariablesList.at(7));
 		ControllerScrollSensitivity = std::stoi(CFGVariablesList.at(8));
 
-
-		if (CFGVariablesList.at(1) == "0")
+		if (CFGVariablesList.size() >= 11)
 		{
-			FR = false;
-		}
-		else
-		{
-			FR = true;
+			UseController = (CFGVariablesList.at(10) == "1");
 		}
 
-		if (CFGVariablesList.at(3) == "0")
+
+		FR = (CFGVariablesList.at(1) == "1");
+		HasSeeNewUpdateAlert = (CFGVariablesList.at(3) == "1");
+
+
+		if (CFGVariablesList.size() == 9) //the user has the old version
 		{
 			HasSeeNewUpdateAlert = false;
 		}
-		else
+		else if (CFGVariablesList.size() == 10) //the user has the new version
 		{
-			HasSeeNewUpdateAlert = true;
+			HasSeeNewUpdateAlert = (PluginVersion == CFGVariablesList.at(9));
 		}
+
+
+		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 	}
 	else
 	{
 		cvarManager->log(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg : doesn't exist");
-		MapsFolderPath = "The path of the maps folder";
+
+		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods"))
+		{
+			try
+			{
+				fs::create_directory(RLCookedPCConsole_Path.string() + "\\mods");
+			}
+			catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+			{
+				cvarManager->log(ex.what());
+			}
+		}
+		MapsFolderPath = RLCookedPCConsole_Path.string() + "\\mods";
+
 		FR = false;
 		unzipMethod = "Powershell";
 		HasSeeNewUpdateAlert = false;
@@ -124,24 +124,28 @@ void Pluginx64::onLoad()
 		nbTilesPerLine = 6;
 		ControllerSensitivity = 10;
 		ControllerScrollSensitivity = 10;
+		PluginVersion = "1.15.1";
+
+		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 		SaveInCFG();
 	}
 
-	strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
-
-	//cvarManager->log("The bakkesmod path : " + BakkesmodPath);
+	
 }
 
 
 
 void Pluginx64::checkOpenMenuWithController(CanvasWrapper canvas)
 {
-	Gamepad ds4 = Gamepad(1);
-
-	ds4.Update();
+	if (!UseController)
+		return;
 
 	if (gameWrapper->IsInOnlineGame())
 		return;
+
+	Gamepad ds4 = Gamepad(1);
+
+	ds4.Update();
 
 	if (ds4.Connected())
 	{
@@ -341,7 +345,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				}
 
 
-				if (!hasFoundUPK && fileExtension == ".upk" && !UpkIsTexture(file.path().filename().string()))
+				if (!hasFoundUPK && fileExtension == ".upk")
 				{
 					map.UpkFile = file.path();
 					hasFoundUPK = true;
@@ -920,6 +924,7 @@ void Pluginx64::GetResults(std::string searchType, std::string keyWord)
 			result.ID = resultMapID;
 			result.Name = resultMapName;
 			result.ZipName = maps[index]["mapZipName"].asString();
+			result.mapDownload = maps[index]["mapDownload"].asString();
 			result.Size = maps[index]["filesize"].asString();
 			result.Author = maps[index]["creator"].asString();
 			result.ShortDescription = maps[index]["mapShortDescription"].asString();
@@ -1035,6 +1040,7 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 		result.ID = resultMapID;
 		result.Name = resultMapName;
 		result.ZipName = maps[index]["mapZipName"].asString();
+		result.mapDownload = maps[index]["mapDownload"].asString();
 		result.Size = maps[index]["filesize"].asString();
 		result.Author = maps[index]["creator"].asString();
 		result.ShortDescription = maps[index]["mapShortDescription"].asString();
@@ -1162,7 +1168,7 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 	
-	std::string download_url = "http://rocketleaguemaps.b-cdn.net/" + mapResult.Author + "/Maps/" + mapResult.ZipName;
+	std::string download_url = mapResult.mapDownload;
 	cvarManager->log("Download URL : " + download_url);
 	std::string Folder_Path = Workshop_Dl_Path + "/" + mapResult.ZipName;
 
@@ -1253,7 +1259,7 @@ void Pluginx64::DownloadWorkshopTextures()
 
 		//download
 		CurlRequest req;
-		req.url = "http://rocketleaguemaps.b-cdn.net/Textures/Textures.zip";
+		req.url = "https://eu2.contabostorage.com/feff50e599e5426d9deebd02ac6c0dbe:textures/Textures.zip";
 		req.progress_function = [this](double file_size, double downloaded, ...)
 		{
 			//cvarManager->log("Download progress : " + std::to_string(downloaded));
@@ -1468,7 +1474,9 @@ void Pluginx64::SaveInCFG()
 	CFGFile << "MapsDisplayMode = \"" + std::to_string(MapsDisplayMode) + "\"\n";
 	CFGFile << "nbTilesPerLine = \"" + std::to_string(nbTilesPerLine) + "\"\n";
 	CFGFile << "ControllerSensitivity = \"" + std::to_string(ControllerSensitivity) + "\"\n";
-	CFGFile << "ControllerScrollSensitivity = \"" + std::to_string(ControllerScrollSensitivity) + "\"";
+	CFGFile << "ControllerScrollSensitivity = \"" + std::to_string(ControllerScrollSensitivity) + "\"\n";
+	CFGFile << "PluginVersion = \"" + PluginVersion + "\"\n";
+	CFGFile << "UseController = \"" + std::to_string(UseController) + "\"";
 
 	CFGFile.close();
 
@@ -1589,8 +1597,7 @@ void Pluginx64::CleanHTML(std::string& S)
 		}
 
 		//cvarManager->log("parser result : " + result);
-		//replace "<br>" or "</br>" by "\n"
-		if (result == "<br>" || result == "</br>")
+		if (result == "<br>")
 		{
 			S.replace(start, (end + 1) - start, "\n");
 		}
@@ -1651,72 +1658,7 @@ std::vector<std::string> Pluginx64::GetDrives()
 	return Drives;
 }
 
-void Pluginx64::API_GetPatrons()
-{
-	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/patrons" });
-	if (request_response.status_code != 200)
-	{
-		cvarManager->log("GetPatrons : error " + std::to_string(request_response.status_code));
-		return;
-	}
 
-	//Parse response json
-	Json::Value actualJson;
-	Json::Reader reader;
-	reader.parse(request_response.text, actualJson);
-
-	const Json::Value segments = actualJson["patrons_List"];
-
-	for (int i = 0; i < segments.size(); ++i)
-	{
-		std::string PatronName = segments[i].asString();
-
-		PatronsList.push_back(PatronName);
-		//cvarManager->log("Name : " + PatronName);
-	}
-}
-
-void Pluginx64::API_GetInformations()
-{
-	API_Information.type = "";
-	API_Information.message = "";
-
-	cpr::Response request_response = cpr::Get(cpr::Url{ "https://workshopmaploaderpatreonsapi.herokuapp.com/informations" });
-	if (request_response.status_code != 200)
-	{
-		cvarManager->log("API_GetInformations : error " + std::to_string(request_response.status_code));
-		return;
-	}
-
-	//Parse response json
-	Json::Value actualJson;
-	Json::Reader reader;
-	reader.parse(request_response.text, actualJson);
-
-	const Json::Value Type = actualJson["Type"];
-	const Json::Value Message = actualJson["Message"];
-
-	if(Type == "error") { cvarManager->log("No informations to display"); return; }
-
-	API_Information.type = Type.asString();
-	API_Information.message = Message.asString();
-	CleanHTML(API_Information.message);
-	//cvarManager->log("API_Information :\ntype : " + API_Information.type + "\nmessage : " + API_Information.message);
-
-	HasSeenAPI_Information = false;
-}
-
-bool Pluginx64::UpkIsTexture(std::string fileName)
-{
-	for (std::string texture : WorkshopTexturesFilesList)
-	{
-		if (texture == fileName)
-		{
-			return true;
-		}
-	}
-	return false;
-}
 
 
 
