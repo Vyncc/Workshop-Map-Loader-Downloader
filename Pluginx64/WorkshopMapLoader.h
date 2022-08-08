@@ -263,7 +263,6 @@ public:
 	std::string rlmaps_offset_url = "http://www.rocketleaguemaps.us/api/getmultimapoffset.php?offset=";
 	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
-	bool OpenSupportMePopup = false;
 
 
 	//Local Maps
@@ -365,7 +364,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15.1 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15.2 | Made By Vync";
 
 	//Quick search ctrl+f
 	void renderQuickSearch();
@@ -405,7 +404,6 @@ public:
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
 	void renderMapUnavaiablePopup();
-	void renderSupportMePopup();
 
 	void renderFileExplorer();
 
@@ -429,8 +427,6 @@ public:
 	std::string SettingsText;
 	std::string MultiplayerText;
 	std::string LastUpdateText;
-	std::string SupportMeText;
-	std::string SupportMePopupText;
 	std::string DonateText;
 	std::string JoinCWGText;
 	std::string OpenCPCCText;

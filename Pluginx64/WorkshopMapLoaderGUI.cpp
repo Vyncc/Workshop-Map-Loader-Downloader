@@ -132,8 +132,6 @@ void Pluginx64::Render()
 		SettingsText = "Settings";
 		MultiplayerText = "Multiplayer";
 		LastUpdateText = "Last Update";
-		SupportMeText = "Support Me";
-		SupportMePopupText = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves. Thank you.";
 		DonateText = "Donate :";
 		JoinCWGText = "Join Community Workshop Games discord server :";
 		OpenCPCCText = "Open CookedPCConsole Directory";
@@ -174,7 +172,6 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Search Workshop(Steam)";
-		DlWorkshopByURLText = "Download Workshop By Url(not working)";
 		Label2Text = "Steam Workshop Url :";
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
@@ -259,8 +256,6 @@ void Pluginx64::Render()
 		SettingsText = "Parametres";
 		MultiplayerText = "Multijoueur";
 		LastUpdateText = "Derniere Maj";
-		SupportMeText = "Me Soutenir";
-		SupportMePopupText = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail merite. Merci.";
 		DonateText = "Faire un don :";
 		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
 		OpenCPCCText = "Ouvrir le dossier CookedPCConsole";
@@ -302,7 +297,6 @@ void Pluginx64::Render()
 
 		//2nd Tab
 		Tab2SearchWorkshopText = "Rechercher Un Workshop(Steam)";
-		DlWorkshopByURLText = "Telecharger Un Workshop Avec Une Url(not working)";
 		Label2Text = "Url Du Workshop Steam :";
 		DownloadButtonText = "Telecharger";
 		Label3Text = "Rechercher Un Workshop :";
@@ -391,11 +385,6 @@ void Pluginx64::Render()
 	}
 	renderNewUpdatePopup();
 
-	if (OpenSupportMePopup)
-	{
-		ImGui::OpenPopup("Support Me");
-	}
-	renderSupportMePopup();
 
 	
 
@@ -555,10 +544,6 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
-		if (ImGui::Selectable(SupportMeText.c_str(), false, 0, ImGui::CalcTextSize(SupportMeText.c_str())))
-		{
-			OpenSupportMePopup = true;
-		}
 
 		if (ImGui::BeginMenu("Credits"))
 		{
@@ -723,24 +708,6 @@ void Pluginx64::Render()
 
 		if (ImGui::BeginTabItem(Tab2SearchWorkshopText.c_str())) //"Search Workshop"
 		{
-			if (ImGui::CollapsingHeader(DlWorkshopByURLText.c_str())) // "Download Workshop By Url"
-			{
-				ImGui::Text(Label2Text.c_str()); // "Steam Workshop Url :"
-				static char url[200] = "put the url of a workshop";
-				ImGui::InputText("##STEAMworkshopurl", url, IM_ARRAYSIZE(url));
-				
-				
-				if (ImGui::Button(DownloadButtonText.c_str())) // "Download"
-				{
-					/*
-					std::thread t1(&Pluginx64::STEAM_DownloadWorkshop, this, url, MapsFolderPathBuf, NULL, 0, false);
-					t1.detach();
-					*/
-				}
-			}
-
-			ImGui::Separator();
-
 			ImGui::BeginGroup();
 			{
 				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
@@ -2729,66 +2696,30 @@ void Pluginx64::renderNewUpdatePopup()
 	static bool french = false;
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		std::string AddedText;
-		std::string CtrlFText;
-		std::string DonateText;
-		std::string SupportMeText2;
-		std::string SupportMeText3;
-		std::string CWGDiscordText;
+		std::string FixedText;
+		std::string CrahsingIssueText;
 		if (!french)
 		{
-			AddedText = "Added :";
-			CtrlFText = "-Shortcut Ctrl + F : Search maps by name in \"Map Loader\" tab";
-			DonateText = "Donate :";
-			SupportMeText2 = "Support Me :";
-			SupportMeText3 = "You can donate or subscribe to my patreon if you want to support me and if you think my work deserves. Thank you.";
-			CWGDiscordText = "Join Community Workshop Games discord server to play multiplayer workshop maps with the community, and participate in events.";
+			FixedText = "Fixed :";
+			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes stiil happen contact me(see credits).";
 		}
 		else
 		{
-			AddedText = "Ajouts :";
-			CtrlFText = "-Raccourcis Ctrl + F : Recherche de maps par nom dans l'onglet \"Charger Map\"";
-			DonateText = "Faire un don :";
-			SupportMeText2 = "Me Soutenir :";
-			SupportMeText3 = "Vous pouvez me faire un don ou vous abonner a mon patreon si vous voulez me soutenir et si vous pensez que mon travail merite. Merci.";
-			CWGDiscordText = "Rejoignez le serveur discord Community Workshop Games pour jouer aux maps workshop en multijoueur avec la communaute, et participez aux evenements.";
+			FixedText = "Corrections :";
+			CrahsingIssueText = "-Le jeu crash quand une map est en chargement. J'ai seulement essaye pour moi, ca fonctionne bien mais je ne sais pas si ca fonctionnera pour vous donc si ca crash toujours contactes moi(voir credits).";
 		}
 
 		ImGui::NewLine();
-		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15.1").x);
-		ImGui::Text("Changelog v1.15.1");
+		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15.2").x);
+		ImGui::Text("Changelog v1.15.2");
 		ImGui::NewLine();
 		ImGui::Checkbox("French", &french);
 		ImGui::NewLine();
-		ImGui::Text(AddedText.c_str());
+		ImGui::Text(FixedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text(CtrlFText.c_str());
+		ImGui::Text(CrahsingIssueText.c_str());
 
-		ImGui::NewLine();
-		ImGui::NewLine();
-		ImGui::Separator();
-		ImGui::NewLine();
-
-		ImGui::Text(SupportMeText2.c_str());
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::Text(SupportMeText3.c_str());
-
-		ImGui::Text("Patreon :");
-		ImGui::SameLine();
-		renderLink("https://www.patreon.com/WorkshopMapLoader");
-
-		ImGui::Text(DonateText.c_str()); //"Donate :"
-		ImGui::SameLine();
-		renderLink("https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q");
-
-		ImGui::NewLine();
-		ImGui::NewLine();
-
-		ImGui::Text("Community Workshop Games :");
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::Text(CWGDiscordText.c_str());
-		renderLink("https://discord.com/invite/KVgmf9JFpZ");
 
 		ImGui::NewLine();
 
@@ -2939,33 +2870,6 @@ void Pluginx64::renderMapUnavaiablePopup()
 	}
 }
 
-void Pluginx64::renderSupportMePopup()
-{
-	if (ImGui::BeginPopupModal("Support Me", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(SupportMePopupText.c_str());
-
-		ImGui::NewLine();
-
-		ImGui::Text("Patreon :");
-		ImGui::SameLine();
-		renderLink("https://www.patreon.com/WorkshopMapLoader");
-
-		ImGui::Text(DonateText.c_str()); //"Donate"
-		ImGui::SameLine();
-		renderLink("https://www.paypal.com/donate/?hosted_button_id=35N9JXTJ9PL6Q");
-
-		ImGui::NewLine();
-
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			OpenSupportMePopup = false;
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
 
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()
