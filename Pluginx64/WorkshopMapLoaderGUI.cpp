@@ -144,6 +144,7 @@ void Pluginx64::Render()
 
 		//Controller settings
 		ControllerText = "Controller";
+		UseControllerText = "Use Controller";
 		ControllsText = "Controlls";
 		ScrollSensitivityText = "Scroll Sensitivity";
 		SensitivityText = "Sensitivity";
@@ -268,6 +269,7 @@ void Pluginx64::Render()
 
 		//Controller settings
 		ControllerText = "Manette";
+		UseControllerText = "Activer La Manette";
 		ControllsText = "Commandes";
 		ScrollSensitivityText = "Sensibilite du defilement";
 		SensitivityText = "Sensibilite";
@@ -447,7 +449,7 @@ void Pluginx64::Render()
 
 			if (ImGui::BeginMenu(ControllerText.c_str())) //"Controller"
 			{
-				if (ImGui::Checkbox("Use Controller", &UseController))
+				if (ImGui::Checkbox(UseControllerText.c_str(), &UseController))
 				{
 					SaveInCFG();
 				}
@@ -1602,14 +1604,26 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 
 		ImFont* fontA = ImGui::GetDefaultFont();
 
-		
-		std::string mapTitle = map.mapName;
+
+
+		std::string mapTitle;
+		if (map.JsonFile == "NoInfos")
+		{
+			mapTitle = replace(map.Folder.filename().string(), *"_", *" ");
+		}
+		else
+		{
+			mapTitle = map.mapName;
+		}
+
 		if (ImGui::CalcTextSize(mapTitle.c_str()).x > (buttonWidth * 0.808f))
 		{
 			mapTitle = LimitTextSize(mapTitle, (buttonWidth * 0.808f) - ImGui::CalcTextSize("...").x) + "...";
 		}
-		
+
 		draw_list->AddText(fontA, 15.5f, ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 6.f), ImColor(255, 255, 255, 255), mapTitle.c_str()); //Map title
+
+
 
 		ImGui::EndGroup();
 
@@ -2696,17 +2710,23 @@ void Pluginx64::renderNewUpdatePopup()
 	static bool french = false;
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		std::string AddedText;
+		std::string UseControllerAbilityText;
 		std::string FixedText;
 		std::string CrahsingIssueText;
 		if (!french)
 		{
+			AddedText = "Added :";
+			UseControllerAbilityText = "-You can now enable/disable the navigation with the controller (disabled by default) in Settings->Controller->Use Controller.";
 			FixedText = "Fixed :";
-			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes stiil happen contact me(see credits).";
+			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes stiil happen contact me on discord(see credits).";
 		}
 		else
 		{
+			AddedText = "Ajouts :";
+			UseControllerAbilityText = "-Vous pouvez maintenant activer/desactiver la navigation a la manette (desactive par defaut) dans Parametres->Manette->Activer La Manette.";
 			FixedText = "Corrections :";
-			CrahsingIssueText = "-Le jeu crash quand une map est en chargement. J'ai seulement essaye pour moi, ca fonctionne bien mais je ne sais pas si ca fonctionnera pour vous donc si ca crash toujours contactes moi(voir credits).";
+			CrahsingIssueText = "-Le jeu crash lorsqu'une une map est en chargement. J'ai seulement essaye pour moi, ca fonctionne bien mais je ne sais pas si ca fonctionnera pour vous donc si ca crash toujours contactez moi sur discord(voir credits).";
 		}
 
 		ImGui::NewLine();
@@ -2714,6 +2734,11 @@ void Pluginx64::renderNewUpdatePopup()
 		ImGui::Text("Changelog v1.15.2");
 		ImGui::NewLine();
 		ImGui::Checkbox("French", &french);
+		ImGui::NewLine();
+		ImGui::Text(AddedText.c_str());
+		renderUnderLine(ImColor(255, 255, 255, 150));
+		ImGui::NewLine();
+		ImGui::Text(UseControllerAbilityText.c_str());
 		ImGui::NewLine();
 		ImGui::Text(FixedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));

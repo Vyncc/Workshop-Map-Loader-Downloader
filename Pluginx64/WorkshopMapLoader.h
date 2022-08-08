@@ -98,13 +98,6 @@ public:
 	int ControllerSensitivity = 10;
 	int ControllerScrollSensitivity = 10;
 
-
-
-
-
-
-
-	
 	//Host multiplayer game
 	int nbPlayers = 6; //choose number of players in the server
 	std::string getMutatorsCommandString();
@@ -250,7 +243,7 @@ public:
 	//Variables
 	std::string BakkesmodPath;
 	std::string MapsFolderPath;
-	std::string PluginVersion = "1.15.1";
+	std::string PluginVersion = "1.15.2";
 	static bool FR;
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
@@ -439,6 +432,7 @@ public:
 
 	//Controller settings
 	std::string ControllerText;
+	std::string UseControllerText;
 	std::string ControllsText;
 	std::string ScrollSensitivityText;
 	std::string SensitivityText;

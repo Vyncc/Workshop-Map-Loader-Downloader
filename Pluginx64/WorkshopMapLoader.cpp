@@ -41,8 +41,6 @@ void Pluginx64::onLoad()
 	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2_selected.png", false, true);
 
 
-
-
 	try
 	{
 		for (const auto& dir : fs::directory_iterator(RLCookedPCConsole_Path.string()))
@@ -86,14 +84,13 @@ void Pluginx64::onLoad()
 		FR = (CFGVariablesList.at(1) == "1");
 		HasSeeNewUpdateAlert = (CFGVariablesList.at(3) == "1");
 
-
-		if (CFGVariablesList.size() == 9) //the user has the old version
-		{
-			HasSeeNewUpdateAlert = false;
-		}
-		else if (CFGVariablesList.size() == 10) //the user has the new version
+		if (CFGVariablesList.size() >= 11) //the user has the new version
 		{
 			HasSeeNewUpdateAlert = (PluginVersion == CFGVariablesList.at(9));
+		}
+		else  //the user has the old version
+		{
+			HasSeeNewUpdateAlert = false;
 		}
 
 
@@ -124,7 +121,7 @@ void Pluginx64::onLoad()
 		nbTilesPerLine = 6;
 		ControllerSensitivity = 10;
 		ControllerScrollSensitivity = 10;
-		PluginVersion = "1.15.1";
+		PluginVersion = "1.15.2";
 
 		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 		SaveInCFG();
@@ -310,6 +307,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 					if (nbFiles == nbFilesInDirectory && hasFoundJSON == false)
 					{
 						map.JsonFile = "NoInfos";
+						cvarManager->log("No json found in this folder");
 					}
 				}
 
