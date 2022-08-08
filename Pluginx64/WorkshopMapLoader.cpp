@@ -1439,7 +1439,7 @@ std::string Pluginx64::UdkInDirectory(std::string dirPath)
 {
 	for (const auto& file : fs::directory_iterator(dirPath))
 	{
-		if (file.path().extension().string() == ".udk")
+		if (file.path().extension().string() == ".udk" || file.path().extension().string() == ".upk")
 		{
 			//cvarManager->log(file.path().string());
 			return file.path().string();
@@ -1452,13 +1452,37 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 {
 	std::string UDKPath = UdkInDirectory(filePath.string());
 	if (UDKPath == "Null") { return; }
-	std::string UPKPath = UDKPath.substr(0, UDKPath.length() - 3) + "upk";
 	//cvarManager->log("upk file : " + UPKPath);
 
-	if (rename(UDKPath.c_str(), UPKPath.c_str()) != 0)
-		cvarManager->log("Error renaming file");
+
+	//This is to fix the crashing issues when loading maps
+	//What it does ? it only renames the map, that's what fixes the crashing issue actually, wtf Psyonix?????
+	if (UDKPath.find("_antifreeze") != std::string::npos)
+	{
+		std::string oldUDKPath = UDKPath;
+		eraseAll(UDKPath, "_antifreeze");
+
+		/*cvarManager->log("oldUDKPath : " + oldUDKPath);
+		cvarManager->log("UDKPath : " + UDKPath);*/
+
+		if (rename(oldUDKPath.c_str(), UDKPath.c_str()) != 0)
+			cvarManager->log("Error renaming file");
+		else
+			cvarManager->log("File renamed successfully");
+	}
 	else
-		cvarManager->log("File renamed successfully");
+	{
+		std::string UPKPath_antifreeze = UDKPath.substr(0, UDKPath.length() - 4) + "_antifreeze.upk";
+
+		/*cvarManager->log("UPKPath_antifreeze : " + UPKPath_antifreeze);
+		cvarManager->log("UDKPath : " + UDKPath);*/
+
+		if (rename(UDKPath.c_str(), UPKPath_antifreeze.c_str()) != 0)
+			cvarManager->log("Error renaming file for antifreeze");
+		else
+			cvarManager->log("File renamed successfully for antifreeze");
+	}
+
 }
 
 void Pluginx64::SaveInCFG()

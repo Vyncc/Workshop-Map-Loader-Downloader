@@ -49,3 +49,7 @@ See tutorial : lienDuTuto
 v1.14.1
 
 added 2 display modes for the maps : list and tiles
+
+v1.5.2
+
+added the ability to enable/disable the controller navigation
