@@ -37,17 +37,25 @@ struct Steam_MapResult
 	bool IsMapAvailable;
 };
 
+struct RLMAPS_Release
+{
+	std::string name;
+	std::string tag_name;
+	std::string description;
+	std::string zipName;
+	std::string downloadLink;
+	std::string pictureLink;
+};
+
 struct RLMAPS_MapResult
 {
 	std::string ID;
 	std::string Name;
-	std::string ZipName;
-	std::string mapDownload;
 	std::string Size;
-	std::string ShortDescription;
 	std::string Description;
 	std::string PreviewUrl;
 	std::string Author;
+	std::vector<RLMAPS_Release> releases;
 	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
 	std::shared_ptr<ImageWrapper> Image;
 	bool isImageLoaded;
@@ -252,7 +260,7 @@ public:
 	bool DownloadTexturesBool = false;
 	std::string IfNoPreviewImagePath;
 	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
-	std::string rlmaps_url = "http://rocketleaguemaps.us/api/getmultimap.php";
+	std::string rlmaps_url = "https://celab.jetfox.ovh/api/v4/projects/?search=";
 	std::string rlmaps_offset_url = "http://www.rocketleaguemaps.us/api/getmultimapoffset.php?offset=";
 	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
@@ -291,7 +299,7 @@ public:
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
 	int RLMAPS_PageSelected = 0;
-	void GetResults(std::string searchType, std::string keyWord);
+	void GetResults(std::string keyWord);
 	void GetResultsBrowseMaps(int offset);
 	int GetNBOfMapsOnSite();
 	int CurrentPage = 0;
@@ -322,7 +330,7 @@ public:
 	bool IsDownloadingPreview;
 
 	//rocketleaguemaps.us
-	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult);
+	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult, RLMAPS_Release release);
 	int RLMAPS_Download_Progress;
 	int RLMAPS_WorkshopDownload_Progress;
 	int RLMAPS_WorkshopDownload_FileSize;
@@ -385,6 +393,7 @@ public:
 	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
 
 	//Popups
+	void renderReleases(RLMAPS_MapResult mapResult);
 	void renderNewUpdatePopup();
 	void renderInfoPopup(const char* popupName, const char* label);
 	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc);

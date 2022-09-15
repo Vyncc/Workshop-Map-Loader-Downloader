@@ -127,6 +127,160 @@ void Pluginx64::onLoad()
 		SaveInCFG();
 	}
 
+
+
+
+	cvarManager->registerNotifier("jsontest", [&](std::vector<std::string> args)
+		{
+			std::string txt = "[{\"name\":\"Moveable Goals\",\"tag_name\":\"V1.0.0\",\"description\":\"Release of V1.0.0 from MoveableGoals\",\"created_at\":\"2022 - 08 - 10T02:17 : 14.165Z\",\"released_at\":\"2022 - 08 - 10T02:17 : 14.165Z\",\"upcoming_release\":false,\"author\":{\"id\":36,\"username\":\"SteamWorkshop\",\"name\":\"SteamWorkshop\",\"state\":\"active\",\"avatar_url\":\"https ://secure.gravatar.com/avatar/48fec35b33722324a519bb8c7f71fbe5?s=80\u0026d=identicon\",\"web_url\":\"https://celab.jetfox.ovh/SteamWorkshop\"},\"commit\":{\"id\":\"4b5f66bc254072e054f458ba98b664e63f6b5ddc\",\"short_id\":\"4b5f66bc\",\"created_at\":\"2022-08-09T02:34:59.000-07:00\",\"parent_ids\":[\"87d0ebb6b1d4bdec25c01adc2a9398f4a808c85a\"],\"title\":\"'SecondSteamCmdInit'\",\"message\":\"'SecondSteamCmdInit'\n\",\"author_name\":\"=\",\"author_email\":\"=\",\"authored_date\":\"2022-08-09T02:34:59.000-07:00\",\"committer_name\":\"=\",\"committer_email\":\"=\",\"committed_date\":\"2022-08-09T02:34:59.000-07:00\",\"trailers\":{},\"web_url\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/commit/4b5f66bc254072e054f458ba98b664e63f6b5ddc\"},\"commit_path\":\"/SteamWorkshop/MoveableGoals/-/commit/4b5f66bc254072e054f458ba98b664e63f6b5ddc\",\"tag_path\":\"/SteamWorkshop/MoveableGoals/-/tags/V1.0.0\",\"assets\":{\"count\":6,\"sources\":[{\"format\":\"zip\",\"url\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/archive/V1.0.0/MoveableGoals-V1.0.0.zip\"},{\"format\":\"tar.gz\",\"url\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/archive/V1.0.0/MoveableGoals-V1.0.0.tar.gz\"},{\"format\":\"tar.bz2\",\"url\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/archive/V1.0.0/MoveableGoals-V1.0.0.tar.bz2\"},{\"format\":\"tar\",\"url\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/archive/V1.0.0/MoveableGoals-V1.0.0.tar\"}],\"links\":[{\"id\":2541,\"name\":\"Release Photo\",\"url\":\"https://celab.jetfox.ovh/api/v4/projects/1029/packages/generic/MoveableGoals/V1.0.0/MoveableGoals.jpg\",\"direct_asset_url\":\"https://celab.jetfox.ovh/api/v4/projects/1029/packages/generic/MoveableGoals/V1.0.0/MoveableGoals.jpg\",\"external\":true,\"link_type\":\"image\"},{\"id\":2540,\"name\":\"MoveableGoals.zip\",\"url\":\"https://celab.jetfox.ovh/api/v4/projects/1029/packages/generic/MoveableGoals/V1.0.0/MoveableGoals.zip\",\"direct_asset_url\":\"https://celab.jetfox.ovh/api/v4/projects/1029/packages/generic/MoveableGoals/V1.0.0/MoveableGoals.zip\",\"external\":true,\"link_type\":\"other\"}]},\"evidences\":[{\"sha\":\"f4fa7f1301ce64af879b90d03313219532dd707c72ed\",\"filepath\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/releases/V1.0.0/evidences/1317.json\",\"collected_at\":\"2022-08-10T02:17:14.243Z\"}],\"_links\":{\"self\":\"https://celab.jetfox.ovh/SteamWorkshop/MoveableGoals/-/releases/V1.0.0\"}}]";
+
+			Json::Value actualJson2;
+			Json::Reader reader2;
+
+			reader2.parse(txt, actualJson2);
+
+			const Json::Value maps2 = actualJson2;
+
+
+			cvarManager->log("--------------------------");
+			cvarManager->log(txt);
+			cvarManager->log("--------------------------");
+
+			std::vector<RLMAPS_Release> releases;
+			for (int release_index = 0; release_index < maps2.size(); ++release_index)
+			{
+				RLMAPS_Release release;
+				release.name = maps2[release_index]["name"].asString();
+				release.tag_name = maps2[release_index]["tag_name"].asString();
+				release.description = maps2[release_index]["description"].asString();
+				release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
+				release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
+				release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
+
+
+				cvarManager->log("name : " + release.name);
+				cvarManager->log("tag_name : " + release.tag_name);
+				cvarManager->log("description : " + release.description);
+				cvarManager->log("pictureLink : " + release.pictureLink);
+				cvarManager->log("downloadLink : " + release.downloadLink);
+				cvarManager->log("zipName : " + release.zipName);
+
+				releases.push_back(release);
+			}
+
+			//std::thread t2(&ReplayGoalData::startProcess, this);
+			//t2.detach();
+
+		}, "", 0);
+
+
+	cvarManager->registerNotifier("searchtest", [&](std::vector<std::string> args)
+		{
+			RLMAPS_Searching = true;
+			RLMAPS_Pages.clear();
+			RLMAPS_MapResultList.clear();
+			RLMAPS_PageSelected = 0;
+
+			cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + "rings" });
+
+
+			//Parse response json
+			Json::Value actualJson;
+			Json::Reader reader;
+
+			reader.parse(Request_MapInfos.text, actualJson);
+
+			const Json::Value maps = actualJson;
+
+
+			int nbResults = 0;
+			int pageIndex = 0;
+
+			for (int index = 0; index < maps.size(); ++index)
+			{
+				RLMAPS_MapResult result;
+				result.ID = maps[index]["id"].asString();
+				result.Name = maps[index]["name"].asString();
+				result.Description = maps[index]["description"].asString();
+
+				cpr::Response Request_MapDownloadLinks = cpr::Get(cpr::Url{ "https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases" });
+				//Parse response json
+				Json::Value actualJson2;
+				Json::Reader reader2;
+				reader2.parse(Request_MapDownloadLinks.text, actualJson2);
+				const Json::Value maps2 = actualJson2;
+
+
+				std::vector<RLMAPS_Release> releases;
+				for (int release_index = 0; release_index < maps2.size(); ++release_index)
+				{
+					RLMAPS_Release release;
+					release.name = maps2[release_index]["name"].asString();
+					release.tag_name = maps2[release_index]["tag_name"].asString();
+					release.description = maps2[release_index]["description"].asString();
+					release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
+					release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
+					release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
+
+
+					releases.push_back(release);
+				}
+
+				result.releases = releases;
+				result.Size = "10000000";
+				result.Author = maps[index]["namespace"]["name"].asString();
+				result.PreviewUrl = releases[0].pictureLink;
+
+
+				std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + result.ID + ".jfif";
+				std::shared_ptr<ImageWrapper> resultImage;
+				bool resultisImageLoaded;
+
+
+
+				if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
+				{
+					IsDownloadingPreview = true;
+					DownloadPreviewImage(result.PreviewUrl, resultImagePath.string());
+				}
+
+				while (IsDownloadingPreview == true)
+				{
+					Sleep(10);
+				}
+
+
+				resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
+				resultisImageLoaded = true;
+
+				result.ImagePath = resultImagePath;
+				result.Image = resultImage;
+				result.isImageLoaded = resultisImageLoaded;
+
+
+				if (nbResults == 0)
+				{
+					RLMAPS_Pages.push_back({ result });
+				}
+				else
+				{
+					RLMAPS_Pages.at(pageIndex).push_back(result);
+				}
+
+				cvarManager->log("Map : " + result.Name);
+
+				nbResults++;
+
+				if (nbResults == 30)
+				{
+					nbResults = 0;
+					pageIndex++;
+				}
+			}
+
+			RLMAPS_Searching = false;
+
+		}, "", 0);
 	
 }
 
@@ -826,130 +980,107 @@ void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 
 //rocketleaguemaps.us
 
-void Pluginx64::GetResults(std::string searchType, std::string keyWord)
+void Pluginx64::GetResults(std::string keyWord)
 {
 	RLMAPS_Searching = true;
 	RLMAPS_Pages.clear();
 	RLMAPS_MapResultList.clear();
 	RLMAPS_PageSelected = 0;
 
-	std::string request_url = rlmaps_url;
-	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
+	cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + keyWord });
 
 
 	//Parse response json
 	Json::Value actualJson;
 	Json::Reader reader;
-	
-	reader.parse(request_response.text, actualJson);
 
-	const Json::Value maps = actualJson["body"];
+	reader.parse(Request_MapInfos.text, actualJson);
 
-	//get the number of maps found
-	int nbMapsFound = 0;
-	for (int index = 0; index < maps.size(); ++index)
-	{
-		std::string searchingTypeValueToLower;
-		if (searchType == "Maps")
-		{
-			searchingTypeValueToLower = maps[index]["mapName"].asString();
-		}
-		else
-		{
-			searchingTypeValueToLower = maps[index]["creator"].asString();
-		}
-		std::transform(searchingTypeValueToLower.begin(), searchingTypeValueToLower.end(), searchingTypeValueToLower.begin(), ::tolower); //transform a string to lowercase
-		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
+	const Json::Value maps = actualJson;
 
-		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
-		{
-			nbMapsFound++;
-		}
-	}
-	RLMAPS_NumberOfMapsFound = nbMapsFound;
 
 	int nbResults = 0;
 	int pageIndex = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
-		std::string resultMapID = maps[index]["mapid"].asString();
-		std::string resultMapName = maps[index]["mapName"].asString();
-		std::string resultMapPreviewUrl = maps[index]["mapPicture"].asString();
+		RLMAPS_MapResult result;
+		result.ID = maps[index]["id"].asString();
+		result.Name = maps[index]["name"].asString();
+		result.Description = maps[index]["description"].asString();
+
+		cpr::Response Request_MapDownloadLinks = cpr::Get(cpr::Url{ "https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases" });
+		//Parse response json
+		Json::Value actualJson2;
+		Json::Reader reader2;
+		reader2.parse(Request_MapDownloadLinks.text, actualJson2);
+		const Json::Value maps2 = actualJson2;
 
 
-		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + resultMapID + ".jfif";
+		std::vector<RLMAPS_Release> releases;
+		for (int release_index = 0; release_index < maps2.size(); ++release_index)
+		{
+			RLMAPS_Release release;
+			release.name = maps2[release_index]["name"].asString();
+			release.tag_name = maps2[release_index]["tag_name"].asString();
+			release.description = maps2[release_index]["description"].asString();
+			release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
+			release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
+			release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
+
+
+			releases.push_back(release);
+		}
+
+		result.releases = releases;
+		result.Size = "10000000";
+		result.Author = maps[index]["namespace"]["path"].asString();
+		result.PreviewUrl = releases[0].pictureLink;
+
+
+		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + result.ID + ".jfif";
 		std::shared_ptr<ImageWrapper> resultImage;
 		bool resultisImageLoaded;
 
 
 
-		std::string searchingTypeValueToLower;
-		if (searchType == "Maps")
+		if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
 		{
-			searchingTypeValueToLower = maps[index]["mapName"].asString();
+			IsDownloadingPreview = true;
+			DownloadPreviewImage(result.PreviewUrl, resultImagePath.string());
+		}
+
+		while (IsDownloadingPreview == true)
+		{
+			Sleep(10);
+		}
+
+
+		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
+		resultisImageLoaded = true;
+
+		result.ImagePath = resultImagePath;
+		result.Image = resultImage;
+		result.isImageLoaded = resultisImageLoaded;
+
+
+		if (nbResults == 0)
+		{
+			RLMAPS_Pages.push_back({ result });
 		}
 		else
 		{
-			searchingTypeValueToLower = maps[index]["creator"].asString();
+			RLMAPS_Pages.at(pageIndex).push_back(result);
 		}
 
+		cvarManager->log("Map : " + result.Name);
 
-		std::transform(searchingTypeValueToLower.begin(), searchingTypeValueToLower.end(), searchingTypeValueToLower.begin(), ::tolower); //transform a string to lowercase
-		std::transform(keyWord.begin(), keyWord.end(), keyWord.begin(), ::tolower); //transform a string to lowercase
+		nbResults++;
 
-
-		if (searchingTypeValueToLower.find(keyWord) != std::string::npos) //if keyWord is in the mapNameToLower
+		if (nbResults == 20)
 		{
-			cvarManager->log("Search on RLMAPS : " + resultMapName);
-
-			if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
-			{
-				IsDownloadingPreview = true;
-				DownloadPreviewImage(resultMapPreviewUrl, resultImagePath.string());
-			}
-
-			while (IsDownloadingPreview == true)
-			{
-				Sleep(10);
-			}
-
-
-			resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
-			resultisImageLoaded = true;
-
-			RLMAPS_MapResult result;
-			result.ID = resultMapID;
-			result.Name = resultMapName;
-			result.ZipName = maps[index]["mapZipName"].asString();
-			result.mapDownload = maps[index]["mapDownload"].asString();
-			result.Size = maps[index]["filesize"].asString();
-			result.Author = maps[index]["creator"].asString();
-			result.ShortDescription = maps[index]["mapShortDescription"].asString();
-			result.Description = maps[index]["mapDescription"].asString();
-			result.PreviewUrl = resultMapPreviewUrl;
-			result.ImagePath = resultImagePath;
-			result.Image = resultImage;
-			result.isImageLoaded = resultisImageLoaded;
-
-
-			if (nbResults == 0)
-			{
-				RLMAPS_Pages.push_back({ result });
-			}
-			else
-			{
-				RLMAPS_Pages.at(pageIndex).push_back(result);
-			}
-
-
-			nbResults++;
-
-			if (nbResults == 30)
-			{
-				nbResults = 0;
-				pageIndex++;
-			}
+			nbResults = 0;
+			pageIndex++;
 		}
 	}
 
@@ -1037,11 +1168,11 @@ void Pluginx64::GetResultsBrowseMaps(int offset)
 		RLMAPS_MapResult result;
 		result.ID = resultMapID;
 		result.Name = resultMapName;
-		result.ZipName = maps[index]["mapZipName"].asString();
-		result.mapDownload = maps[index]["mapDownload"].asString();
+		/*result.ZipName = maps[index]["mapZipName"].asString();
+		result.mapDownload = maps[index]["mapDownload"].asString();*/
 		result.Size = maps[index]["filesize"].asString();
 		result.Author = maps[index]["creator"].asString();
-		result.ShortDescription = maps[index]["mapShortDescription"].asString();
+		/*result.ShortDescription = maps[index]["mapShortDescription"].asString();*/
 		result.Description = maps[index]["mapDescription"].asString();
 		result.PreviewUrl = resultMapPreviewUrl;
 		result.ImagePath = resultImagePath;
@@ -1102,7 +1233,7 @@ std::vector<int> Pluginx64::listBrowsePages()
 	return listPages;
 }
 
-void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult)
+void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult, RLMAPS_Release release)
 {
 
 	UserIsChoosingYESorNO = true;
@@ -1166,9 +1297,9 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 	}
 
 	
-	std::string download_url = mapResult.mapDownload;
+	std::string download_url = release.downloadLink;
 	cvarManager->log("Download URL : " + download_url);
-	std::string Folder_Path = Workshop_Dl_Path + "/" + mapResult.ZipName;
+	std::string Folder_Path = Workshop_Dl_Path + "/" + release.zipName;
 
 	RLMAPS_WorkshopDownload_Progress = 0;
 	RLMAPS_Download_Progress = 0;

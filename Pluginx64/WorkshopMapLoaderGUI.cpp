@@ -878,7 +878,7 @@ void Pluginx64::Render()
 
 				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching && std::string(keyWord) != "") // "Search"
 				{
-					std::thread t2(&Pluginx64::GetResults, this, std::string(combo_selected_searchingType), std::string(keyWord));
+					std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord));
 					t2.detach();
 
 					RLMAPS_browsing = false;
@@ -2086,22 +2086,11 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 			{
 				if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
 				{
-					std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, mapspath, mapResult);
-					t2.detach();
-				}
-				else
-				{
-					if (!Directory_Or_File_Exists(fs::path(mapspath)))
-					{
-						ImGui::OpenPopup("Exists?");
-					}
-
-					if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
-					{
-						ImGui::OpenPopup("Downloading?");
-					}
+					ImGui::OpenPopup("Releases");
 				}
 			}
+
+			renderReleases(mapResult);
 
 			//Popup if is a downlaod is in progress and user wants to start a new download
 			renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
@@ -2564,6 +2553,52 @@ void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
 		ImGui::NewLine();
 		CenterNexIMGUItItem(100.f);
 		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void Pluginx64::renderReleases(RLMAPS_MapResult mapResult)
+{
+	if (ImGui::BeginPopupModal("Releases", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		for (int releasesIndex = 0; releasesIndex < mapResult.releases.size(); releasesIndex++)
+		{
+			RLMAPS_Release release = mapResult.releases[releasesIndex];
+
+			if (ImGui::Button(release.tag_name.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
+			{
+				if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
+				{
+					std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, MapsFolderPathBuf, mapResult, release);
+					t2.detach();
+				}
+				else
+				{
+					if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
+					{
+						ImGui::OpenPopup("Exists?");
+					}
+
+					if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
+					{
+						ImGui::OpenPopup("Downloading?");
+					}
+				}
+			}
+		}
+		
+
+		//Popup if is a downlaod is in progress and user wants to start a new download
+		renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
+
+		//Popup if maps directory doesn't exist
+		renderInfoPopup("Exists?", DirNotExistText.c_str());
+		
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}
