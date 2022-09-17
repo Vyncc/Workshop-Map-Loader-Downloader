@@ -297,17 +297,14 @@ public:
 
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
-	std::vector<std::vector<RLMAPS_MapResult>> RLMAPS_Pages;
 	int RLMAPS_PageSelected = 0;
-	void GetResults(std::string keyWord);
-	void GetResultsBrowseMaps(int offset);
-	int GetNBOfMapsOnSite();
+	void GetResults(std::string keyWord, int IndexPage);
+	void GetNumpPages(std::string keyWord);
+	int NumPages = 0;
 	int CurrentPage = 0;
 	int NBOfMapsOnSite = 0;
-	std::vector<int> listBrowsePages();
 	bool RLMAPS_Searching = false;
 	int RLMAPS_NumberOfMapsFound;
-	bool RLMAPS_browsing = false;
 	std::shared_ptr<ImageWrapper> RLMAPSLogoImage;
 
 

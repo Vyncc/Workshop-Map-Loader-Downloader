@@ -177,7 +177,6 @@ void Pluginx64::onLoad()
 	cvarManager->registerNotifier("searchtest", [&](std::vector<std::string> args)
 		{
 			RLMAPS_Searching = true;
-			RLMAPS_Pages.clear();
 			RLMAPS_MapResultList.clear();
 			RLMAPS_PageSelected = 0;
 
@@ -192,9 +191,6 @@ void Pluginx64::onLoad()
 
 			const Json::Value maps = actualJson;
 
-
-			int nbResults = 0;
-			int pageIndex = 0;
 
 			for (int index = 0; index < maps.size(); ++index)
 			{
@@ -258,24 +254,10 @@ void Pluginx64::onLoad()
 				result.isImageLoaded = resultisImageLoaded;
 
 
-				if (nbResults == 0)
-				{
-					RLMAPS_Pages.push_back({ result });
-				}
-				else
-				{
-					RLMAPS_Pages.at(pageIndex).push_back(result);
-				}
+				RLMAPS_MapResultList.push_back(result);
 
 				cvarManager->log("Map : " + result.Name);
 
-				nbResults++;
-
-				if (nbResults == 30)
-				{
-					nbResults = 0;
-					pageIndex++;
-				}
 			}
 
 			RLMAPS_Searching = false;
@@ -980,14 +962,20 @@ void Pluginx64::CheckIfMapIsAvailable(int mapIndex)
 
 //rocketleaguemaps.us
 
-void Pluginx64::GetResults(std::string keyWord)
+void Pluginx64::GetResults(std::string keyWord, int IndexPage)
 {
 	RLMAPS_Searching = true;
-	RLMAPS_Pages.clear();
 	RLMAPS_MapResultList.clear();
-	RLMAPS_PageSelected = 0;
+	RLMAPS_PageSelected = IndexPage;
+	if (IndexPage == 1)
+	{
+		NumPages = 0;
+		std::thread t2(&Pluginx64::GetNumpPages, this, keyWord);
+		t2.detach();
+	}
 
-	cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + keyWord });
+
+	cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + keyWord + "&page=" + std::to_string(IndexPage) });
 
 
 	//Parse response json
@@ -998,9 +986,8 @@ void Pluginx64::GetResults(std::string keyWord)
 
 	const Json::Value maps = actualJson;
 
+	RLMAPS_NumberOfMapsFound = maps.size();
 
-	int nbResults = 0;
-	int pageIndex = 0;
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
@@ -1064,29 +1051,35 @@ void Pluginx64::GetResults(std::string keyWord)
 		result.isImageLoaded = resultisImageLoaded;
 
 
-		if (nbResults == 0)
-		{
-			RLMAPS_Pages.push_back({ result });
-		}
-		else
-		{
-			RLMAPS_Pages.at(pageIndex).push_back(result);
-		}
+		RLMAPS_MapResultList.push_back(result);
 
 		cvarManager->log("Map : " + result.Name);
 
-		nbResults++;
-
-		if (nbResults == 20)
-		{
-			nbResults = 0;
-			pageIndex++;
-		}
 	}
+
 
 	RLMAPS_Searching = false;
 }
 
+void Pluginx64::GetNumpPages(std::string keyWord)
+{
+	int ResultsSize = 20;
+	NumPages = 0;
+	while (ResultsSize == 20)
+	{
+		NumPages++;
+		cpr::Response Request_Page = cpr::Get(cpr::Url{ rlmaps_url + keyWord + "&page=" + std::to_string(NumPages) });
+
+		//Parse response json
+		Json::Value actualJson;
+		Json::Reader reader;
+
+		reader.parse(Request_Page.text, actualJson);
+		const Json::Value maps = actualJson;
+
+		ResultsSize = maps.size();
+	}
+}
 
 //Quick search ctrl+f
 std::vector<Map> Pluginx64::QuickSearch_GetMapList(std::string keyWord)
@@ -1107,131 +1100,7 @@ std::vector<Map> Pluginx64::QuickSearch_GetMapList(std::string keyWord)
 	return List;
 }
 
-void Pluginx64::GetResultsBrowseMaps(int offset)
-{
-	RLMAPS_Searching = true;
-	RLMAPS_MapResultList.clear();
-	RLMAPS_Pages.clear();
-	RLMAPS_PageSelected = 0;
 
-	NBOfMapsOnSite = GetNBOfMapsOnSite();
-
-	std::string request_url = rlmaps_offset_url + std::to_string(offset);
-	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
-
-
-	//Parse response json
-	Json::Value actualJson;
-	Json::Reader reader;
-
-	reader.parse(request_response.text, actualJson);
-
-	const Json::Value maps = actualJson["body"];
-
-	RLMAPS_NumberOfMapsFound = maps.size();
-
-
-
-	int nbResults = 0;
-	int pageIndex = 0;
-
-	for (int index = 0; index < maps.size(); ++index)
-	{
-		std::string resultMapID = maps[index]["mapid"].asString();
-		std::string resultMapName = maps[index]["mapName"].asString();
-		std::string resultMapPreviewUrl = maps[index]["mapPicture"].asString();
-
-
-		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + resultMapID + ".jfif";
-		std::shared_ptr<ImageWrapper> resultImage;
-		bool resultisImageLoaded;
-
-
-
-		cvarManager->log(resultMapName);
-
-		if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
-		{
-			IsDownloadingPreview = true;
-			DownloadPreviewImage(resultMapPreviewUrl, resultImagePath.string());
-		}
-
-		while (IsDownloadingPreview == true)
-		{
-			Sleep(10);
-		}
-
-
-		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
-		resultisImageLoaded = true;
-
-		RLMAPS_MapResult result;
-		result.ID = resultMapID;
-		result.Name = resultMapName;
-		/*result.ZipName = maps[index]["mapZipName"].asString();
-		result.mapDownload = maps[index]["mapDownload"].asString();*/
-		result.Size = maps[index]["filesize"].asString();
-		result.Author = maps[index]["creator"].asString();
-		/*result.ShortDescription = maps[index]["mapShortDescription"].asString();*/
-		result.Description = maps[index]["mapDescription"].asString();
-		result.PreviewUrl = resultMapPreviewUrl;
-		result.ImagePath = resultImagePath;
-		result.Image = resultImage;
-		result.isImageLoaded = resultisImageLoaded;
-
-
-		if (nbResults == 0)
-		{
-			RLMAPS_Pages.push_back({ result });
-		}
-		else
-		{
-			RLMAPS_Pages.at(pageIndex).push_back(result);
-		}
-		
-
-		nbResults++;
-
-		if (nbResults == 30)
-		{
-			nbResults = 0;
-			pageIndex++;
-		}
-	}
-
-	RLMAPS_Searching = false;
-}
-
-int Pluginx64::GetNBOfMapsOnSite()
-{
-	std::string request_url = rlmaps_url;
-	cpr::Response request_response = cpr::Get(cpr::Url{ request_url });
-
-	//Parse response json
-	Json::Value actualJson;
-	Json::Reader reader;
-
-	reader.parse(request_response.text, actualJson);
-	const Json::Value maps = actualJson["body"];
-
-	cvarManager->log("total maps on site : " + std::to_string(maps.size()));
-	return maps.size();
-}
-
-std::vector<int> Pluginx64::listBrowsePages()
-{
-	std::vector<int> listPages;
-	int nbPages = (NBOfMapsOnSite / 30);
-
-	for (int i = 0; i <= nbPages; i++)
-	{
-		if (i >= (CurrentPage - 2) && i <= (CurrentPage + 2))
-		{
-			listPages.push_back(i);
-		}
-	}
-	return listPages;
-}
 
 void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult, RLMAPS_Release release)
 {
