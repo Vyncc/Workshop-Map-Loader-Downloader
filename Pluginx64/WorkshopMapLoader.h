@@ -282,27 +282,12 @@ public:
 
 
 	//Search Workshop
-	//Steam
-	std::vector<Steam_MapResult> Steam_MapResultList;
-	std::vector<std::string> OtherPagesList;
-	void StartSearchRequest(std::string fullurl);
-	void CreateJSONSearchWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapSize, std::string mapDescription);
-	std::vector<std::string> GetJSONSearchMapInfos(std::string jsonFilePath);
-	bool STEAM_Searching = false;
-	int STEAM_NumberOfMapsFound;
-	bool STEAM_browsing = false;
-	float widthBrowseGroup;
-	std::shared_ptr<ImageWrapper> SteamLogoImage;
-	void CheckIfMapIsAvailable(int mapIndex);
-
 	//rocketleaguemaps.us
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	int RLMAPS_PageSelected = 0;
 	void GetResults(std::string keyWord, int IndexPage);
 	void GetNumpPages(std::string keyWord);
 	int NumPages = 0;
-	int CurrentPage = 0;
-	int NBOfMapsOnSite = 0;
 	bool RLMAPS_Searching = false;
 	int RLMAPS_NumberOfMapsFound;
 	std::shared_ptr<ImageWrapper> RLMAPSLogoImage;
@@ -310,20 +295,13 @@ public:
 
 
 	//Related to download
-	//Steam
-	void STEAM_DownloadWorkshop(std::string workshopURL, std::string Dfolderpath, Steam_MapResult mapResult, bool createJsonFile);
-	std::string GetWorkshopIDByUrl(std::string workshopurl);
 	void CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath);
 	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription, std::string mapPreviewUrl);
 	bool IsRetrievingWorkshopFiles = false;
 	bool DownloadFailed = false;
 	bool UserIsChoosingYESorNO = false;
 	bool FolderErrorBool = false;
-	bool STEAM_IsDownloadingWorkshop = false;
 	bool AcceptTheDownload = false;
-	int STEAM_Download_Progress;
-	int STEAM_WorkshopDownload_Progress;
-	int STEAM_WorkshopDownload_FileSize;
 	bool IsDownloadingPreview;
 
 	//rocketleaguemaps.us
@@ -402,7 +380,6 @@ public:
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
-	void renderMapUnavaiablePopup();
 
 	void renderFileExplorer();
 
@@ -410,10 +387,6 @@ public:
 	void renderMaps(Gamepad controller);
 	void renderMaps_DisplayMode_0(Map map);
 	void renderMaps_DisplayMode_1(Map map, float buttonWidth);
-
-	void renderSortByCombos(std::string mostPopular_url);
-	void Steam_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
-	void Steam_renderSearchWorkshopResults(static char mapspath[200]);
 
 	void RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
 	void RLMAPS_renderSearchWorkshopResults(static char mapspath[200]);
@@ -426,7 +399,6 @@ public:
 	std::string SettingsText;
 	std::string MultiplayerText;
 	std::string LastUpdateText;
-	std::string DonateText;
 	std::string JoinCWGText;
 	std::string OpenCPCCText;
 	std::string NoMapsCanBeJoinText;
@@ -461,33 +433,19 @@ public:
 	std::string CancelText;
 	
 
-
 	//2nd Tab
-	std::string Tab2SearchWorkshopText;
-	std::string DlWorkshopByURLText;
-	std::string Label2Text; //"Steam Workshop Url :"
+	std::string Tab3SearchWorkshopText;
 	std::string DownloadButtonText;
 	std::string Label3Text;
 	std::string SearchButtonText;
 	std::string SearchingText;
-	std::string RetrievingFilesText;
-	std::string DownloadingText;
 	std::string WorkshopsFoundText;
 	std::string BrowseMapsText;
-
-	std::string PeriodText[8];
-	std::string SortByText[4];
-
-
-	//3rd Tab
-	std::string Tab3SearchWorkshopText;
 
 	//Search Result
 	std::string ResultByText;
 	std::string ResultSizeText;
 	std::string DownloadMapButtonText;
-	//context menu strip
-	std::string GoToUrlSelectableText;
 
 
 	//Warnings
@@ -498,7 +456,7 @@ public:
 	std::string YESButtonText;
 	std::string NOButtonText;
 	std::string IsDownloadDingWarningText;
-	std::string PathSavedText;//jsp si jutilise
+	std::string PathSavedText;
 
 	//LaunchMode
 	std::string LMLabel1Text;
@@ -526,8 +484,6 @@ public:
 	std::string CloseText;
 	std::string DontAskText;
 
-	//MapsUnavailable
-	std::string MapsUnavailableText;
 
 	//File Explorer
 	std::string NewFolderText;

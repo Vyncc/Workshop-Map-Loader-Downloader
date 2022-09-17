@@ -132,7 +132,6 @@ void Pluginx64::Render()
 		SettingsText = "Settings";
 		MultiplayerText = "Multiplayer";
 		LastUpdateText = "Last Update";
-		DonateText = "Donate :";
 		JoinCWGText = "Join Community Workshop Games discord server :";
 		OpenCPCCText = "Open CookedPCConsole Directory";
 		NoMapsCanBeJoinText = "No maps can be joined";
@@ -172,41 +171,19 @@ void Pluginx64::Render()
 		CancelText = "Cancel";
 
 		//2nd Tab
-		Tab2SearchWorkshopText = "Search Workshop(Steam)";
-		Label2Text = "Steam Workshop Url :";
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
 		SearchButtonText = "Search";
 		SearchingText = "Searching...";
-		RetrievingFilesText = "Retrieving workshop files for download...";
-		DownloadingText = "Downloading  :";
 		WorkshopsFoundText = "Workshops Found :";
-
-		SortByText[0] = "Sort By";
-		SortByText[1] = "Most Popular";
-		SortByText[2] = "Most Recent";
-		SortByText[3] = "Most Subscribers";
-
-		PeriodText[7] = "Period";
-		PeriodText[0] = "Today";
-		PeriodText[1] = "1 Week";
-		PeriodText[2] = "1 Month";
-		PeriodText[3] = "3 Months";
-		PeriodText[4] = "6 Months";
-		PeriodText[5] = "1 Year";
-		PeriodText[6] = "Since The Begining";
-
 		BrowseMapsText = "Browse Maps";
-
-		//3rd Tab
 		Tab3SearchWorkshopText = "Search Workshop(rocketleaguemaps.us)";
+
 
 		//Search Result
 		ResultByText = "By ";
 		ResultSizeText = "Size : ";
 		DownloadMapButtonText = "Download Map";
-		//context menu strip
-		GoToUrlSelectableText = "Go To Url";
 
 		//Warnings
 		DirNotExistText = "This directory is not valid !";
@@ -243,9 +220,6 @@ void Pluginx64::Render()
 		CloseText = "Close";
 		DontAskText = "Don't ask me again";
 
-		//MapsUnavailable
-		MapsUnavailableText = "This map is unvailable to download for few seconds, wait.";
-
 		//File Explorer
 		NewFolderText = "New Folder";
 		ConfirmText = "Confirm";
@@ -257,7 +231,6 @@ void Pluginx64::Render()
 		SettingsText = "Parametres";
 		MultiplayerText = "Multijoueur";
 		LastUpdateText = "Derniere Maj";
-		DonateText = "Faire un don :";
 		JoinCWGText = "Rejoins le serveur discord Community Workshop Games :";
 		OpenCPCCText = "Ouvrir le dossier CookedPCConsole";
 		NoMapsCanBeJoinText = "Aucune map ne peut etre rejoint";
@@ -298,41 +271,18 @@ void Pluginx64::Render()
 		CancelText = "Annuler";
 
 		//2nd Tab
-		Tab2SearchWorkshopText = "Rechercher Un Workshop(Steam)";
-		Label2Text = "Url Du Workshop Steam :";
 		DownloadButtonText = "Telecharger";
 		Label3Text = "Rechercher Un Workshop :";
 		SearchButtonText = "Rechercher";
 		SearchingText = "Recherche en cours...";
-		RetrievingFilesText = "Recuperation des fichiers du workshop pour le telechargement...";
-		DownloadingText = "Telechargement :";
 		WorkshopsFoundText = "Workshops Trouves :";
-
-		SortByText[0] = "Trier Par";
-		SortByText[1] = "Les Plus Populaires";
-		SortByText[2] = "Les Plus Recents";
-		SortByText[3] = "Les Plus Abonnes";
-
-		PeriodText[7] = "Periode";
-		PeriodText[0] = "Aujourd'hui";
-		PeriodText[1] = "1 Semaine";
-		PeriodText[2] = "1 Mois";
-		PeriodText[3] = "3 Mois";
-		PeriodText[4] = "6 Mois";
-		PeriodText[5] = "1 An";
-		PeriodText[6] = "Depuis Le Debut";
-
 		BrowseMapsText = "Parcourir Les Maps";
-
-		//3rd Tab
 		Tab3SearchWorkshopText = "Rechercher Un Workshop(rocketleaguemaps.us)";
 
 		//Search Result
 		ResultByText = "Par ";
 		ResultSizeText = "Taille : ";
 		DownloadMapButtonText = "Telecharger La Map";
-		//context menu strip
-		GoToUrlSelectableText = "Aller A L'Url";
 
 		//Warnings
 		DirNotExistText = "Ce chemin n'est pas valide !";
@@ -371,9 +321,6 @@ void Pluginx64::Render()
 		CloseText = "Fermer";
 		DontAskText = "Ne plus me demander";
 
-		//MapsUnavailable
-		MapsUnavailableText = "Cette map est indisponible pendant quelques secondes, attends.";
-
 		//File Explorer
 		NewFolderText = "Nouv. Dossier";
 		ConfirmText = "Confirmer";
@@ -388,7 +335,6 @@ void Pluginx64::Render()
 	renderNewUpdatePopup();
 
 
-	
 
 	if (ImGui::BeginMenuBar())
 	{
@@ -552,7 +498,7 @@ void Pluginx64::Render()
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing and Teyq for his help ;)");
-			ImGui::Text("Thanks to JetFox for his help");
+			ImGui::Text("Thanks to JetFox for his contribution on the plugin");
 
 			ImGui::EndMenu();
 		}
@@ -708,141 +654,6 @@ void Pluginx64::Render()
 			ImGui::EndTabItem();
 		}
 
-		if (ImGui::BeginTabItem(Tab2SearchWorkshopText.c_str())) //"Search Workshop"
-		{
-			ImGui::BeginGroup();
-			{
-				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
-
-				ImGui::SetNextItemWidth(300.f);
-				static char keyWord[200] = "";
-				ImGui::InputText("##STEAMworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
-				std::string get_full_url = steam_base_url + replace(std::string(keyWord), *" ", *"+");
-				//ImGui::Text(get_full_url.c_str());
-
-				if (STEAM_Searching)
-				{
-					SearchButtonText = SearchingText;
-				}
-
-				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(300.f, 25.f)) && !STEAM_Searching) // "Search"
-				{
-					std::thread t2(&Pluginx64::StartSearchRequest, this, get_full_url);
-					t2.detach();
-
-					STEAM_browsing = false;
-					MostPopularSelected = false;
-				}
-				ImGui::EndGroup();
-			}
-
-			ImGui::SameLine();
-
-			try
-			{
-				CenterNexIMGUItItem(63.f);
-				ImGui::Image(SteamLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //Steam Logo
-			}
-			catch (const std::exception& ex)
-			{
-				cvarManager->log(ex.what());
-			}
-
-			ImGui::SameLine();
-
-			ImGui::BeginGroup();
-			{
-				std::string MostPopular_Url = "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=trend&section=readytouseitems";
-
-				renderSortByCombos(MostPopular_Url);
-				
-				ImGui::SameLine();
-
-				if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !STEAM_Searching)//Browse Maps
-				{
-					std::thread t2(&Pluginx64::StartSearchRequest, this, MostPopular_Url);
-					t2.detach();
-
-					combo_selected_most = SortByText[1].c_str(); //"Most Popular"
-					MostPopularSelected = true;
-					STEAM_browsing = true;
-				}
-				ImGui::EndGroup();
-			}
-			
-
-			if (FolderErrorBool)
-			{
-				ImGui::OpenPopup("FolderError");
-			}
-			renderFolderErrorPopup();
-
-
-			if (DownloadFailed)
-			{
-				ImGui::OpenPopup("DownloadFailed");
-			}
-			renderDownloadFailedPopup();
-
-
-			if (IsRetrievingWorkshopFiles == true)
-			{
-				ImGui::Separator();
-				ImGui::TextColored(ImVec4(255, 155, 0, 1), RetrievingFilesText.c_str()); // "Retrieving workshop files for download..."
-			}
-
-			if (UserIsChoosingYESorNO)
-			{
-				ImGui::OpenPopup("Download?");
-			}
-			renderAcceptDownload();
-
-
-
-			if (STEAM_IsDownloadingWorkshop == true)
-			{
-				ImGui::Separator();
-				
-				std::string ProgressBar_Label = convertToMB(std::to_string(STEAM_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(STEAM_WorkshopDownload_FileSize));
-				renderProgressBar(STEAM_WorkshopDownload_Progress, STEAM_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
-								  ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
-			}
-
-			ImGui::Separator();
-
-			ImGui::BeginChild("##SteamSearchWorkshopMapsResults");
-			{
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), Steam_SearchWorkshopDisplayed, STEAM_NumberOfMapsFound); // "Workshops Found : 0 / 0"
-
-				ImGui::SameLine();
-
-				AlignRightNexIMGUItItem((55.f + 8.f) * OtherPagesList.size(), 27.f); //55.f(width of one buttonPage)
-				ImGui::BeginGroup();
-				{
-					for (int i = 0; i < OtherPagesList.size(); i++)
-					{
-						std::string PageButtonName = "Page " + FindAllSubstringInAString(OtherPagesList.at(i), "&p=", "&days").at(0);
-
-						if (ImGui::Button(PageButtonName.c_str(), ImVec2(55.f, 25.f)) && STEAM_Searching == false)
-						{
-							std::thread Page_Thread(&Pluginx64::StartSearchRequest, this, OtherPagesList.at(i));
-							Page_Thread.detach();
-						}
-						ImGui::SameLine();
-					}
-					ImGui::EndGroup();
-				}
-
-				ImGui::NewLine();
-				ImGui::NewLine();
-
-				Steam_renderSearchWorkshopResults(MapsFolderPathBuf);
-
-				ImGui::EndChild();
-			}
-			ImGui::EndTabItem();
-		}
 
 		if (ImGui::BeginTabItem(Tab3SearchWorkshopText.c_str()))
 		{
@@ -1628,304 +1439,6 @@ void Pluginx64::renderQuickSearch()
 		QuickSearch_FirstDisaplayed = true;
 	}
 }
-
-
-void Pluginx64::Steam_renderSearchWorkshopResults(static char mapspath[200])
-{
-	int LinesNb = 0;
-	Steam_SearchWorkshopDisplayed = 0;
-
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-	int nbResultPerLine = 4;
-
-	if (ImGui::GetWindowWidth() > 1560 && ImGui::GetWindowWidth() < 1830)
-	{
-		nbResultPerLine = 5;
-	}
-	else if (ImGui::GetWindowWidth() >= 1830)
-	{
-		nbResultPerLine = 6;
-	}
-
-	for (int i = 0; i < Steam_MapResultList.size(); i++)
-	{
-		if (LinesNb < nbResultPerLine)
-		{
-			Steam_RenderAResult(i, draw_list, mapspath);
-
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
-			LinesNb++;
-		}
-		else
-		{
-			Steam_RenderAResult(i, draw_list, mapspath);
-
-			ImGui::NewLine();
-			LinesNb = 0;
-		}
-			
-		Steam_SearchWorkshopDisplayed++;
-	}
-}
-
-void Pluginx64::Steam_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200])
-{
-	ImGui::PushID(i);
-
-	Steam_MapResult mapResult = Steam_MapResultList.at(i);
-	std::string mapName = mapResult.Name;
-	std::string mapID = mapResult.ID;
-	std::string mapDescription = mapResult.Description;
-	std::string mapSize = mapResult.Size;
-	std::string mapAuthor = mapResult.Author;
-
-
-
-	ImGui::BeginChild("##SteamResult", ImVec2(190.f, 260.f));
-	{
-		ImGui::BeginGroup();
-		{
-			std::string SizeConverted;
-			//cvarManager->log("mapSize : " + mapSize);
-
-			if (mapSize.find_first_not_of("0123456789") == std::string::npos && mapSize != "")
-			{
-				SizeConverted = ResultSizeText + convertToMB(mapSize);
-			}
-			else
-			{
-				SizeConverted = ResultSizeText + mapSize;
-			}
-
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
-			ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
-			ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
-
-			drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle result
-			drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
-
-			if (mapResult.isImageLoaded == true)
-			{
-				try
-				{
-					drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
-				}
-				catch (const std::exception& ex)
-				{
-					cvarManager->log(ex.what());
-				}
-			}
-			/*
-			std::string GoodMapName = mapName.substr(0, 29);
-			if (mapName.length() > 31)
-			{
-				GoodMapName.append("...");
-			}
-			*/
-			std::string GoodMapName = mapName;
-			if (ImGui::CalcTextSize(GoodMapName.c_str()).x > (186.f * 0.982f))
-			{
-				GoodMapName = LimitTextSize(GoodMapName, (186.f * 0.982f) - ImGui::CalcTextSize("...").x) + "...";
-			}
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
-				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
-			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
-			if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"
-			{
-				if (mapResult.IsMapAvailable)
-				{
-					if (STEAM_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
-					{
-						std::thread t2(&Pluginx64::STEAM_DownloadWorkshop, this, "", mapspath, mapResult, true);
-						t2.detach();
-					}
-					else
-					{
-						if (!Directory_Or_File_Exists(fs::path(mapspath)))
-						{
-							ImGui::OpenPopup("Exists?");
-						}
-
-						if (STEAM_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
-						{
-							ImGui::OpenPopup("Downloading?");
-						}
-					}
-				}
-				else
-				{
-					ImGui::OpenPopup("Map Unavaiable");
-				}
-			}
-			renderMapUnavaiablePopup();
-
-			//Popup if maps directory doesn't exist
-			renderInfoPopup("Exists?", DirNotExistText.c_str());
-
-			//Popup if is a downlaod is in progress and user wants to start a new download
-			renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
-
-			ImGui::EndGroup();
-
-			if (ImGui::IsItemHovered())
-			{
-				std::string GoodDescription = mapDescription;
-
-				if (mapDescription.length() > 150)
-				{
-					GoodDescription.insert(150, "\n");
-
-					if (mapDescription.length() > 280)
-					{
-						GoodDescription.erase(280);
-						GoodDescription.append("...");
-					}
-				}
-
-
-				ImGui::BeginTooltip();
-				ImGui::Text("Title : %s", mapName.c_str());
-				ImGui::Text(SizeConverted.c_str());
-				ImGui::Text("By : %s", mapAuthor.c_str());
-				ImGui::Text("Description : \n%s", GoodDescription.c_str());
-				ImGui::EndTooltip();
-			}
-			if (ImGui::BeginPopupContextItem("SearchResult context menu"))
-			{
-				if (ImGui::Selectable(GoToUrlSelectableText.c_str())) // "go to url"
-				{
-					std::wstring w_Workshop_URL = s2ws("https://steamcommunity.com/sharedfiles/filedetails/?id=" + mapID);
-					LPCWSTR L_URL = w_Workshop_URL.c_str();
-					ShellExecute(NULL, L"open", L_URL, NULL, NULL, SW_SHOWNORMAL); //open web browser at workshop url
-				}
-				ImGui::EndPopup();
-			}
-			ImGui::PopID();
-		}
-		ImGui::EndChild();
-	}
-	
-}
-
-void Pluginx64::renderSortByCombos(std::string mostPopular_url)
-{
-	AlignRightNexIMGUItItem(widthBrowseGroup, 8.f);
-	ImGui::BeginGroup();
-	{
-		if (STEAM_browsing)
-		{
-			widthBrowseGroup = 385.f; //180(browse button) + 8(gap between 2 imgui component) + 142(combo) + 41(Sort By :) + 8(gap between item and right window border)
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-			ImGui::Text("%s :", SortByText[0].c_str()); // "Sort By :"
-			//ImGui::Text("width of sort by : %f", ImGui::CalcTextSize(SortByText[0].c_str()).x);
-			ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(142.f);
-			if (ImGui::BeginCombo("##comboMost", combo_selected_most))
-			{
-				if (ImGui::Selectable(SortByText[1].c_str())) // "Most Popular"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url);
-					t6.detach();
-					combo_selected_most = SortByText[1].c_str(); // "Most Popular"
-					MostPopularSelected = true;
-				}
-
-				if (ImGui::Selectable(SortByText[2].c_str())) // "Most Recent"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p=1");
-					t6.detach();
-					combo_selected_most = SortByText[2].c_str(); // "Most Recent"
-					MostPopularSelected = false;
-				}
-
-				if (ImGui::Selectable(SortByText[3].c_str())) // "Most Subscribers"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, "https://steamcommunity.com/workshop/browse/?appid=252950&browsesort=totaluniquesubscribers&section=readytouseitems&actualsort=totaluniquesubscribers&p=1");
-					t6.detach();
-					combo_selected_most = SortByText[3].c_str(); // "Most Subscribers"
-					MostPopularSelected = false;
-				}
-				ImGui::EndCombo();
-			}
-		}
-		else
-		{
-			widthBrowseGroup = 186.f;
-		}
-
-
-		if (MostPopularSelected)
-		{
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.f);
-			ImGui::Text("%s : ", PeriodText[7].c_str()); // "Period :"
-
-			ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(142.f);
-			if (ImGui::BeginCombo("##comboPeriod", combo_selected_period))
-			{
-				if (ImGui::Selectable(PeriodText[0].c_str())) // "Today"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=1");
-					t6.detach();
-					combo_selected_period = PeriodText[0].c_str(); // "Today"
-				}
-
-				if (ImGui::Selectable(PeriodText[1].c_str())) // "1 Week"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=7");
-					t6.detach();
-					combo_selected_period = PeriodText[1].c_str(); // "1 Week"
-				}
-
-				if (ImGui::Selectable(PeriodText[2].c_str())) // "1 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=30");
-					t6.detach();
-					combo_selected_period = PeriodText[2].c_str(); // "1 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[3].c_str())) // "3 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=90");
-					t6.detach();
-					combo_selected_period = PeriodText[3].c_str(); // "3 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[4].c_str())) // "6 Months"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=180");
-					t6.detach();
-					combo_selected_period = PeriodText[4].c_str(); // "6 Months"
-				}
-
-				if (ImGui::Selectable(PeriodText[5].c_str())) // "1 Year"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=365");
-					t6.detach();
-					combo_selected_period = PeriodText[5].c_str(); // "1 Year"
-				}
-
-				if (ImGui::Selectable(PeriodText[6].c_str())) // "Since the begining"
-				{
-					std::thread t6(&Pluginx64::StartSearchRequest, this, mostPopular_url + "&actualsort=trend&p=1&days=-1");
-					t6.detach();
-					combo_selected_period = PeriodText[6].c_str(); // "Since the begining"
-				}
-				ImGui::EndCombo();
-			}
-		}
-		ImGui::EndGroup();
-	}
-}
-
 
 
 void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
@@ -2857,20 +2370,6 @@ void Pluginx64::renderFileExplorer()
 	}
 }
 
-void Pluginx64::renderMapUnavaiablePopup()
-{
-	if (ImGui::BeginPopupModal("Map Unavaiable", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text(MapsUnavailableText.c_str()); //"This map is unvailable to download for few seconds, wait"
-
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("OK", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
 
 
 // Name of the menu that is used to toggle the window.

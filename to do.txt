@@ -1,3 +1,8 @@
+je peux améliorer la rapidité de l'affichage des resultats (rlmaps) en faisant une requête en async pour récupérer les releases
+
+changer la font pour supporter les accents
+
+
 faire un bouton dans le menu bar pour copier toutes les maps(ou celles qu'on choisit) dans le CookedPCConsole/mods
 
 
