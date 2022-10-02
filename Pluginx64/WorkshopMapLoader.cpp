@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.2", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.3", 0)
 
 
 namespace
@@ -376,6 +376,69 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 
 }
 
+
+void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::string mapDescription, std::filesystem::path mapsDirectoryPath, std::filesystem::path mapFilePath, std::filesystem::path imagePath)
+{
+	std::string Workshop_Dl_Path = "";
+	std::string workshopSafeMapName = replace(mapName, *" ", *"_"); //replace spaces by underscores
+	std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "-", "#" };
+	for (auto special : specials)
+	{
+		eraseAll(workshopSafeMapName, special);
+	}
+
+	if (mapsDirectoryPath.string().back() == '/' || mapsDirectoryPath.string().back() == '\\')
+	{
+		Workshop_Dl_Path = mapsDirectoryPath.string() + workshopSafeMapName;
+	}
+	else  //if last character != /
+	{
+		Workshop_Dl_Path = mapsDirectoryPath.string() + "/" + workshopSafeMapName;
+		//cvarManager->log("A slash has been added a the end of the path");
+	}
+
+
+	try
+	{
+		fs::create_directory(Workshop_Dl_Path); //create directory for the map downloaded
+		cvarManager->log("Directory Created : " + Workshop_Dl_Path);
+	}
+	catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+	{
+		cvarManager->log(ex.what());
+		FolderErrorText = ex.what();
+		FolderErrorBool = true;
+		return;
+	}
+
+
+	if (Directory_Or_File_Exists(mapFilePath))
+	{
+		fs::copy(mapFilePath, Workshop_Dl_Path + "/" + workshopSafeMapName + ".upk"); //copy map file to map directory
+		cvarManager->log("Map pasted : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".upk");
+	}
+	else
+	{
+		cvarManager->log("Couldn't find map file to paste");
+		return;
+	}
+
+	CreateJSONLocalWorkshopInfos(workshopSafeMapName, Workshop_Dl_Path + "/", mapName, mapAuthor, mapDescription, "");
+	cvarManager->log("JSON Created : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".json");
+
+	if (Directory_Or_File_Exists(imagePath))
+	{
+		fs::copy(imagePath, Workshop_Dl_Path + "/" + workshopSafeMapName + "." + imagePath.extension().string()); //copy preview to map directory
+		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".jfif");
+	}
+	else
+	{
+		cvarManager->log("Couldn't find preview to paste");
+	}
+
+
+	cvarManager->log(mapName + " added successfully!");
+}
 
 
 

@@ -238,7 +238,7 @@ public:
 	//Variables
 	std::string BakkesmodPath;
 	std::string MapsFolderPath;
-	std::string PluginVersion = "1.15.2";
+	std::string PluginVersion = "1.15.3";
 	static bool FR;
 	std::string unzipMethod = "Bat";
 	bool HasSeeNewUpdateAlert;
@@ -257,6 +257,7 @@ public:
 	std::vector<Map> MapList;
 	std::vector<std::string> GetJSONLocalMapInfos(std::string jsonFilePath);
 	void RefreshMapsFunct(std::string mapsfolders);
+	void AddMapManually(std::string mapName, std::string mapAuthor, std::string mapDescription, std::filesystem::path mapsDirectoryPath, std::filesystem::path mapFilePath, std::filesystem::path imagePath);
 
 	//Display mode
 	int nbTilesPerLine = 5;
@@ -328,7 +329,7 @@ public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Workshop Map Loader & Downloader v1.15.2 | Made By Vync";
+	std::string menuTitle_ = "Workshop Map Loader & Downloader v" + PluginVersion + " | Made By Vync";
 
 	//Quick search ctrl+f
 	void renderQuickSearch();
@@ -369,6 +370,7 @@ public:
 	void renderHostGamePopup(Map curMap);
 	void renderJoinServerPopup();
 
+	void renderAddMapManually();
 	void renderFileExplorer();
 
 

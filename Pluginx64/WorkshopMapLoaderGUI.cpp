@@ -525,7 +525,7 @@ void Pluginx64::Render()
 
 			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
-			if (ImGui::Button(SelectMapsFolderText.c_str(), ImVec2(204.f, 32.f))) // "Select maps folder"
+			if (ImGui::Button(SelectMapsFolderText.c_str(), ImVec2(151.f, 32.f))) // "Select maps folder"
 			{
 				ImGui::OpenPopup("Select maps folder");
 			}
@@ -533,7 +533,7 @@ void Pluginx64::Render()
 
 			ImGui::SameLine();
 
-			if (ImGui::Button(SavePathText.c_str(), ImVec2(204.f, 32.f))) // "Save Path"
+			if (ImGui::Button(SavePathText.c_str(), ImVec2(151.f, 32.f))) // "Save Path"
 			{
 				if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\"))
 				{
@@ -547,9 +547,17 @@ void Pluginx64::Render()
 
 			ImGui::SameLine();
 
+			if (ImGui::Button("Add Map", ImVec2(151.f, 32.f))) // "Add Map"
+			{
+				ImGui::OpenPopup("Add Map");
+			}
+			renderAddMapManually();
+
+			ImGui::SameLine();
+
 			std::vector<std::string> missingTexturesFiles = CheckExist_TexturesFiles();
 
-			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(204.f, 32.f))) // "Refresh Maps"
+			if (ImGui::Button(RefreshMapsButtonText.c_str(), ImVec2(151.f, 32.f))) // "Refresh Maps"
 			{
 				if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
 				{
@@ -2208,42 +2216,34 @@ void Pluginx64::renderNewUpdatePopup()
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		std::string AddedText;
-		std::string UseControllerAbilityText;
+		std::string AddMapText;
 		std::string FixedText;
-		std::string SearchingWorkshopText;
-		std::string CrahsingIssueText;
 		if (!french)
 		{
 			AddedText = "Added :";
-			UseControllerAbilityText = "-You can now enable/disable the navigation with the controller (disabled by default) in Settings->Controller->Use Controller.";
+			AddMapText = "- If you download maps from a website, you can now add a map manually(\"Add Map\" button in \"Map Loader\" tab).";
 			FixedText = "Fixed :";
-			SearchingWorkshopText = "-Searching workshop maps works again and don't make the game crash anymore.";
-			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes still happen contact me on discord(see credits).";
 		}
 		else
 		{
 			AddedText = "Ajouts :";
-			UseControllerAbilityText = "-Vous pouvez maintenant activer/desactiver la navigation a la manette (desactive par defaut) dans Parametres->Manette->Activer La Manette.";
 			FixedText = "Corrections :";
-			SearchingWorkshopText = "-Rechercher des maps workshop refonctionne et ne fait plus crash le jeu.";
-			CrahsingIssueText = "-Le jeu crash lorsqu'une une map est en chargement. J'ai seulement essaye pour moi, ca fonctionne bien mais je ne sais pas si ca fonctionnera pour vous donc si ca crash toujours contactez moi sur discord(voir credits).";
 		}
 
 		ImGui::NewLine();
-		CenterNexIMGUItItem(ImGui::CalcTextSize("Changelog v1.15.2").x);
-		ImGui::Text("Changelog v1.15.2");
+		CenterNexIMGUItItem(ImGui::CalcTextSize(std::string("Changelog v" + PluginVersion).c_str()).x);
+		ImGui::Text(std::string("Changelog v" + PluginVersion).c_str());
 		ImGui::NewLine();
 		ImGui::Checkbox("French", &french);
 		ImGui::NewLine();
 		ImGui::Text(AddedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text(UseControllerAbilityText.c_str());
+		ImGui::Text(AddMapText.c_str());
 		ImGui::NewLine();
 		ImGui::Text(FixedText.c_str());
 		renderUnderLine(ImColor(255, 255, 255, 150));
 		ImGui::NewLine();
-		ImGui::Text(CrahsingIssueText.c_str());
 
 
 		ImGui::NewLine();
@@ -2255,6 +2255,53 @@ void Pluginx64::renderNewUpdatePopup()
 			SaveInCFG();
 			ImGui::CloseCurrentPopup();
 		}
+		ImGui::EndPopup();
+	}
+}
+
+
+void Pluginx64::renderAddMapManually()
+{
+	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal("Add Map", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Name :");
+		static char name[200] = "";
+		ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
+
+		ImGui::Text("Author :");
+		static char author[200] = "";
+		ImGui::InputText("##Author", author, IM_ARRAYSIZE(author));
+
+		ImGui::Text("Description :");
+		static char description[1024 * 16] = "";
+		ImGui::InputTextMultiline("##Description", description, IM_ARRAYSIZE(description), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16));
+
+
+		ImGui::Text("Map File Path :");
+		static char mapfilePath[200] = "";
+		ImGui::InputText("##MapFilePath", mapfilePath, IM_ARRAYSIZE(mapfilePath));
+
+		ImGui::Text("Image Path :");
+		static char imagePath[200] = "";
+		ImGui::InputText("##ImagePath", imagePath, IM_ARRAYSIZE(imagePath));
+
+
+
+		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button("Confirm", ImVec2(100.f, 30.f))) //"Confirm"
+		{
+			AddMapManually(std::string(name), std::string(author), std::string(description), std::string(MapsFolderPathBuf), std::string(mapfilePath), std::string(imagePath));
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 }
