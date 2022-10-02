@@ -126,6 +126,7 @@ void Pluginx64::onLoad()
 		SaveInCFG();
 	}
 
+
 }
 
 
@@ -456,8 +457,7 @@ void Pluginx64::GetResults(std::string keyWord, int IndexPage)
 
 
 	cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + keyWord + "&page=" + std::to_string(IndexPage) });
-
-
+	
 	//Parse response json
 	Json::Value actualJson;
 	Json::Reader reader;
@@ -471,57 +471,82 @@ void Pluginx64::GetResults(std::string keyWord, int IndexPage)
 
 	for (int index = 0; index < maps.size(); ++index)
 	{
-		RLMAPS_MapResult result;
-		result.ID = maps[index]["id"].asString();
-		result.Name = maps[index]["name"].asString();
-		result.Description = maps[index]["description"].asString();
-
-		cpr::Response Request_MapDownloadLinks = cpr::Get(cpr::Url{ "https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases" });
-		//Parse response json
-		Json::Value actualJson2;
-		Json::Reader reader2;
-		reader2.parse(Request_MapDownloadLinks.text, actualJson2);
-		const Json::Value maps2 = actualJson2;
+		//GetMapResult(maps, index);
+		std::thread t2(&Pluginx64::GetMapResult, this, maps, index);
+		t2.detach();
 
 
-		std::vector<RLMAPS_Release> releases;
-		for (int release_index = 0; release_index < maps2.size(); ++release_index)
-		{
-			RLMAPS_Release release;
-			release.name = maps2[release_index]["name"].asString();
-			release.tag_name = maps2[release_index]["tag_name"].asString();
-			release.description = maps2[release_index]["description"].asString();
-			release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
-			release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
-			release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
+		Sleep(100);
+	}
+
+	while (RLMAPS_MapResultList.size() != maps.size())
+	{
+		Sleep(10);
+	}
+
+	RLMAPS_Searching = false;
+}
 
 
-			releases.push_back(release);
-		}
+void Pluginx64::GetMapResult(Json::Value maps, int index)
+{
+	RLMAPS_MapResult result;
+	result.ID = maps[index]["id"].asString();
+	result.Name = maps[index]["name"].asString();
+	result.Description = maps[index]["description"].asString();
 
-		result.releases = releases;
-		result.Size = "10000000";
-		result.Author = maps[index]["namespace"]["path"].asString();
-		result.PreviewUrl = releases[0].pictureLink;
+	cpr::Response Request_MapDownloadLinks = cpr::Get(cpr::Url{ "https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases" });
+	//Parse response json
+	Json::Value actualJson2;
+	Json::Reader reader2;
+	reader2.parse(Request_MapDownloadLinks.text, actualJson2);
+	const Json::Value maps2 = actualJson2;
 
 
-		std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + result.ID + ".jfif";
+	std::vector<RLMAPS_Release> releases;
+	for (int release_index = 0; release_index < maps2.size(); ++release_index)
+	{
+		RLMAPS_Release release;
+		release.name = maps2[release_index]["name"].asString();
+		release.tag_name = maps2[release_index]["tag_name"].asString();
+		release.description = maps2[release_index]["description"].asString();
+		release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
+		release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
+		release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
+
+
+		releases.push_back(release);
+	}
+
+	result.releases = releases;
+	result.Size = "10000000";
+	result.Author = maps[index]["namespace"]["path"].asString();
+	result.PreviewUrl = releases[0].pictureLink;
+
+	//cvarManager->log("download url : " + releases[0].downloadLink);
+	//GetMapSize(releases[0].downloadLink);
+
+
+	cvarManager->log("Map : " + result.Name);
+
+
+	std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + result.ID + ".jfif";
+
+
+
+	if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
+	{
+		//IsDownloadingPreview = true;
+		/*RLMAPS_MapResultList[index].IsDownloadingPreview = true;*/
+		result.IsDownloadingPreview = true;
+
+		RLMAPS_MapResultList.push_back(result);
+		DownloadPreviewImage(result.PreviewUrl, resultImagePath.string(), index);
+	}
+	else
+	{
 		std::shared_ptr<ImageWrapper> resultImage;
 		bool resultisImageLoaded;
-
-
-
-		if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
-		{
-			IsDownloadingPreview = true;
-			DownloadPreviewImage(result.PreviewUrl, resultImagePath.string());
-		}
-
-		while (IsDownloadingPreview == true)
-		{
-			Sleep(10);
-		}
-
 
 		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
 		resultisImageLoaded = true;
@@ -532,13 +557,9 @@ void Pluginx64::GetResults(std::string keyWord, int IndexPage)
 
 
 		RLMAPS_MapResultList.push_back(result);
-
-		cvarManager->log("Map : " + result.Name);
-
 	}
 
 
-	RLMAPS_Searching = false;
 }
 
 void Pluginx64::GetNumpPages(std::string keyWord)
@@ -560,6 +581,23 @@ void Pluginx64::GetNumpPages(std::string keyWord)
 		ResultsSize = maps.size();
 	}
 }
+
+void Pluginx64::GetMapSize(std::string donwloadUrl)
+{
+	cpr::Response Request_Page = cpr::Head(cpr::Url{ donwloadUrl });
+
+	/*cvarManager->log("HEADERS : " + Request_Page.raw_header);
+	cvarManager->log("Content-Length HEADER LETS GO : " + Request_Page.header.at("Content-Length"));*/
+
+	std::string locationstr = Request_Page.raw_header.substr(Request_Page.raw_header.find("Location: ") + 10, Request_Page.raw_header.find("Vary:") - Request_Page.raw_header.find("Location: ") - 10);
+	cvarManager->log("location found : " + locationstr);
+
+
+	cpr::Response Request_size = cpr::Get(cpr::Url{ locationstr });
+	cvarManager->log("HEADERS : " + Request_size.raw_header);
+
+}
+
 
 //Quick search ctrl+f
 std::vector<Map> Pluginx64::QuickSearch_GetMapList(std::string keyWord)
@@ -998,7 +1036,7 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 	return CfgInfosList;
 }
 
-void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePath)
+void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePath, int mapResultIndex)
 {
 	std::string download_url = downloadUrl;
 	std::string File_Path = filePath;
@@ -1013,10 +1051,26 @@ void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePa
 	CurlRequest req;
 	req.url = download_url;
 
-	HttpWrapper::SendCurlRequest(req, L_PATH, [this, File_Path](int code, std::wstring out_path)
+	HttpWrapper::SendCurlRequest(req, L_PATH, [this, File_Path, mapResultIndex, filePath](int code, std::wstring out_path)
 		{
 			cvarManager->log("PREVIEW DONWLOADED : " + File_Path);
-			IsDownloadingPreview = false;
+
+			Sleep(100);
+
+			RLMAPS_MapResultList[mapResultIndex].IsDownloadingPreview = false;
+
+
+			std::shared_ptr<ImageWrapper> resultImage;
+			bool resultisImageLoaded;
+
+			resultImage = std::make_shared<ImageWrapper>(filePath, false, true);
+			resultisImageLoaded = true;
+
+			RLMAPS_MapResultList[mapResultIndex].ImagePath = filePath;
+			RLMAPS_MapResultList[mapResultIndex].Image = resultImage;
+			RLMAPS_MapResultList[mapResultIndex].isImageLoaded = resultisImageLoaded;
+
+			cvarManager->log("Downloaded/loaded preview for " + RLMAPS_MapResultList[mapResultIndex].Name);
 		});
 
 }

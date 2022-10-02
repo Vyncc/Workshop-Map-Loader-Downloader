@@ -15,6 +15,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include <cpr/cpr.h>
+#include <curl/curl.h>
 #include <json/json.h>
 
 namespace fs = std::filesystem;

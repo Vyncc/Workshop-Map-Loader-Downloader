@@ -7,14 +7,9 @@ namespace fs = std::filesystem;
 
 char Pluginx64::MapsFolderPathBuf[200];
 bool Pluginx64::FR = false;
-int Steam_SearchWorkshopDisplayed = 0;
 int RLMAPS_SearchWorkshopDisplayed = 0;
 
 
-const char* combo_selected_most = "Most Popular";
-const char* combo_selected_period = "1 Week";
-const char* combo_selected_searchingType = "Maps";
-bool MostPopularSelected = false;
 
 
 float heightMutators = 35.f;
@@ -177,7 +172,7 @@ void Pluginx64::Render()
 		SearchingText = "Searching...";
 		WorkshopsFoundText = "Workshops Found :";
 		BrowseMapsText = "Browse Maps";
-		Tab3SearchWorkshopText = "Search Workshop(rocketleaguemaps.us)";
+		Tab3SearchWorkshopText = "Search Workshop";
 
 
 		//Search Result
@@ -277,7 +272,7 @@ void Pluginx64::Render()
 		SearchingText = "Recherche en cours...";
 		WorkshopsFoundText = "Workshops Trouves :";
 		BrowseMapsText = "Parcourir Les Maps";
-		Tab3SearchWorkshopText = "Rechercher Un Workshop(rocketleaguemaps.us)";
+		Tab3SearchWorkshopText = "Rechercher Workshop";
 
 		//Search Result
 		ResultByText = "Par ";
@@ -662,25 +657,9 @@ void Pluginx64::Render()
 			{
 				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
 
-				ImGui::SetNextItemWidth(200.f);
+				ImGui::SetNextItemWidth(308.f);
 				ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 
-
-				ImGui::SameLine();
-				ImGui::SetNextItemWidth(100.f);
-				if (ImGui::BeginCombo("##searchingType", combo_selected_searchingType))
-				{
-					if (ImGui::Selectable("Creator"))
-					{
-						combo_selected_searchingType = "Creator";
-					}
-
-					if (ImGui::Selectable("Maps"))
-					{
-						combo_selected_searchingType = "Maps";
-					}
-					ImGui::EndCombo();
-				}
 
 				if (RLMAPS_Searching)
 				{
@@ -712,6 +691,7 @@ void Pluginx64::Render()
 			AlignRightNexIMGUItItem(180.f, 8.f);
 			if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !RLMAPS_Searching)//Browse Maps
 			{
+				strncpy(keyWord, "", IM_ARRAYSIZE(""));
 				std::thread t2(&Pluginx64::GetResults, this, "", 1);
 				t2.detach();
 			}
@@ -752,24 +732,50 @@ void Pluginx64::Render()
 
 				ImGui::SameLine();
 
-				for (int i = 1; i <= NumPages; i++)
+
+				if (RLMAPS_PageSelected > 1)
 				{
-					std::string pageName = "Page " + std::to_string(i);
-					if (RLMAPS_PageSelected != i)
+					if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
 					{
-						if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)))
-						{
-							std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), i);
-							t2.detach();
-						}
-						ImGui::SameLine();
-					}
-					else
-					{
-						ImGui::Text("Current page : %d", RLMAPS_PageSelected);
-						ImGui::SameLine();
+						std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), RLMAPS_PageSelected - 1);
+						t2.detach();
 					}
 				}
+
+				ImGui::SameLine();
+
+				for (int i = RLMAPS_PageSelected - 4; i <= RLMAPS_PageSelected + 4; i++)
+				{
+					if (i < NumPages && i > 0)
+					{
+						std::string pageName = "Page " + std::to_string(i);
+						if (RLMAPS_PageSelected != i)
+						{
+							if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)) && !RLMAPS_Searching)
+							{
+								std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), i);
+								t2.detach();
+							}
+							ImGui::SameLine();
+						}
+						else
+						{
+							ImGui::Text("Current page : %d", RLMAPS_PageSelected);
+							ImGui::SameLine();
+						}
+					}
+					
+				}
+
+				if (RLMAPS_PageSelected < NumPages - 1)
+				{
+					if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
+					{
+						std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), RLMAPS_PageSelected + 1);
+						t2.detach();
+					}
+				}
+
 				ImGui::NewLine();
 				ImGui::NewLine();
 				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
@@ -1489,7 +1495,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 
 	RLMAPS_MapResult mapResult = RLMAPS_MapResultList.at(i);
 	std::string mapName = mapResult.Name;
-	std::string mapSize = mapResult.Size;
+	//std::string mapSize = mapResult.Size;
 	std::string mapDescription = mapResult.Description;
 	std::string mapAuthor = mapResult.Author;
 
@@ -1498,7 +1504,8 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 	{
 		ImGui::BeginGroup();
 		{
-			std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
+			//std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
+			//std::string SizeConverted = mapSize;
 
 			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
 			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
@@ -1533,7 +1540,7 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 				GoodMapName = LimitTextSize(GoodMapName, (186.f * 0.982f) - ImGui::CalcTextSize("...").x) + "...";
 			}
 			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
+			//drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
 			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
 				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
 			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
@@ -2203,19 +2210,22 @@ void Pluginx64::renderNewUpdatePopup()
 		std::string AddedText;
 		std::string UseControllerAbilityText;
 		std::string FixedText;
+		std::string SearchingWorkshopText;
 		std::string CrahsingIssueText;
 		if (!french)
 		{
 			AddedText = "Added :";
 			UseControllerAbilityText = "-You can now enable/disable the navigation with the controller (disabled by default) in Settings->Controller->Use Controller.";
 			FixedText = "Fixed :";
-			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes stiil happen contact me on discord(see credits).";
+			SearchingWorkshopText = "-Searching workshop maps works again and don't make the game crash anymore.";
+			CrahsingIssueText = "-Game crashes when loading maps. I only tested for myself and the fix work well but I don't know if it will work for you guys so if it the crashes still happen contact me on discord(see credits).";
 		}
 		else
 		{
 			AddedText = "Ajouts :";
 			UseControllerAbilityText = "-Vous pouvez maintenant activer/desactiver la navigation a la manette (desactive par defaut) dans Parametres->Manette->Activer La Manette.";
 			FixedText = "Corrections :";
+			SearchingWorkshopText = "-Rechercher des maps workshop refonctionne et ne fait plus crash le jeu.";
 			CrahsingIssueText = "-Le jeu crash lorsqu'une une map est en chargement. J'ai seulement essaye pour moi, ca fonctionne bien mais je ne sais pas si ca fonctionnera pour vous donc si ca crash toujours contactez moi sur discord(voir credits).";
 		}
 

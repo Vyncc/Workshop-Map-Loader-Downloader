@@ -23,20 +23,6 @@ struct Map
 	bool isPreviewImageLoaded;
 };
 
-struct Steam_MapResult
-{
-	std::string ID;
-	std::string Name;
-	std::string Size;
-	std::string Description;
-	std::string PreviewUrl;
-	std::string Author;
-	std::string ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
-	std::shared_ptr<ImageWrapper> Image;
-	bool isImageLoaded;
-	bool IsMapAvailable;
-};
-
 struct RLMAPS_Release
 {
 	std::string name;
@@ -59,6 +45,7 @@ struct RLMAPS_MapResult
 	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
 	std::shared_ptr<ImageWrapper> Image;
 	bool isImageLoaded;
+	bool IsDownloadingPreview;
 };
 
 struct GameSetting
@@ -246,7 +233,7 @@ public:
 	int DownloadTextrures_ProgressDisplayed;
 
 
-
+	
 
 	//Variables
 	std::string BakkesmodPath;
@@ -286,7 +273,9 @@ public:
 	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
 	int RLMAPS_PageSelected = 0;
 	void GetResults(std::string keyWord, int IndexPage);
+	void GetMapResult(Json::Value maps, int index);
 	void GetNumpPages(std::string keyWord);
+	void GetMapSize(std::string url);
 	int NumPages = 0;
 	bool RLMAPS_Searching = false;
 	int RLMAPS_NumberOfMapsFound;
@@ -302,7 +291,6 @@ public:
 	bool UserIsChoosingYESorNO = false;
 	bool FolderErrorBool = false;
 	bool AcceptTheDownload = false;
-	bool IsDownloadingPreview;
 
 	//rocketleaguemaps.us
 	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult, RLMAPS_Release release);
@@ -323,7 +311,7 @@ public:
 	std::string UdkInDirectory(std::string dirPath);
 	void SaveInCFG();
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
-	void DownloadPreviewImage(std::string downloadUrl, std::string filePath);
+	void DownloadPreviewImage(std::string downloadUrl, std::string filePath, int mapResultIndex);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
 	void CleanHTML(std::string& S);

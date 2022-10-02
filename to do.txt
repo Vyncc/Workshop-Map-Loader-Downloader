@@ -1,5 +1,3 @@
-je peux améliorer la rapidité de l'affichage des resultats (rlmaps) en faisant une requête en async pour récupérer les releases
-
 changer la font pour supporter les accents
 
 
