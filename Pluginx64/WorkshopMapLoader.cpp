@@ -40,25 +40,6 @@ void Pluginx64::onLoad()
 	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2_selected.png", false, true);
 
 
-	try
-	{
-		for (const auto& dir : fs::directory_iterator(RLCookedPCConsole_Path.string()))
-		{
-			if (dir.is_directory())
-			{
-				for (const auto& file : fs::recursive_directory_iterator(dir.path()))
-					if (!file.is_directory() && file.path().extension().string() == ".upk")
-					{
-						MapsAlreadyInCPCC.push_back(file.path());
-						cvarManager->log("Map already in cpcc : " + file.path().filename().string());
-					}
-			}
-		}
-	}
-	catch (const std::exception& ex)
-	{
-		cvarManager->log("error : verifying MapsAlreadyInCPCC : " + std::string(ex.what()));
-	}
 	
 
 	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
@@ -82,6 +63,12 @@ void Pluginx64::onLoad()
 
 		FR = (CFGVariablesList.at(1) == "1");
 		HasSeeNewUpdateAlert = (CFGVariablesList.at(3) == "1");
+
+
+		if (CFGVariablesList.size() >= 12)
+		{
+			EnableAntiFreezeFix = (CFGVariablesList.at(11) == "1");
+		}
 
 		if (CFGVariablesList.size() >= 11) //the user has the new version
 		{
@@ -121,6 +108,7 @@ void Pluginx64::onLoad()
 		ControllerSensitivity = 10;
 		ControllerScrollSensitivity = 10;
 		PluginVersion = "1.15.2";
+		EnableAntiFreezeFix = false;
 
 		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
 		SaveInCFG();
@@ -162,33 +150,6 @@ void Pluginx64::checkOpenMenuWithController(CanvasWrapper canvas)
 	}
 	
 }
-
-
-
-
-//Host multiplayer game
-
-std::string Pluginx64::getMutatorsCommandString()
-{
-	std::string mutatorsCommandString = "";
-
-	for (auto mutator : mutators)
-	{
-		if (mutator->GetSelectedValue() != "")
-		{
-			mutatorsCommandString += mutator->GetSelectedValue() + ",";
-		}
-	}
-
-	if (mutatorsCommandString.back() == ',')
-	{
-		mutatorsCommandString = mutatorsCommandString.substr(0, mutatorsCommandString.size() - 1);
-	}
-
-	return mutatorsCommandString;
-}
-
-
 
 
 
@@ -642,6 +603,7 @@ void Pluginx64::GetNumpPages(std::string keyWord)
 		const Json::Value maps = actualJson;
 
 		ResultsSize = maps.size();
+		cvarManager->log("ResultsSize : " + std::to_string(ResultsSize));
 	}
 }
 
@@ -891,22 +853,6 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 	return missingFiles;
 }
 
-bool Pluginx64::MapWasAlreadyInCPCC(Map map)
-{
-	for (auto item : MapsAlreadyInCPCC)
-	{
-		if (map.UpkFile.filename().string() == item.filename().string())
-		{
-			//cvarManager->log(map.UpkFile.filename().string() + " : was already in mods");
-			return true;
-		}
-	}
-
-	//cvarManager->log(map.UpkFile.filename().string() + " : wasn't in mods");
-	return false;
-
-}
-
 
 
 //Utils
@@ -1023,6 +969,15 @@ std::string Pluginx64::UdkInDirectory(std::string dirPath)
 
 void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 {
+	if (!EnableAntiFreezeFix)
+		return;
+
+	for (std::string texture : WorkshopTexturesFilesList)
+	{
+		if (filePath.filename().string() == texture)
+			return;
+	}
+
 	std::string UDKPath = UdkInDirectory(filePath.string());
 	if (UDKPath == "Null") { return; }
 	//cvarManager->log("upk file : " + UPKPath);
@@ -1073,7 +1028,8 @@ void Pluginx64::SaveInCFG()
 	CFGFile << "ControllerSensitivity = \"" + std::to_string(ControllerSensitivity) + "\"\n";
 	CFGFile << "ControllerScrollSensitivity = \"" + std::to_string(ControllerScrollSensitivity) + "\"\n";
 	CFGFile << "PluginVersion = \"" + PluginVersion + "\"\n";
-	CFGFile << "UseController = \"" + std::to_string(UseController) + "\"";
+	CFGFile << "UseController = \"" + std::to_string(UseController) + "\"\n";
+	CFGFile << "EnableAntiFreezeFix = \"" + std::to_string(EnableAntiFreezeFix) + "\"";
 
 	CFGFile.close();
 

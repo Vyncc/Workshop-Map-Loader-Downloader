@@ -161,8 +161,6 @@ void Pluginx64::Render()
 		DeleteMapText = "Delete map";
 
 		//LauchMode Popup
-		HostText = "Host Multiplayer Server(beta)";
-		JoinServerText = "Join server";
 		CancelText = "Cancel";
 
 		//2nd Tab
@@ -172,7 +170,7 @@ void Pluginx64::Render()
 		SearchingText = "Searching...";
 		WorkshopsFoundText = "Workshops Found :";
 		BrowseMapsText = "Browse Maps";
-		Tab3SearchWorkshopText = "Search Workshop";
+		Tab3SearchWorkshopText = "Search Workshop (rocketleaguemaps.us)";
 
 
 		//Search Result
@@ -261,8 +259,6 @@ void Pluginx64::Render()
 		DeleteMapText = "Supprimer la map";
 
 		//LauchMode Popup
-		HostText = "Heberger Serveur Multijoueur(beta)";
-		JoinServerText = "Rejoindre Serveur";
 		CancelText = "Annuler";
 
 		//2nd Tab
@@ -272,7 +268,7 @@ void Pluginx64::Render()
 		SearchingText = "Recherche en cours...";
 		WorkshopsFoundText = "Workshops Trouves :";
 		BrowseMapsText = "Parcourir Les Maps";
-		Tab3SearchWorkshopText = "Rechercher Workshop";
+		Tab3SearchWorkshopText = "Rechercher Workshop (rocketleaguemaps.us)";
 
 		//Search Result
 		ResultByText = "Par ";
@@ -425,34 +421,17 @@ void Pluginx64::Render()
 				DownloadTexturesBool = true;
 			}
 
+			if (ImGui::Checkbox("Enable Freeze Fix", &EnableAntiFreezeFix))
+			{
+				SaveInCFG();
+			}
+
 			ImGui::EndMenu();
 		}
 
 
 		if (ImGui::BeginMenu(MultiplayerText.c_str())) //"Multiplayer"
 		{
-			if (ImGui::BeginMenu(MapsJoinableText.c_str())) //"Maps Joinable"
-			{
-				if (MapsAlreadyInCPCC.size() != 0)
-				{
-					for (auto mapInCPCC : MapsAlreadyInCPCC)
-					{
-						ImGui::Text(mapInCPCC.filename().string().c_str());
-					}
-				}
-				else
-				{
-					ImGui::Text(NoMapsCanBeJoinText.c_str()); //"No maps can be joined"
-				}
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::Selectable(JoinServerText.c_str())) //"Join Server"
-			{
-				JoinServerBool = true;
-			}
-
-
 			if (ImGui::Selectable(OpenCPCCText.c_str())) //"Open CookedPCConsole Directory"
 			{
 				std::wstring w_modsDir = s2ws(RLCookedPCConsole_Path.string());
@@ -468,12 +447,6 @@ void Pluginx64::Render()
 
 			ImGui::EndMenu();
 		}
-
-		if (JoinServerBool) //I know this is not good but It works, so I don't care
-		{
-			ImGui::OpenPopup("JoinServer");
-		}
-		renderJoinServerPopup();
 
 		if (DownloadTexturesBool) //I know this is not good but It works, so I don't care
 		{
@@ -754,7 +727,7 @@ void Pluginx64::Render()
 
 				for (int i = RLMAPS_PageSelected - 4; i <= RLMAPS_PageSelected + 4; i++)
 				{
-					if (i < NumPages && i > 0)
+					if (i <= NumPages && i > 0)
 					{
 						std::string pageName = "Page " + std::to_string(i);
 						if (RLMAPS_PageSelected != i)
@@ -890,7 +863,10 @@ void Pluginx64::renderMaps(Gamepad controller)
 				{
 					try
 					{
-						draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+						if (curMap.PreviewImage->GetImGuiTex())
+						{
+							draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+						}
 					}
 					catch (const std::exception& ex)
 					{
@@ -1199,9 +1175,12 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		
 		if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
 		{
-			ImGui::OpenPopup("LaunchMode");
+			gameWrapper->Execute([&, map](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("load_workshop \"" + map.Folder.string() + "/" + map.UpkFile.filename().string() + "\"");
+				});
+			cvarManager->log("Map selected : " + map.UpkFile.filename().string());
 		}
-		renderLaunchModePopup(map);
 
 
 
@@ -1238,7 +1217,10 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		{
 			try
 			{
-				draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+				if (map.PreviewImage->GetImGuiTex())
+				{
+					draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+				}
 			}
 			catch (const std::exception& ex)
 			{
@@ -1326,9 +1308,12 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 
 		if (ImGui::Button("##map", ImVec2(buttonWidth, (buttonWidth * 0.75f))))
 		{
-			ImGui::OpenPopup("LaunchMode");
+			gameWrapper->Execute([&, map](GameWrapper* gw)
+				{
+					cvarManager->executeCommand("load_workshop \"" + map.Folder.string() + "/" + map.UpkFile.filename().string() + "\"");
+				});
+			cvarManager->log("Map selected : " + map.UpkFile.filename().string());
 		}
-		renderLaunchModePopup(map);
 
 
 		mapButtonPos buttonMap;
@@ -1364,7 +1349,10 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 		{
 			try
 			{
-				draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+				if (map.PreviewImage->GetImGuiTex())
+				{
+					draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+				}
 			}
 			catch (const std::exception& ex)
 			{
@@ -1527,7 +1515,10 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 			{
 				try
 				{
-					drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+					if (mapResult.Image->GetImGuiTex())
+					{
+						drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+					}
 				}
 				catch (const std::exception& ex)
 				{
@@ -1720,182 +1711,6 @@ void Pluginx64::renderAcceptDownload()
 		});
 }
 
-void Pluginx64::renderLaunchModePopup(Map curMap)
-{
-	if (ImGui::BeginPopupModal("LaunchMode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		if (isHoveringMapButton)
-		{
-			SetCursorPos(857, 522);
-		}
-
-		if (ImGui::Button("Solo", ImVec2(200.f, 50.f)))
-		{
-			gameWrapper->Execute([&, curMap](GameWrapper* gw)
-				{
-					cvarManager->executeCommand("load_workshop \"" + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "\"");
-				});
-			cvarManager->log("Map selected : " + curMap.UpkFile.filename().string());
-
-			ImGui::CloseCurrentPopup();
-		}
-
-
-		ImGui::SameLine();
-
-		if (ImGui::Button(HostText.c_str(), ImVec2(200.f, 50.f))) //Host Multiplayer Server
-		{
-			ImGui::OpenPopup("HostGame");
-		}
-
-		renderHostGamePopup(curMap);
-
-
-		if (ImGui::Button(JoinServerText.c_str(), ImVec2(200.f, 50.f)))//Join Server
-		{
-			ImGui::OpenPopup("JoinServer");
-		}
-
-
-		std::string modsDirPath = RLCookedPCConsole_Path.string() + "\\mods";
-		if (!Directory_Or_File_Exists(modsDirPath))
-		{
-			renderYesNoPopup("JoinServer", LMLabel1Text.c_str(), [this, modsDirPath]() { //"There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
-				fs::create_directory(modsDirPath);
-				}, [this]() {ImGui::CloseCurrentPopup(); });
-		}
-		else if (!FileIsInDirectoryRecursive(RLCookedPCConsole_Path.string(), curMap.UpkFile.filename().string()))
-		{
-			renderYesNoPopup("JoinServer", std::string(curMap.UpkFile.filename().string() + LMLabel2Text).c_str(), [this, modsDirPath, curMap]() { //" isn't in CookedPCConsole. Paste the map to CookedPCConsole/mods ?";
-				fs::copy(curMap.UpkFile, modsDirPath);
-				}, [this]() {ImGui::CloseCurrentPopup(); });
-		}
-		else if (!MapWasAlreadyInCPCC(curMap))
-		{
-			renderInfoPopup("JoinServer", LMLabel3Text.c_str());//"You need to restart Rocket Legaue first to be able to join a server on this map!";
-		}
-		else
-		{
-			renderJoinServerPopup();
-		}
-
-
-		ImGui::SameLine();
-
-		if (ImGui::Button(CancelText.c_str(), ImVec2(200.f, 50.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-
-void Pluginx64::renderHostGamePopup(Map curMap)
-{
-	if (ImGui::BeginPopupModal("HostGame", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::BeginChild("##gameSettings", ImVec2(500.f, heightHostGamePopup), true);
-		{
-			CenterNexIMGUItItem(ImGui::CalcTextSize(GameSettingsText.c_str()).x); //Game Settings :
-			ImGui::Text(GameSettingsText.c_str()); //Game Settings :
-			ImGui::NewLine();
-			ImGui::Text(GameModeText.c_str()); //Game Mode :
-
-			if (ImGui::BeginCombo("##gameModes", gameModes->DisplayValuesNames.at(gameModes->selectedValue).c_str()))
-			{
-				for (auto& displayName : gameModes->DisplayValuesNames)
-				{
-					if (ImGui::Selectable(displayName.c_str()))
-					{
-						int index = std::find(gameModes->DisplayValuesNames.begin(), gameModes->DisplayValuesNames.end(), displayName) - gameModes->DisplayValuesNames.begin();
-						//cvarManager->log("index : " + std::to_string(index));
-						gameModes->selectedValue = index;
-						cvarManager->log(gameModes->Name + " | Value : " + gameModes->GetSelectedValue());
-					}
-				}
-				ImGui::EndCombo();
-			}
-
-			ImGui::Text(NBOfPlayersText.c_str());
-			if (ImGui::SliderInt("##nbPlayers", &nbPlayers, 2, 8, "%d players") && nbPlayers < 2)
-			{
-				nbPlayers = 6;
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::CollapsingHeader("Mutators"))
-			{
-				ImGui::BeginChild("##mutators", ImVec2(ImGui::GetWindowWidth() - 10, heightMutators));
-				{
-					heightMutators = 410.f;
-					heightHostGamePopup = 201.f + heightMutators;
-
-					for (auto& mutator : mutators)
-					{
-						//cvarManager->log(std::to_string(mutator->selectedValue));
-
-						if (ImGui::BeginCombo(mutator->Name.c_str(), mutator->DisplayValuesNames.at(mutator->selectedValue).c_str()))
-						{
-							for (auto& displayName : mutator->DisplayValuesNames)
-							{
-								if (ImGui::Selectable(displayName.c_str()))
-								{
-									int index = std::find(mutator->DisplayValuesNames.begin(), mutator->DisplayValuesNames.end(), displayName) - mutator->DisplayValuesNames.begin();
-									//cvarManager->log("index : " + std::to_string(index));
-									mutator->selectedValue = index;
-									cvarManager->log(mutator->Name + " | Value : " + mutator->GetSelectedValue());
-								}
-							}
-							ImGui::EndCombo();
-						}
-					}
-
-					if (ImGui::Button("Reset Mutators"))
-					{
-						for (auto& mutator : mutators)
-						{
-							mutator->selectedValue = 0;
-						}
-					}
-					ImGui::EndChild();
-				}
-			}
-			else
-			{
-				heightMutators = 35.f;
-				heightHostGamePopup = 197.f;
-			}
-
-			ImGui::Separator();
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6.f);
-
-			if (ImGui::Button(HostGameText.c_str(), ImVec2(100.f, 30.f))) //Host Game
-			{
-				gameWrapper->Execute([&, curMap](GameWrapper* gw)
-					{
-						gameWrapper->ExecuteUnrealCommand("start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
-					});
-
-				cvarManager->log("Command : start " + curMap.Folder.string() + "/" + curMap.UpkFile.filename().string() + "?game=" + gameModes->GetSelectedValue() + "?GameTags=BotsNone," + getMutatorsCommandString() + "?NumPublicConnections=" + std::to_string(nbPlayers) + "?NumOpenPublicConnections=" + std::to_string(nbPlayers) + "?Lan?Listen");
-
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::SameLine();
-
-			AlignRightNexIMGUItItem(100.f, 8.f);
-			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndChild();
-		}
-		ImGui::EndPopup();
-	}
-}
 
 void Pluginx64::renderExtractMapFilesPopup(Map curMap)
 {
@@ -2160,90 +1975,178 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 	}
 }
 
-void Pluginx64::renderJoinServerPopup()
-{
-	if (ImGui::BeginPopupModal("JoinServer", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.f);
-		ImGui::Text("IP :");
-		ImGui::SameLine();
-		static char IP[200] = "";
-		ImGui::InputText("##inputIP", IP, IM_ARRAYSIZE(IP));
-
-		ImGui::Text("PORT :");
-		ImGui::SameLine();
-		static char PORT[200] = "7777";
-		ImGui::InputText("##inputPORT", PORT, IM_ARRAYSIZE(PORT));
-
-		std::string str_IP = std::string(IP);
-		std::string str_PORT = std::string(PORT);
-
-
-		CenterNexIMGUItItem(208.f);
-		ImGui::BeginGroup();
-		{
-			if (ImGui::Button(JoinServerText.c_str(), ImVec2(100.f, 25.f)))//Join Server
-			{
-				JoinServerBool = false;
-
-				gameWrapper->Execute([&, str_IP, str_PORT](GameWrapper* gw)
-					{
-						cvarManager->log("IP : " + str_IP);
-						cvarManager->log("PORT : " + str_PORT);
-						gameWrapper->ExecuteUnrealCommand("start " + str_IP + ":" + str_PORT + "/?Lan?Password=password");
-					});
-
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))//Cancel
-			{
-				JoinServerBool = false;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndGroup();
-		}
-		ImGui::EndPopup();
-	}
-}
 
 void Pluginx64::renderNewUpdatePopup()
 {
 	static bool french = false;
 	if (ImGui::BeginPopupModal("New Update", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		std::string AnnouncementText;
 		std::string AddedText;
-		std::string AddMapText;
 		std::string FixedText;
+		std::string FixedText1;
+		std::string ChangedText;
+		std::string ChangedLabel1Text;
+		std::string AnnoucementText1;
+		std::string AnnoucementText2;
+		std::string AnnoucementText3;
+		std::string AnnoucementText4;
+		std::string AddMapText;
+		std::string MainText1;
+		std::string MainText2;
+		std::string RemovedText;
+		std::string RemovedText1;
+		std::string RemovedText2;
+
+
+
 		if (!french)
 		{
-			AddedText = "Added :";
-			AddMapText = "- If you download maps from a website, you can now add a map manually(\"Add Map\" button in \"Map Loader\" tab).";
+			MainText1 = "Sorry for all of you that I didn't responded to about your issues, I had way too many messages from you.";
+			MainText2 = "I think I can't really do anything for the maps that are loading forever or crashing the game. I don't think that the issue comes from my plugin.";
+
 			FixedText = "Fixed :";
+			FixedText1 = "- Fixed a random crash happening when searching workshop maps.";
+
+			ChangedText = "Changed :";
+			ChangedLabel1Text = "- The fix for the crashing issue when loading maps is no longer enabled by default, to activate it go settings->Enable Freeze Fix";
+
+			AddedText = "Added :";
+			AddMapText = "- If you download maps from a website or other than from the plugin, you can now add a map manually (\"Add Map\" button in \"Map Loader\" tab).";
+
+			RemovedText = "Removed :";
+			RemovedText1 = "- I removed everything that was related to Multiplayer because it was confusing for a lot of people that didn't know how to use it, also I don't think there are actually people using it.";
+			RemovedText2 = " If you really want to play multiplayer workshop maps, just use Rocket Plugin or Rocket Host as it was made for that purpose. There are tons of tutorials on youtube.";
+
+			AnnouncementText = "Announcement";
+			AnnoucementText1 = "I've made a new plugin! It's called Looking For Mates (LFM).";
+			AnnoucementText2 = "It's a plugin to find people to play with easily and quickly (something like the Overwatch \"Find A Group\" if you know) to play ranked, casual, extra mode, private match, etc...";
+			AnnoucementText3 = "Find someone that you are interested in the list of players and click on him to receive a party invitation.";
+			AnnoucementText4 = "I'm pretty proud of the result and I think it is a really great tool to share. The more people will use it, the more the plugin will be interesting. So if you are curious or interested, install it here :";
 		}
 		else
 		{
-			AddedText = "Ajouts :";
+			MainText1 = "Desole a tous ceux que je n'ai pas pu repondre a propos de vos problemes sur le plugin, je recevais vraiment beaucoup de messages.";
+			MainText2 = "Je crois que je peux pas faire grand chose pour les maps qui chargent indefiniment ou qui font crasher le jeu. Je pense pas que le probleme vienne de mon plugin.";
+
 			FixedText = "Corrections :";
+			FixedText1 = "- Correction d'un crash qui arrivait de temps en temps en recherchant des maps workshops.";
+
+			ChangedText = "Changements :";
+			ChangedLabel1Text = "- Le fix pour les problemes de jeu qui crash en chargeant une map est plus active par defaut, pour l'activer settings->Enable Freeze Fix";
+
+			AddedText = "Ajouts :";
+			AddMapText = "- Si vous telechargez des maps sur un site web ou autre que depuis le plugin, vous pouvez desormais ajouter une map manuellement (le bouton \"Add Map\" dans l'onglet \"Map Loader\")";
+
+			RemovedText = "Retire :";
+			RemovedText1 = "- J'ai retire tout ce qui etait en rapport avec le multijoueur car beaucoup de gens etaient confus et ne savais pas comment l'utiliser, et je pense pas qu'il y ait des gens qui l'utilise en vrai.";
+			RemovedText2 = " Si vous voulez vraiment jouer en multijoueur, utilisez Rocket Plugin ou Rocket Host, c'est pour ca qu'ils ont ete cree. Il y a enormement de tutos sur youtube.";
+
+			AnnouncementText = "Annonce";
+			AnnoucementText1 = "J'ai creer un nouveau plugin! Ca s'appelle Looking For Mates (LFM)";
+			AnnoucementText2 = "C'est un plugin pour trouver des gens avec qui jouer simplement et rapidement (comme \"Trouver Un Groupe\" sur Overwatch si vous connaissez) pour jouer en ranked, occasionnel, mode extra, match prive, etc...";
+			AnnoucementText3 = "Trouvez quelqu'un qui vous interesse dans la liste de joueurs et cliquez sur lui pour recevoir une invitation dans son groupe.";
+			AnnoucementText4 = "Je suis assez fier du resultat et je pense que c'est vraiment un bon outil a partager. Plus il y aura de gens qui l'utiliseront, plugin le plugin seras interessant, donc si vous etes interesse installez le ici :";
 		}
 
-		ImGui::NewLine();
-		CenterNexIMGUItItem(ImGui::CalcTextSize(std::string("Changelog v" + PluginVersion).c_str()).x);
-		ImGui::Text(std::string("Changelog v" + PluginVersion).c_str());
-		ImGui::NewLine();
-		ImGui::Checkbox("French", &french);
-		ImGui::NewLine();
-		ImGui::Text(AddedText.c_str());
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::NewLine();
-		ImGui::Text(AddMapText.c_str());
-		ImGui::NewLine();
-		ImGui::Text(FixedText.c_str());
-		renderUnderLine(ImColor(255, 255, 255, 150));
-		ImGui::NewLine();
+
+		if (ImGui::BeginTabBar("NewUpdateTabBar"))
+		{
+			if (ImGui::BeginTabItem("Announcement"))
+			{
+				ImGui::NewLine();
+
+				ImGui::Checkbox("French", &french);
+
+				ImGui::NewLine();
+
+				CenterNexIMGUItItem(CalcRealTextSize(std::string("/!\\ " + AnnouncementText + " /!\\").c_str(), 18.f).x);
+				renderText(std::string("/!\\ " + AnnouncementText + " /!\\").c_str(), 18.f);
+				renderUnderLine(ImColor(255, 255, 255, 150));
+
+				ImGui::NewLine();
+
+				ImGui::Text(AnnoucementText1.c_str());
+				ImGui::Text(AnnoucementText2.c_str());
+				ImGui::Text(AnnoucementText3.c_str());
+				ImGui::NewLine();
+				ImGui::Text(AnnoucementText4.c_str());
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::SameLine();
+				renderLink("LFM link here");
+				ImGui::NewLine();
+
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem(std::string("Changelog v" + PluginVersion).c_str())) // "Announcement"
+			{
+				ImGui::NewLine();
+
+				ImGui::Checkbox("French", &french);
+
+				ImGui::NewLine();
+
+				CenterNexIMGUItItem(ImGui::CalcTextSize(std::string("Changelog v" + PluginVersion).c_str()).x);
+				ImGui::Text(std::string("Changelog v" + PluginVersion).c_str());
+				renderUnderLine(ImColor(255, 255, 255, 150));
+				ImGui::NewLine();
+				ImGui::NewLine();
+
+
+				ImGui::Text(MainText1.c_str());
+				ImGui::Text(MainText2.c_str());
+
+				ImGui::NewLine();
+				ImGui::NewLine();
+
+				ImGui::Text(AddedText.c_str());
+				renderUnderLine(ImColor(255, 255, 255, 150));
+				ImGui::NewLine();
+				ImGui::Text(AddMapText.c_str());
+
+				ImGui::NewLine();
+
+				ImGui::Text(RemovedText.c_str());
+				renderUnderLine(ImColor(255, 255, 255, 150));
+				ImGui::NewLine();
+				ImGui::Text(RemovedText1.c_str());
+				ImGui::Text(RemovedText2.c_str());
+
+				ImGui::NewLine();
+
+				ImGui::Text(FixedText.c_str());
+				renderUnderLine(ImColor(255, 255, 255, 150));
+				ImGui::NewLine();
+				ImGui::Text(FixedText1.c_str());
+
+				ImGui::NewLine();
+
+				ImGui::Text(ChangedText.c_str());
+				renderUnderLine(ImColor(255, 255, 255, 150));
+				ImGui::NewLine();
+				ImGui::Text(ChangedLabel1Text.c_str());
+
+				ImGui::NewLine();
+
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+
+		
+
+		
 
 
 		ImGui::NewLine();
@@ -2427,7 +2330,22 @@ void Pluginx64::renderFileExplorer()
 	}
 }
 
+ImVec2 Pluginx64::CalcRealTextSize(const char* text, float fontSize)
+{
+	float TextSizeMultiplier = fontSize / 13.f; //13 is imgui default font size
+	ImVec2 TextSize = ImGui::CalcTextSize(text);
+	ImVec2 RealTextSize(TextSize.x * TextSizeMultiplier, TextSize.y * TextSizeMultiplier);
+	return RealTextSize;
+}
 
+void Pluginx64::renderText(const char* text, float fontSize)
+{
+	ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
+	ImGui::BeginChild(text, CalcRealTextSize(text, fontSize));
+	drawList->AddText(ImGui::GetDefaultFont(), fontSize, cursorPos, ImColor(255, 255, 255, 255), text);
+	ImGui::EndChild();
+}
 
 // Name of the menu that is used to toggle the window.
 std::string Pluginx64::GetMenuName()
