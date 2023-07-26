@@ -163,6 +163,17 @@ void Pluginx64::Render()
 		//LauchMode Popup
 		CancelText = "Cancel";
 
+		//Add Map
+		AddMapText = "Add Map";
+		NameText = "Name :";
+		AuthorText = "Author :";
+		MapFilePathText = "Map File Path :";
+		ImagePathText = "Image Path :";
+		SelectFileText = "Select File";
+		FieldEmptyText = "A field is empty !";
+		ConfirmLabelText = "Do you really want to add this map ?";
+		MapAddedSuccessfullyText = "Map added successfully !";
+
 		//2nd Tab
 		DownloadButtonText = "Download";
 		Label3Text = "Search A Workshop :";
@@ -186,17 +197,6 @@ void Pluginx64::Render()
 		NOButtonText = "NO";
 		IsDownloadDingWarningText = "A download is already running !\nYou cannot download 2 workshops at the same time.";
 		PathSavedText = "Path saved successfully !";
-
-		//LaunchMode
-		LMLabel1Text = "There is no \"mods\" folder in " + RLCookedPCConsole_Path.string() + "\nDo you want to create it ?";
-		LMLabel2Text = " isn't in CookedPCConsole. Paste the map to CookedPCConsole/mods ?";
-		LMLabel3Text = "You need to restart Rocket Legaue first to be able to join a server on this map!";
-
-		//HostGame
-		GameSettingsText = "Game Settings :";
-		GameModeText = "Game Mode :";
-		NBOfPlayersText = "Number Of Players :";
-		HostGameText = "Host Game";
 
 		//ExtractMapFiles
 		EMFMessageText1 = "The map isn't extracted from ";
@@ -249,7 +249,7 @@ void Pluginx64::Render()
 		//1st Tab
 		Tab1MapLoaderText = "Charger Map";
 		Label1Text = "Mets le chemin du dossier des maps :";
-		SelectMapsFolderText = "Choisir Le Dossier Des Maps";
+		SelectMapsFolderText = "Choisir Dossier Des Maps";
 		RefreshMapsButtonText = "Rafraichir Les Maps";
 		SavePathText = "Sauvegarder Le Chemin";
 		MapsPerLineText = "Maps Par Ligne :";
@@ -260,6 +260,17 @@ void Pluginx64::Render()
 
 		//LauchMode Popup
 		CancelText = "Annuler";
+
+		//Add Map
+		AddMapText = "Ajouter Map";
+		NameText = "Nom :";
+		AuthorText = "Auteur :";
+		MapFilePathText = "Fichier De La Map :";
+		ImagePathText = "Image :";
+		SelectFileText = "Parcourir";
+		FieldEmptyText = "Un champ est vide !";
+		ConfirmLabelText = "Veux-tu vraiment ajouter cette map ?";
+		MapAddedSuccessfullyText = "Map ajoute avec succes !";
 
 		//2nd Tab
 		DownloadButtonText = "Telecharger";
@@ -284,17 +295,6 @@ void Pluginx64::Render()
 		IsDownloadDingWarningText = "Un telechargement est deja en cours !\nTu ne peux pas telecharger 2 workshops en meme temps.";
 		PathSavedText = "Le chemin a ete sauvegarde !";
 
-
-		//LaunchMode
-		LMLabel1Text = "Il n'y a pas le de dossier \"mods\" dans " + RLCookedPCConsole_Path.string() + "\nCreer ce dossier ?";
-		LMLabel2Text = " n'est pas dans CookedPCConsole. Copier la map dans CookedPCConsole/mods ?";
-		LMLabel3Text = "Tu dois d'abord relancer Rocket League pour pouvoir rejoindre un serveur sur cette map!";
-
-		//HostGame
-		GameSettingsText = "Parametres :";
-		GameModeText = "Mode De Jeu :";
-		NBOfPlayersText = "Nombre De Joueurs :";
-		HostGameText = "Heberger";
 
 		//ExtractMapFiles
 		EMFMessageText1 = "La map n'est pas extrait de ";
@@ -325,6 +325,12 @@ void Pluginx64::Render()
 	}
 	renderNewUpdatePopup();
 
+	if (AddedMapSccuessfully)
+	{
+		ImGui::OpenPopup("Add Map Successfull");
+		AddedMapSccuessfully = false;
+	}
+	renderInfoPopup("Add Map Successfull", MapAddedSuccessfullyText.c_str()); //"Map added successfully !"
 
 
 	if (ImGui::BeginMenuBar())
@@ -520,11 +526,11 @@ void Pluginx64::Render()
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("Add Map", ImVec2(151.f, 32.f))) // "Add Map"
+			if (ImGui::Button(AddMapText.c_str(), ImVec2(151.f, 32.f))) // "Add Map"
 			{
-				ImGui::OpenPopup("Add Map");
+				ImGui::OpenPopup(AddMapText.c_str()); //"Add Map"
 			}
-			renderAddMapManually();
+			renderAddMapManuallyPopup();
 
 			ImGui::SameLine();
 
@@ -2036,7 +2042,7 @@ void Pluginx64::renderNewUpdatePopup()
 			ChangedLabel1Text = "- Le fix pour les problemes de jeu qui crash en chargeant une map est plus active par defaut, pour l'activer settings->Enable Freeze Fix";
 
 			AddedText = "Ajouts :";
-			AddMapText = "- Si vous telechargez des maps sur un site web ou autre que depuis le plugin, vous pouvez desormais ajouter une map manuellement (le bouton \"Add Map\" dans l'onglet \"Map Loader\")";
+			AddMapText = "- Si vous telechargez des maps sur un site web ou autre que depuis le plugin, vous pouvez desormais ajouter une map manuellement (le bouton \"Ajouter Map\" dans l'onglet \"Charger Map\")";
 
 			RemovedText = "Retire :";
 			RemovedText1 = "- J'ai retire tout ce qui etait en rapport avec le multijoueur car beaucoup de gens etaient confus et ne savais pas comment l'utiliser, et je pense pas qu'il y ait des gens qui l'utilise en vrai.";
@@ -2163,33 +2169,55 @@ void Pluginx64::renderNewUpdatePopup()
 }
 
 
-void Pluginx64::renderAddMapManually()
+void Pluginx64::renderAddMapManuallyPopup()
 {
-	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
-	if (ImGui::BeginPopupModal("Add Map", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	//ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal(AddMapText.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::Text("Name :");
-		static char name[200] = "";
+		ImGui::Text(NameText.c_str()); //"Name :"
+		static char name[128] = "";
+		ImGui::SetNextItemWidth(300.f);
 		ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
 
-		ImGui::Text("Author :");
-		static char author[200] = "";
+		ImGui::Text(AuthorText.c_str()); //"Author :"
+		static char author[128] = "";
+		ImGui::SetNextItemWidth(300.f);
 		ImGui::InputText("##Author", author, IM_ARRAYSIZE(author));
 
 		ImGui::Text("Description :");
 		static char description[1024 * 16] = "";
-		ImGui::InputTextMultiline("##Description", description, IM_ARRAYSIZE(description), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16));
+		ImGui::InputTextMultiline("##Description", description, IM_ARRAYSIZE(description), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 10));
 
 
-		ImGui::Text("Map File Path :");
-		static char mapfilePath[200] = "";
+		ImGui::Text(MapFilePathText.c_str()); //"Map File Path :"
+		static char mapfilePath[256] = "";
+		ImGui::SetNextItemWidth(400.f);
 		ImGui::InputText("##MapFilePath", mapfilePath, IM_ARRAYSIZE(mapfilePath));
 
-		ImGui::Text("Image Path :");
-		static char imagePath[200] = "";
+		ImGui::SameLine();
+
+		if (ImGui::Button(SelectFileText.c_str())) // "Select File"
+		{
+			ImGui::OpenPopup("Select map file");
+		}
+		renderFileExplorerToAddMap(mapfilePath, {".udk", ".upk"});
+
+		ImGui::Text(ImagePathText.c_str()); //"Image Path :"
+		static char imagePath[256] = "";
+		ImGui::SetNextItemWidth(400.f);
 		ImGui::InputText("##ImagePath", imagePath, IM_ARRAYSIZE(imagePath));
 
+		ImGui::SameLine();
 
+		ImGui::PushID(1);
+		if (ImGui::Button(SelectFileText.c_str())) // "Select File"
+		{
+			ImGui::OpenPopup("Select map file");
+		}
+		renderFileExplorerToAddMap(imagePath, { ".png", ".jpg", ".jpeg", ".jfif" });
+		ImGui::PopID();
+
+		ImGui::NewLine();
 
 		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
 		{
@@ -2199,11 +2227,26 @@ void Pluginx64::renderAddMapManually()
 		ImGui::SameLine();
 
 		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("Confirm", ImVec2(100.f, 30.f))) //"Confirm"
+		if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 30.f))) //"Confirm"
 		{
+			if (std::string(name) == "" || std::string(author) == "" || std::string(description) == "" || std::string(mapfilePath) == "" || std::string(imagePath) == "") //error
+			{
+				cvarManager->log("ERORRRRRR");
+				ImGui::OpenPopup("Add Map Error");
+			}
+			else
+			{
+				ImGui::OpenPopup("Confirm Add Map");
+			}
+		}
+		renderYesNoPopup("Confirm Add Map", ConfirmLabelText.c_str(), [this]() { //"Do you really want to add this map ?"
 			AddMapManually(std::string(name), std::string(author), std::string(description), std::string(MapsFolderPathBuf), std::string(mapfilePath), std::string(imagePath));
 			ImGui::CloseCurrentPopup();
-		}
+			}, [this]() {
+				ImGui::CloseCurrentPopup();
+			});
+
+		renderInfoPopup("Add Map Error", FieldEmptyText.c_str()); //"A field is empty !"
 
 		ImGui::EndPopup();
 	}
@@ -2326,6 +2369,150 @@ void Pluginx64::renderFileExplorer()
 			ImGui::CloseCurrentPopup();
 		}
 		
+		ImGui::EndPopup();
+	}
+}
+
+
+void Pluginx64::renderFileExplorerToAddMap(char* filefullPathBuff, std::vector<std::string> extensions)
+{
+	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
+	if (ImGui::BeginPopupModal("Select map file", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char newFolderName[200] = "";
+
+		static char fullPathBuff[256] = "C:/";
+		std::filesystem::path currentPath = fullPathBuff;
+
+		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
+		{
+			ImGui::Columns(2, 0, true);
+			ImGui::SetColumnWidth(0, 40.f);
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
+			if (ImGui::Selectable("<--"))
+			{
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+
+			ImGui::NextColumn();
+
+			std::vector<std::string> Drives = GetDrives();
+
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
+			if (ImGui::BeginCombo("", fullPathBuff))
+			{
+				for (auto drive : Drives)
+				{
+					drive += ":/";
+					if (ImGui::Selectable(drive.c_str()))
+					{
+						strncpy(fullPathBuff, drive.c_str(), IM_ARRAYSIZE(fullPathBuff));
+						currentPath = fullPathBuff;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			currentPath = fullPathBuff;
+
+			ImGui::SameLine();
+
+			if (ImGui::Button(NewFolderText.c_str(), ImVec2(100.f, 19.f)))
+			{
+				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
+				ImGui::OpenPopup("Folder Name");
+			}
+			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
+				if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 25.f)))
+				{
+					try
+					{
+						std::filesystem::create_directory(currentPath.string() + "/" + newFolderName);
+					}
+					catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
+					{
+						cvarManager->log(ex.what());
+					}
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			ImGui::EndChild();
+		}
+
+		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
+		{
+			try
+			{
+				for (const auto& dir : fs::directory_iterator(currentPath))
+				{
+					std::string dirName = dir.path().filename().string();
+					std::string dirPath = dir.path().string();
+
+					if (dir.is_directory())
+					{
+						if (ImGui::Selectable(dirName.c_str()))
+						{
+							strncpy(fullPathBuff, dirPath.c_str(), IM_ARRAYSIZE(fullPathBuff));
+						}
+					}
+					else
+					{
+						std::string fileExtension = dir.path().filename().extension().string();
+						auto checkExtensions = [&]() {
+							for (std::string extension : extensions)
+								if (extension == fileExtension)
+									return true;
+							return false;
+						};
+
+						if (checkExtensions())
+						{
+							bool isSelected = (std::string(filefullPathBuff) == dirPath);
+							if (ImGui::Selectable(dirName.c_str(), isSelected))
+							{
+								if (isSelected)
+									strncpy(filefullPathBuff, "", 256); //reset
+								else
+									strncpy(filefullPathBuff, dirPath.c_str(), 256); //select this file
+							}
+						}
+					}
+				}
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log("error : " + std::string(ex.what()));
+				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
+			}
+
+			ImGui::EndChild();
+		}
+
+		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		AlignRightNexIMGUItItem(100.f, 8.f);
+		if (ImGui::Button(SelectText.c_str(), ImVec2(100.f, 30.f))) //"Select"
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 }

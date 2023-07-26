@@ -375,8 +375,8 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 
 	if (Directory_Or_File_Exists(mapFilePath))
 	{
-		fs::copy(mapFilePath, Workshop_Dl_Path + "/" + workshopSafeMapName + ".upk"); //copy map file to map directory
-		cvarManager->log("Map pasted : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".upk");
+		fs::copy(mapFilePath, Workshop_Dl_Path + "/" + mapFilePath.filename().string()); //copy map file to map directory
+		cvarManager->log("Map pasted : " + Workshop_Dl_Path + "/" + mapFilePath.filename().string());
 	}
 	else
 	{
@@ -389,16 +389,16 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 
 	if (Directory_Or_File_Exists(imagePath))
 	{
-		fs::copy(imagePath, Workshop_Dl_Path + "/" + workshopSafeMapName + "." + imagePath.extension().string()); //copy preview to map directory
-		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + workshopSafeMapName + ".jfif");
+		fs::copy(imagePath, Workshop_Dl_Path + "/" + imagePath.filename().string()); //copy preview to map directory
+		cvarManager->log("Preview pasted : " + Workshop_Dl_Path + "/" + imagePath.filename().string());
 	}
 	else
 	{
 		cvarManager->log("Couldn't find preview to paste");
 	}
 
-
 	cvarManager->log(mapName + " added successfully!");
+	AddedMapSccuessfully = true;
 }
 
 

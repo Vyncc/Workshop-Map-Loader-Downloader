@@ -243,7 +243,10 @@ public:
 	void renderDownloadFailedPopup();
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 
-	void renderAddMapManually();
+
+	bool AddedMapSccuessfully = false;
+	void renderAddMapManuallyPopup();
+	void renderFileExplorerToAddMap(char* filefullPathBuff, std::vector<std::string> extensions);
 	void renderFileExplorer();
 
 
@@ -295,8 +298,18 @@ public:
 
 	//LauchMode Popup
 	std::string CancelText;
-	
 
+	//Add Map
+	std::string AddMapText;
+	std::string NameText;
+	std::string AuthorText;
+	std::string MapFilePathText;
+	std::string ImagePathText;
+	std::string SelectFileText;
+	std::string FieldEmptyText;
+	std::string ConfirmLabelText;
+	std::string MapAddedSuccessfullyText;
+	
 	//2nd Tab
 	std::string Tab3SearchWorkshopText;
 	std::string DownloadButtonText;
@@ -311,7 +324,6 @@ public:
 	std::string ResultSizeText;
 	std::string DownloadMapButtonText;
 
-
 	//Warnings
 	std::string DirNotExistText;
 	std::string DownloadFailedText; std::string DownloadFailedErrorText;
@@ -321,17 +333,6 @@ public:
 	std::string NOButtonText;
 	std::string IsDownloadDingWarningText;
 	std::string PathSavedText;
-
-	//LaunchMode
-	std::string LMLabel1Text;
-	std::string LMLabel2Text;
-	std::string LMLabel3Text;
-
-	//HostGame
-	std::string GameSettingsText;
-	std::string GameModeText;
-	std::string NBOfPlayersText;
-	std::string HostGameText;
 
 	//ExtractMapFiles
 	std::string EMFMessageText1;
@@ -347,7 +348,6 @@ public:
 	std::string DLTTexturesInstalledText;
 	std::string CloseText;
 	std::string DontAskText;
-
 
 	//File Explorer
 	std::string NewFolderText;
