@@ -878,9 +878,12 @@ void Pluginx64::renderMaps(Gamepad controller)
 				{
 					try
 					{
-						if (curMap.PreviewImage->GetImGuiTex())
+						if (curMap.PreviewImage != nullptr)
 						{
-							draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+							if (curMap.PreviewImage->GetImGuiTex())
+							{
+								draw_list->AddImage(curMap.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+							}
 						}
 					}
 					catch (const std::exception& ex)
@@ -1232,9 +1235,12 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		{
 			try
 			{
-				if (map.PreviewImage->GetImGuiTex())
+				if (map.PreviewImage != nullptr)
 				{
-					draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+					if (map.PreviewImage->GetImGuiTex())
+					{
+						draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+					}
 				}
 			}
 			catch (const std::exception& ex)
@@ -1364,9 +1370,12 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 		{
 			try
 			{
-				if (map.PreviewImage->GetImGuiTex())
+				if (map.PreviewImage != nullptr)
 				{
-					draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+					if (map.PreviewImage->GetImGuiTex())
+					{
+						draw_list->AddImage(map.PreviewImage->GetImGuiTex(), ImageMin, ImageMax); //Map image preview
+					}
 				}
 			}
 			catch (const std::exception& ex)
@@ -1530,9 +1539,12 @@ void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char ma
 			{
 				try
 				{
-					if (mapResult.Image->GetImGuiTex())
+					if (mapResult.Image != nullptr)
 					{
-						drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+						if (mapResult.Image->GetImGuiTex())
+						{
+							drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
+						}
 					}
 				}
 				catch (const std::exception& ex)
