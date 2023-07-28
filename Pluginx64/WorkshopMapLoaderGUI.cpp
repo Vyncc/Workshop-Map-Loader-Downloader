@@ -466,10 +466,19 @@ void Pluginx64::Render()
 			HasSeeNewUpdateAlert = false;
 		}
 
+		if (ImGui::BeginMenu("Support Me"))
+		{
+			ImGui::Text("Support me on Patreon :");
+			renderLink("https://www.patreon.com/WorkshopMapLoader");
+
+			ImGui::EndMenu();
+		}
 
 		if (ImGui::BeginMenu("Credits"))
 		{
 			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
+			renderLink("https://twitter.com/Vync5");
+			renderLink("https://www.youtube.com/@vync8978");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing and Teyq for his help ;)");
 			ImGui::Text("Thanks to JetFox for his contribution on the plugin");
