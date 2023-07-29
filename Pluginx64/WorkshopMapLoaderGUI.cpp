@@ -476,7 +476,7 @@ void Pluginx64::Render()
 
 		if (ImGui::BeginMenu("Credits"))
 		{
-			ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
+			ImGui::Text("Plugin made by Vync#3866, contact me on discord or twitter for custom plugin commissions.");
 			renderLink("https://twitter.com/Vync5");
 			renderLink("https://www.youtube.com/@vync8978");
 			ImGui::NewLine();
@@ -1965,7 +1965,13 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 
 			ImGui::NewLine();
 
-			CenterNexIMGUItItem(383.f);
+			ImGui::Text("Follow this tutorial to download and to install the workshop textures :");
+			ImGui::SameLine();
+			renderLink("https://youtu.be/X34TMcA0Jok?t=8");
+
+			ImGui::NewLine();
+
+			CenterNexIMGUItItem(258.f);
 			if (ImGui::Button(DownloadButtonText.c_str(), ImVec2(100.f, 25.f)))//"Download"
 			{
 				std::thread t2(&Pluginx64::DownloadWorkshopTextures, this);
@@ -2073,7 +2079,7 @@ void Pluginx64::renderNewUpdatePopup()
 			AnnoucementText1 = "J'ai creer un nouveau plugin! Ca s'appelle Looking For Mates (LFM)";
 			AnnoucementText2 = "C'est un plugin pour trouver des gens avec qui jouer simplement et rapidement (comme \"Trouver Un Groupe\" sur Overwatch si vous connaissez) pour jouer en ranked, occasionnel, mode extra, match prive, etc...";
 			AnnoucementText3 = "Trouvez quelqu'un qui vous interesse dans la liste de joueurs et cliquez sur lui pour recevoir une invitation dans son groupe.";
-			AnnoucementText4 = "Je suis assez fier du resultat et je pense que c'est vraiment un bon outil a partager. Plus il y aura de gens qui l'utiliseront, plugin le plugin seras interessant, donc si vous etes interesse installez le ici :";
+			AnnoucementText4 = "Je suis assez fier du resultat et je pense que c'est vraiment un bon outil a partager. Plus il y aura de gens qui l'utiliseront, plugin le plugin sera interessant, donc si vous etes interesse installez le ici :";
 		}
 
 
@@ -2098,19 +2104,21 @@ void Pluginx64::renderNewUpdatePopup()
 				ImGui::Text(AnnoucementText3.c_str());
 				ImGui::NewLine();
 				ImGui::Text(AnnoucementText4.c_str());
-				renderLink("LFM link here");
+				renderLink("https://bakkesplugins.com/plugins/view/397");
 				ImGui::SameLine();
-				renderLink("LFM link here");
+				renderLink("https://bakkesplugins.com/plugins/view/397");
 				ImGui::SameLine();
-				renderLink("LFM link here");
-				ImGui::SameLine();
-				renderLink("LFM link here");
-				ImGui::SameLine();
-				renderLink("LFM link here");
-				ImGui::SameLine();
-				renderLink("LFM link here");
-				ImGui::SameLine();
-				renderLink("LFM link here");
+				renderLink("https://bakkesplugins.com/plugins/view/397");
+
+				ImGui::NewLine();
+
+				ImGui::Separator();
+
+				ImGui::NewLine();
+
+				ImGui::Text("The plugin is now open source so if you want to check it, here is the link :");
+				renderLink("https://github.com/Vyncc/Workshop-Map-Loader-Downloader");
+
 				ImGui::NewLine();
 
 				ImGui::EndTabItem();

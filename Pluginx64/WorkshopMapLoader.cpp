@@ -797,7 +797,7 @@ void Pluginx64::DownloadWorkshopTextures()
 
 		//download
 		CurlRequest req;
-		req.url = "https://eu2.contabostorage.com/feff50e599e5426d9deebd02ac6c0dbe:textures/Textures.zip";
+		req.url = "https://cdn.discordapp.com/attachments/1062156148054179850/1062156149257932821/Workshop-textures.zip";
 		req.progress_function = [this](double file_size, double downloaded, ...)
 		{
 			//cvarManager->log("Download progress : " + std::to_string(downloaded));
