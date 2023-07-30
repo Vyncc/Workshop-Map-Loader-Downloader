@@ -1,4 +1,6 @@
-# Workshop-Map-Loader-Downloader
+This was my first ever c++ project, I learned c++ while I was developing it so the code is pretty bad ngl.
+
+# Workshop Map Loader & Downloader
 
 This plugin allows you :
 
