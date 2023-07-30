@@ -16,7 +16,7 @@ This plugin allows you :
 
 - To download a map from an url, or, from the searching results into your maps folder
 
-###Additional Informations
+### Additional Informations
 
 - This plugin can be used by Epic Games users.
 
@@ -51,7 +51,7 @@ You have to :
 I've made a tutorial if you are struggling to make it work : [https://www.youtube.com/watch?v=mI2PqkissiQ](https://www.youtube.com/watch?v=mI2PqkissiQ)
 
 
-##Bugs/Issues Known
+## Bugs/Issues Known
 
 - If you use Windows 7 you wont be able to load the plugin, add me on discord (just below) I can give you an old version working for Windows 7
 
