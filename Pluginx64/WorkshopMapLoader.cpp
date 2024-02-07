@@ -536,8 +536,17 @@ void Pluginx64::GetMapResult(Json::Value maps, int index)
 		release.description = maps2[release_index]["description"].asString();
 		release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
 		release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
-		release.zipName = maps2[release_index]["assets"]["links"][1]["name"].asString();
 
+		std::string zipNameUnsafe = maps2[release_index]["assets"]["links"][1]["name"].asString();
+
+		// todo better to do a whitelist
+		std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "#", "'", "`"};
+		for (auto special : specials)
+		{
+			eraseAll(zipNameUnsafe, special);
+		}
+
+		release.zipName = zipNameUnsafe; // now it is filtered
 
 		releases.push_back(release);
 	}
