@@ -139,7 +139,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)LibrariesUsed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\bakkesmodsdk\bakkesmod-patch "$(TargetPath)"</Command>
+      <Command>"$(BakkesModPath)\bakkesmodsdk\bakkesmod-patch.exe" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -168,7 +168,7 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>C:\Users\snipj\AppData\Roaming\bakkesmod\bakkesmod\bakkesmodsdk\bakkesmod-patch "$(TargetPath)"</Command>
+      <Command>"$(BakkesModPath)\bakkesmodsdk\bakkesmod-patch.exe" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

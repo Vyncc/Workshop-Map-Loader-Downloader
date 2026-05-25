@@ -657,9 +657,19 @@ void Pluginx64::Render()
 				ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
 
 
+				static std::string searchButtonIdleText;
+				if (searchButtonIdleText.empty())
+				{
+					searchButtonIdleText = SearchButtonText;
+				}
+
 				if (RLMAPS_Searching)
 				{
 					SearchButtonText = SearchingText;
+				}
+				else
+				{
+					SearchButtonText = searchButtonIdleText;
 				}
 
 				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching && std::string(keyWord) != "") // "Search"
@@ -687,7 +697,7 @@ void Pluginx64::Render()
 			AlignRightNexIMGUItItem(180.f, 8.f);
 			if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !RLMAPS_Searching)//Browse Maps
 			{
-				strncpy(keyWord, "", IM_ARRAYSIZE(""));
+				keyWord[0] = '\0';
 				std::thread t2(&Pluginx64::GetResults, this, "", 1);
 				t2.detach();
 			}
@@ -2395,6 +2405,10 @@ void Pluginx64::renderFileExplorer()
 		{
 			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
 			SaveInCFG();
+			if (Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
+			{
+				RefreshMapsFunct(MapsFolderPathBuf);
+			}
 			ImGui::CloseCurrentPopup();
 		}
 		

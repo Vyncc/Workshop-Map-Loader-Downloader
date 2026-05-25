@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WorkshopMapLoader.h"
+#include <cpr/util.h>
 
 
 BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.3", 0)
@@ -8,6 +9,114 @@ BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.3", 0)
 namespace
 {
 	char dummyChar;
+
+	cpr::Response GetRLMapsApi(const std::string& url)
+	{
+		// celab.jetfox.ovh currently serves an expired TLS certificate; the API still works.
+		return cpr::Get(cpr::Url{ url }, cpr::VerifySsl{ false }, cpr::Timeout{ 120000 });
+	}
+
+	bool DownloadUrlToFile(const std::string& url, const std::filesystem::path& filePath, std::string& errorMessage)
+	{
+		std::error_code ec;
+		std::filesystem::create_directories(filePath.parent_path(), ec);
+
+		std::ofstream out(filePath, std::ios::binary);
+		if (!out)
+		{
+			errorMessage = "Could not open output file: " + filePath.string();
+			return false;
+		}
+
+		cpr::Session session;
+		session.SetUrl(cpr::Url{ url });
+		session.SetTimeout(cpr::Timeout{ 120000 });
+
+		if (url.find("celab.jetfox.ovh") != std::string::npos)
+		{
+			session.SetVerifySsl(cpr::VerifySsl{ false });
+		}
+
+		const cpr::Response response = session.Download(out);
+		out.close();
+
+		if (response.status_code != 200)
+		{
+			errorMessage = "HTTP " + std::to_string(response.status_code) + ": " + response.error.message;
+			std::filesystem::remove(filePath, ec);
+			return false;
+		}
+
+		if (!std::filesystem::exists(filePath) || std::filesystem::file_size(filePath, ec) == 0)
+		{
+			errorMessage = "Downloaded file is empty";
+			std::filesystem::remove(filePath, ec);
+			return false;
+		}
+
+		std::ifstream in(filePath, std::ios::binary);
+		char header[16] = {};
+		in.read(header, sizeof(header));
+		if (std::string(header, 9) == "schannel:")
+		{
+			errorMessage = "Download failed due to SSL certificate error";
+			std::filesystem::remove(filePath, ec);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool IsValidZipFile(const std::filesystem::path& filePath)
+	{
+		std::ifstream in(filePath, std::ios::binary);
+		if (!in)
+		{
+			return false;
+		}
+
+		char magic[2] = {};
+		in.read(magic, 2);
+		return magic[0] == 'P' && magic[1] == 'K';
+	}
+
+	bool ParseMapsArray(const std::string& responseText, Json::Value& maps)
+	{
+		Json::Reader reader;
+		Json::Value root;
+
+		if (!reader.parse(responseText, root) || !root.isArray())
+		{
+			return false;
+		}
+
+		maps = root;
+		return true;
+	}
+
+	bool IsMapFileExtension(const std::string& extension)
+	{
+		return extension == ".upk" || extension == ".udk";
+	}
+
+	void ConvertUdkFilesInDirectory(const std::filesystem::path& directory)
+	{
+		for (const auto& file : fs::directory_iterator(directory))
+		{
+			if (!file.is_regular_file() || file.path().extension() != ".udk")
+			{
+				continue;
+			}
+
+			std::filesystem::path upkPath = file.path();
+			upkPath.replace_extension(".upk");
+
+			if (!fs::exists(upkPath))
+			{
+				fs::rename(file.path(), upkPath);
+			}
+		}
+	}
 }
 
 
@@ -201,17 +310,45 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 	MapList.clear();
 	selectedButton = 0;
 
+	if (!Directory_Or_File_Exists(fs::path(mapsfolders)))
+	{
+		cvarManager->log("Maps folder doesn't exist: " + mapsfolders);
+		return;
+	}
+
 	std::vector<std::filesystem::path> MapsDirectories;
 
-	for (const auto& dir : fs::directory_iterator(mapsfolders))
+	try
 	{
-		if (dir.is_directory())
+		for (const auto& dir : fs::directory_iterator(mapsfolders))
 		{
+			if (!dir.is_directory())
+			{
+				continue;
+			}
+
+			bool isWorkshopTexture = false;
+			for (const auto& textureFile : WorkshopTexturesFilesList)
+			{
+				if (dir.path().filename().string() == textureFile)
+				{
+					isWorkshopTexture = true;
+					break;
+				}
+			}
+			if (isWorkshopTexture)
+			{
+				continue;
+			}
+
 			MapsDirectories.push_back(dir.path());
 		}
 	}
-
-	if (MapsDirectories.size() == 0) { cvarManager->log("No maps detected"); return; }
+	catch (const std::exception& ex)
+	{
+		cvarManager->log("Error reading maps folder: " + std::string(ex.what()));
+		return;
+	}
 
 	for (int i = 0; i < MapsDirectories.size(); i++)
 	{
@@ -221,15 +358,30 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		Map map;
 		map.Folder = MapsDirectories.at(i).string();
 
+		try
+		{
+			ConvertUdkFilesInDirectory(CurrentMapDirectory);
+		}
+		catch (const std::exception& ex)
+		{
+			cvarManager->log("Error converting .udk files: " + std::string(ex.what()));
+		}
 
-		renameFileToUPK(CurrentMapDirectory);		//rename the map udk to upk, for people that already had the plugin
+		renameFileToUPK(CurrentMapDirectory);
 
 
 		int nbFilesInDirectory = 0;
-		//get the numbers of files in the current map directory
-		for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
+		try
 		{
-			nbFilesInDirectory++;
+			for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
+			{
+				nbFilesInDirectory++;
+			}
+		}
+		catch (const std::exception& ex)
+		{
+			cvarManager->log("Error listing map folder: " + std::string(ex.what()));
+			continue;
 		}
 
 		if (nbFilesInDirectory > 0)
@@ -239,6 +391,8 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 			bool hasFoundPreview = false;
 			bool hasFoundJSON = false;
 			bool hasFoundZIP = false;
+			try
+			{
 			for (const auto& file : fs::directory_iterator(CurrentMapDirectory))
 			{
 				std::string fileExtension = file.path().filename().extension().string();
@@ -303,7 +457,7 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 				}
 
 
-				if (!hasFoundUPK && fileExtension == ".upk")
+				if (!hasFoundUPK && IsMapFileExtension(fileExtension))
 				{
 					map.UpkFile = file.path();
 					hasFoundUPK = true;
@@ -317,6 +471,11 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 						cvarManager->log("You have to extract the files manually of this .zip : " + CurrentMapDirectory.string() + "/" + CurrentMapDirectory.filename().string() + ".zip");
 					}
 				}
+			}
+			}
+			catch (const std::exception& ex)
+			{
+				cvarManager->log("Error scanning map folder: " + std::string(ex.what()));
 			}
 		}
 		else       //if the folder is empty
@@ -334,7 +493,76 @@ void Pluginx64::RefreshMapsFunct(std::string mapsfolders)
 		cvarManager->log("");
 	}
 
+	try
+	{
+		for (const auto& file : fs::directory_iterator(mapsfolders))
+		{
+			if (!file.is_regular_file())
+			{
+				continue;
+			}
 
+			std::string fileExtension = file.path().extension().string();
+			if (!IsMapFileExtension(fileExtension) && fileExtension != ".zip")
+			{
+				continue;
+			}
+
+			bool isWorkshopTexture = false;
+			for (const auto& textureFile : WorkshopTexturesFilesList)
+			{
+				if (file.path().filename().string() == textureFile)
+				{
+					isWorkshopTexture = true;
+					break;
+				}
+			}
+			if (isWorkshopTexture)
+			{
+				continue;
+			}
+
+			Map map;
+			map.Folder = mapsfolders;
+			map.mapName = file.path().stem().string();
+			map.JsonFile = "NoInfos";
+			map.PreviewImage = std::make_shared<ImageWrapper>(IfNoPreviewImagePath, false, true);
+			map.isPreviewImageLoaded = true;
+
+			if (IsMapFileExtension(fileExtension))
+			{
+				std::filesystem::path mapPath = file.path();
+				if (fileExtension == ".udk")
+				{
+					mapPath.replace_extension(".upk");
+					if (!fs::exists(mapPath))
+					{
+						fs::rename(file.path(), mapPath);
+					}
+				}
+
+				map.UpkFile = mapPath;
+				map.ZipFile = "NoZipFound";
+			}
+			else
+			{
+				map.UpkFile = "NoUpkFound";
+				map.ZipFile = file.path();
+			}
+
+			MapList.push_back(map);
+			cvarManager->log("Found root-level map file: " + file.path().string());
+		}
+	}
+	catch (const std::exception& ex)
+	{
+		cvarManager->log("Error scanning root-level map files: " + std::string(ex.what()));
+	}
+
+	if (MapList.size() == 0)
+	{
+		cvarManager->log("No maps detected");
+	}
 }
 
 
@@ -479,33 +707,32 @@ void Pluginx64::GetResults(std::string keyWord, int IndexPage)
 		t2.detach();
 	}
 
+	const std::string encodedKeyword = cpr::util::urlEncode(keyWord);
+	const std::string requestUrl = rlmaps_url + encodedKeyword + "&page=" + std::to_string(IndexPage);
+	cpr::Response Request_MapInfos = GetRLMapsApi(requestUrl);
 
-	cpr::Response Request_MapInfos = cpr::Get(cpr::Url{ rlmaps_url + keyWord + "&page=" + std::to_string(IndexPage) });
-	
-	//Parse response json
-	Json::Value actualJson;
-	Json::Reader reader;
+	if (Request_MapInfos.status_code != 200 || Request_MapInfos.text.empty())
+	{
+		cvarManager->log("RLMaps API request failed (status " + std::to_string(Request_MapInfos.status_code) + "): " + Request_MapInfos.error.message);
+		RLMAPS_NumberOfMapsFound = 0;
+		RLMAPS_Searching = false;
+		return;
+	}
 
-	reader.parse(Request_MapInfos.text, actualJson);
-
-	const Json::Value maps = actualJson;
+	Json::Value maps;
+	if (!ParseMapsArray(Request_MapInfos.text, maps))
+	{
+		cvarManager->log("RLMaps API returned invalid data for: " + requestUrl);
+		RLMAPS_NumberOfMapsFound = 0;
+		RLMAPS_Searching = false;
+		return;
+	}
 
 	RLMAPS_NumberOfMapsFound = maps.size();
 
-
 	for (int index = 0; index < maps.size(); ++index)
 	{
-		//GetMapResult(maps, index);
-		std::thread t2(&Pluginx64::GetMapResult, this, maps, index);
-		t2.detach();
-
-
-		Sleep(100);
-	}
-
-	while (RLMAPS_MapResultList.size() != maps.size())
-	{
-		Sleep(10);
+		GetMapResult(maps, index);
 	}
 
 	RLMAPS_Searching = false;
@@ -518,37 +745,85 @@ void Pluginx64::GetMapResult(Json::Value maps, int index)
 	result.ID = maps[index]["id"].asString();
 	result.Name = maps[index]["name"].asString();
 	result.Description = maps[index]["description"].asString();
+	result.isImageLoaded = false;
+	result.IsDownloadingPreview = false;
 
-	cpr::Response Request_MapDownloadLinks = cpr::Get(cpr::Url{ "https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases" });
-	//Parse response json
+	cpr::Response Request_MapDownloadLinks = GetRLMapsApi("https://celab.jetfox.ovh/api/v4/projects/" + result.ID + "/releases");
 	Json::Value actualJson2;
 	Json::Reader reader2;
-	reader2.parse(Request_MapDownloadLinks.text, actualJson2);
-	const Json::Value maps2 = actualJson2;
 
+	if (Request_MapDownloadLinks.status_code != 200 || !reader2.parse(Request_MapDownloadLinks.text, actualJson2) || !actualJson2.isArray() || actualJson2.size() == 0)
+	{
+		cvarManager->log("No releases found for map: " + result.Name);
+		return;
+	}
+
+	const Json::Value maps2 = actualJson2;
 
 	std::vector<RLMAPS_Release> releases;
 	for (int release_index = 0; release_index < maps2.size(); ++release_index)
 	{
+		if (!maps2[release_index].isMember("assets") || !maps2[release_index]["assets"].isMember("links"))
+		{
+			continue;
+		}
+
+		const Json::Value links = maps2[release_index]["assets"]["links"];
+		if (!links.isArray() || links.empty())
+		{
+			continue;
+		}
+
 		RLMAPS_Release release;
 		release.name = maps2[release_index]["name"].asString();
 		release.tag_name = maps2[release_index]["tag_name"].asString();
 		release.description = maps2[release_index]["description"].asString();
-		release.pictureLink = maps2[release_index]["assets"]["links"][0]["url"].asString();
-		release.downloadLink = maps2[release_index]["assets"]["links"][1]["url"].asString();
 
-		std::string zipNameUnsafe = maps2[release_index]["assets"]["links"][1]["name"].asString();
+		std::string pictureLink;
+		std::string downloadLink;
+		std::string zipName;
 
-		// todo better to do a whitelist
-		std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "#", "'", "`"};
+		for (Json::ArrayIndex link_index = 0; link_index < links.size(); ++link_index)
+		{
+			const std::string linkName = links[link_index]["name"].asString();
+			const std::string linkUrl = links[link_index]["url"].asString();
+			const std::string linkType = links[link_index].isMember("link_type") ? links[link_index]["link_type"].asString() : "";
+
+			if (linkName.size() >= 4 && linkName.substr(linkName.size() - 4) == ".zip")
+			{
+				downloadLink = linkUrl;
+				zipName = linkName;
+			}
+			else if (linkType == "image" || linkName.find(".jp") != std::string::npos || linkName.find(".png") != std::string::npos)
+			{
+				pictureLink = linkUrl;
+			}
+		}
+
+		if (downloadLink.empty() || zipName.empty())
+		{
+			continue;
+		}
+
+		release.pictureLink = pictureLink;
+		release.downloadLink = downloadLink;
+
+		std::string zipNameUnsafe = zipName;
+		std::string specials[] = { "/", "\\", "?", ":", "*", "\"", "<", ">", "|", "#", "'", "`" };
 		for (auto special : specials)
 		{
 			eraseAll(zipNameUnsafe, special);
 		}
 
-		release.zipName = zipNameUnsafe; // now it is filtered
+		release.zipName = zipNameUnsafe;
 
 		releases.push_back(release);
+	}
+
+	if (releases.empty())
+	{
+		cvarManager->log("No downloadable release assets for map: " + result.Name);
+		return;
 	}
 
 	result.releases = releases;
@@ -556,60 +831,43 @@ void Pluginx64::GetMapResult(Json::Value maps, int index)
 	result.Author = maps[index]["namespace"]["path"].asString();
 	result.PreviewUrl = releases[0].pictureLink;
 
-	//cvarManager->log("download url : " + releases[0].downloadLink);
-	//GetMapSize(releases[0].downloadLink);
-
-
 	cvarManager->log("Map : " + result.Name);
-
 
 	std::filesystem::path resultImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\img\\RLMAPS\\" + result.ID + ".jfif";
 
-
-
-	if (!Directory_Or_File_Exists(resultImagePath)) //if preview image doesn't exist
+	if (!Directory_Or_File_Exists(resultImagePath))
 	{
-		//IsDownloadingPreview = true;
-		/*RLMAPS_MapResultList[index].IsDownloadingPreview = true;*/
 		result.IsDownloadingPreview = true;
 
 		RLMAPS_MapResultList.push_back(result);
-		DownloadPreviewImage(result.PreviewUrl, resultImagePath.string(), index);
+		DownloadPreviewImage(result.PreviewUrl, resultImagePath.string(), static_cast<int>(RLMAPS_MapResultList.size()) - 1);
 	}
 	else
 	{
-		std::shared_ptr<ImageWrapper> resultImage;
-		bool resultisImageLoaded;
-
-		resultImage = std::make_shared<ImageWrapper>(resultImagePath, false, true);
-		resultisImageLoaded = true;
-
 		result.ImagePath = resultImagePath;
-		result.Image = resultImage;
-		result.isImageLoaded = resultisImageLoaded;
-
+		result.Image = std::make_shared<ImageWrapper>(resultImagePath, false, true);
+		result.isImageLoaded = true;
 
 		RLMAPS_MapResultList.push_back(result);
 	}
-
-
 }
 
 void Pluginx64::GetNumpPages(std::string keyWord)
 {
 	int ResultsSize = 20;
 	NumPages = 0;
+	const std::string encodedKeyword = cpr::util::urlEncode(keyWord);
+
 	while (ResultsSize == 20)
 	{
 		NumPages++;
-		cpr::Response Request_Page = cpr::Get(cpr::Url{ rlmaps_url + keyWord + "&page=" + std::to_string(NumPages) });
+		cpr::Response Request_Page = GetRLMapsApi(rlmaps_url + encodedKeyword + "&page=" + std::to_string(NumPages));
 
-		//Parse response json
-		Json::Value actualJson;
-		Json::Reader reader;
-
-		reader.parse(Request_Page.text, actualJson);
-		const Json::Value maps = actualJson;
+		Json::Value maps;
+		if (Request_Page.status_code != 200 || !ParseMapsArray(Request_Page.text, maps))
+		{
+			break;
+		}
 
 		ResultsSize = maps.size();
 		cvarManager->log("ResultsSize : " + std::to_string(ResultsSize));
@@ -728,37 +986,20 @@ void Pluginx64::RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult
 
 	cvarManager->log("Download Starting...");
 
-	//download
-	CurlRequest req;
-	req.url = download_url;
-	req.progress_function = [this](double file_size, double downloaded, ...)
+	std::string downloadError;
+	if (!DownloadUrlToFile(download_url, Folder_Path, downloadError) || !IsValidZipFile(Folder_Path))
 	{
-		//cvarManager->log("Download progress : " + std::to_string(downloaded));
-		RLMAPS_Download_Progress = downloaded;
-		RLMAPS_WorkshopDownload_FileSize = file_size;
-	};
-
-	
-
-	HttpWrapper::SendCurlRequest(req, [this, Folder_Path, Workshop_Dl_Path](int code, char* data, size_t size)
-		{
-			std::ofstream out_file{ Folder_Path, std::ios_base::binary };
-			if (out_file)
-			{
-				out_file.write(data, size);
-
-				cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
-				RLMAPS_IsDownloadingWorkshop = false;
-			}
-		});
-
-	while (RLMAPS_IsDownloadingWorkshop == true)
-	{
-		cvarManager->log("downloading...............");
-
-		RLMAPS_WorkshopDownload_Progress = RLMAPS_Download_Progress;
-		Sleep(500);
+		cvarManager->log("Workshop download failed: " + downloadError);
+		cvarManager->log("Download URL : " + download_url);
+		std::error_code ec;
+		std::filesystem::remove(Folder_Path, ec);
+		DownloadFailed = true;
+		RLMAPS_IsDownloadingWorkshop = false;
+		return;
 	}
+
+	cvarManager->log("Workshop Downloaded in : " + Workshop_Dl_Path);
+	RLMAPS_IsDownloadingWorkshop = false;
 
 	if (unzipMethod == "Bat")
 	{
@@ -1066,41 +1307,27 @@ std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePa
 
 void Pluginx64::DownloadPreviewImage(std::string downloadUrl, std::string filePath, int mapResultIndex)
 {
-	std::string download_url = downloadUrl;
-	std::string File_Path = filePath;
-	//converting download_url string to LPCWSTR
-	std::wstring w_URL = s2ws(download_url);
-	LPCWSTR L_URL = w_URL.c_str();
-	//converting Folder_Path string to LPCWSTR
-	std::wstring w_PATH = s2ws(File_Path);
-	LPCWSTR L_PATH = w_PATH.c_str();
-
-
-	CurlRequest req;
-	req.url = download_url;
-
-	HttpWrapper::SendCurlRequest(req, L_PATH, [this, File_Path, mapResultIndex, filePath](int code, std::wstring out_path)
+	std::string downloadError;
+	if (!DownloadUrlToFile(downloadUrl, filePath, downloadError))
+	{
+		cvarManager->log("Failed to download preview: " + downloadError);
+		if (mapResultIndex >= 0 && mapResultIndex < static_cast<int>(RLMAPS_MapResultList.size()))
 		{
-			cvarManager->log("PREVIEW DONWLOADED : " + File_Path);
-
-			Sleep(100);
-
 			RLMAPS_MapResultList[mapResultIndex].IsDownloadingPreview = false;
+		}
+		return;
+	}
 
+	cvarManager->log("PREVIEW DONWLOADED : " + filePath);
 
-			std::shared_ptr<ImageWrapper> resultImage;
-			bool resultisImageLoaded;
-
-			resultImage = std::make_shared<ImageWrapper>(filePath, false, true);
-			resultisImageLoaded = true;
-
-			RLMAPS_MapResultList[mapResultIndex].ImagePath = filePath;
-			RLMAPS_MapResultList[mapResultIndex].Image = resultImage;
-			RLMAPS_MapResultList[mapResultIndex].isImageLoaded = resultisImageLoaded;
-
-			cvarManager->log("Downloaded/loaded preview for " + RLMAPS_MapResultList[mapResultIndex].Name);
-		});
-
+	if (mapResultIndex >= 0 && mapResultIndex < static_cast<int>(RLMAPS_MapResultList.size()))
+	{
+		RLMAPS_MapResultList[mapResultIndex].IsDownloadingPreview = false;
+		RLMAPS_MapResultList[mapResultIndex].ImagePath = filePath;
+		RLMAPS_MapResultList[mapResultIndex].Image = std::make_shared<ImageWrapper>(filePath, false, true);
+		RLMAPS_MapResultList[mapResultIndex].isImageLoaded = true;
+		cvarManager->log("Downloaded/loaded preview for " + RLMAPS_MapResultList[mapResultIndex].Name);
+	}
 }
 
 bool Pluginx64::FileIsInDirectoryRecursive(std::string dirPath, std::string filename)
