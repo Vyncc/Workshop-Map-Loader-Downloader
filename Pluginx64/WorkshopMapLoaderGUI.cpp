@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WorkshopMapLoader.h"
+#include "FileExplorer.h"
 #include "IMGUI/imgui_internal.h"
 
 namespace fs = std::filesystem;
@@ -7,10 +8,6 @@ namespace fs = std::filesystem;
 
 char Pluginx64::MapsFolderPathBuf[200];
 bool Pluginx64::FR = false;
-int RLMAPS_SearchWorkshopDisplayed = 0;
-
-
-
 
 float heightMutators = 35.f;
 float heightHostGamePopup = 194.f;
@@ -38,62 +35,6 @@ void Pluginx64::Render()
 		ImGui::End();
 		return;
 	}
-
-	Gamepad controller1 = Gamepad(1);
-
-	controller1.Update();
-	if (controller1.Connected())
-	{
-		float stickX = controller1.LeftStick_X();
-		float stickY = controller1.LeftStick_Y();
-
-		POINT point;
-		GetCursorPos(&point);
-
-		static bool L1WasPressed = false;
-		static bool BWasPressed = false;
-
-		if (controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && !L1WasPressed) {
-			cvarManager->log("Button L1 is pressed");
-			mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); //Left click down
-			L1WasPressed = true;
-		}
-		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_LEFT_SHOULDER) && L1WasPressed)
-		{
-			mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0); //Left click realease
-
-			cvarManager->log("Button L1 is realeased");
-			L1WasPressed = false;
-		}
-
-
-		if (controller1.checkButtonPress(XINPUT_GAMEPAD_B) && !BWasPressed) {
-			cvarManager->log("Button B is pressed");
-			BWasPressed = true;
-		}
-		else if (!controller1.checkButtonPress(XINPUT_GAMEPAD_B) && BWasPressed)
-		{
-			isWindowOpen_ = false;
-			cvarManager->log("Button B is realeased");
-			BWasPressed = false;
-		}
-
-
-		if (!controller1.LStick_InDeadzone())
-		{
-			int pixelsX = 0;
-			int pixelsY = 0;
-
-			pixelsX = stickX * ControllerSensitivity;
-			pixelsY = stickY * ControllerSensitivity;
-
-			//cvarManager->log("pixelX : " + std::to_string(pixelsX));
-			//cvarManager->log("pixelY : " + std::to_string(pixelsY));
-
-			SetCursorPos(point.x + pixelsX, point.y - pixelsY);
-		}
-	}
-	
 
 	//Ctrl + F
 	static bool CtrlFPressed = false;
@@ -136,19 +77,6 @@ void Pluginx64::Render()
 		ExtractMethodText = "Extract Method";
 		WarningText = "Warning :";
 
-		//Controller settings
-		ControllerText = "Controller";
-		UseControllerText = "Use Controller";
-		ControllsText = "Controlls";
-		ScrollSensitivityText = "Scroll Sensitivity";
-		SensitivityText = "Sensitivity";
-		ControllsLitText[0] = "Left Thumb + Right Thumb : open/close the menu";
-		ControllsLitText[1] = "DPAD arrows : navigate through the maps";
-		ControllsLitText[2] = "Left joystick : move the cursor";
-		ControllsLitText[3] = "Right joystick : scroll";
-		ControllsLitText[4] = "LB/L1 : click";
-		ControllsLitText[5] = "B/O : close the menu";
-
 		//1st Tab
 		Tab1MapLoaderText = "Map Loader";
 		Label1Text = "Put the path of the maps folder :";
@@ -173,21 +101,12 @@ void Pluginx64::Render()
 		FieldEmptyText = "A field is empty !";
 		ConfirmLabelText = "Do you really want to add this map ?";
 		MapAddedSuccessfullyText = "Map added successfully !";
+		SelectZIPMapFileText = "Enter the map ZIP file path";
 
-		//2nd Tab
 		DownloadButtonText = "Download";
-		Label3Text = "Search A Workshop :";
-		SearchButtonText = "Search";
-		SearchingText = "Searching...";
-		WorkshopsFoundText = "Workshops Found :";
-		BrowseMapsText = "Browse Maps";
-		Tab3SearchWorkshopText = "Search Workshop (rocketleaguemaps.us)";
-
 
 		//Search Result
 		ResultByText = "By ";
-		ResultSizeText = "Size : ";
-		DownloadMapButtonText = "Download Map";
 
 		//Warnings
 		DirNotExistText = "This directory is not valid !";
@@ -233,19 +152,6 @@ void Pluginx64::Render()
 		ExtractMethodText = "Methode d'extraction";
 		WarningText = "Attention :";
 
-		//Controller settings
-		ControllerText = "Manette";
-		UseControllerText = "Activer La Manette";
-		ControllsText = "Commandes";
-		ScrollSensitivityText = "Sensibilite du defilement";
-		SensitivityText = "Sensibilite";
-		ControllsLitText[0] = "Pouce Gauche + Pouce Droit : ouvrir/fermer le menu";
-		ControllsLitText[1] = "Fleches : naviguer dans les maps";
-		ControllsLitText[2] = "Joystick Gauche : bouger la souris";
-		ControllsLitText[3] = "Joystick Droit : faire defiler";
-		ControllsLitText[4] = "LB/L1 : cliquer";
-		ControllsLitText[5] = "B/O : fermer le menu";
-
 		//1st Tab
 		Tab1MapLoaderText = "Charger Map";
 		Label1Text = "Mets le chemin du dossier des maps :";
@@ -271,20 +177,12 @@ void Pluginx64::Render()
 		FieldEmptyText = "Un champ est vide !";
 		ConfirmLabelText = "Veux-tu vraiment ajouter cette map ?";
 		MapAddedSuccessfullyText = "Map ajoute avec succes !";
+		SelectZIPMapFileText = "Mets le chemin du fichier ZIP de la map";
 
-		//2nd Tab
 		DownloadButtonText = "Telecharger";
-		Label3Text = "Rechercher Un Workshop :";
-		SearchButtonText = "Rechercher";
-		SearchingText = "Recherche en cours...";
-		WorkshopsFoundText = "Workshops Trouves :";
-		BrowseMapsText = "Parcourir Les Maps";
-		Tab3SearchWorkshopText = "Rechercher Workshop (rocketleaguemaps.us)";
 
 		//Search Result
 		ResultByText = "Par ";
-		ResultSizeText = "Taille : ";
-		DownloadMapButtonText = "Telecharger La Map";
 
 		//Warnings
 		DirNotExistText = "Ce chemin n'est pas valide !";
@@ -390,38 +288,6 @@ void Pluginx64::Render()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu(ControllerText.c_str())) //"Controller"
-			{
-				if (ImGui::Checkbox(UseControllerText.c_str(), &UseController))
-				{
-					SaveInCFG();
-				}
-				
-
-				if (ImGui::BeginMenu(ControllsText.c_str()))
-				{
-					ImGui::Text(ControllsLitText[0].c_str()); //"Left Thumb + Right Thumb : open/close the menu"
-					ImGui::Text(ControllsLitText[1].c_str()); //"DPAD arrows : navigate through the maps"
-					ImGui::Text(ControllsLitText[2].c_str()); //"Left joystick : move the cursor"
-					ImGui::Text(ControllsLitText[3].c_str()); //"Right joystick : scroll"
-					ImGui::Text(ControllsLitText[4].c_str()); //"LB/L1 : click"
-					ImGui::Text(ControllsLitText[5].c_str()); //"B/O : close the menu"
-					ImGui::EndMenu();
-				}
-
-				if(ImGui::SliderInt(SensitivityText.c_str(), &ControllerSensitivity, 1.f, 30.f)) //"Sensitivity"
-				{
-					SaveInCFG();
-				}
-
-				if(ImGui::SliderInt(ScrollSensitivityText.c_str(), &ControllerScrollSensitivity, 1.f, 30.f)) //"ScrollSensitivity"
-				{
-					SaveInCFG();
-				}
-
-				ImGui::EndMenu();
-			}
-
 			if (ImGui::Selectable(DlTexturesText.c_str())) //"Download Textures"
 			{
 				DownloadTexturesBool = true;
@@ -513,11 +379,24 @@ void Pluginx64::Render()
 
 			CenterNexIMGUItItem(628.f); //306.f("Save Path" button) + 8.f(the gap between both buttons) + 306.f("Refresh Mas" button) = 620.f  (cause they are on same line)
 
+			static FileExplorer mapsFolderExplorer;
 			if (ImGui::Button(SelectMapsFolderText.c_str(), ImVec2(151.f, 32.f))) // "Select maps folder"
 			{
-				ImGui::OpenPopup("Select maps folder");
+				FileExplorer::Config config;
+				config.showPreview = false;
+				config.fileFilters = { ".udk", ".upk" };
+				mapsFolderExplorer.SetConfig(config);
+				mapsFolderExplorer.SetOnPathSelected([](const std::string& path, const std::string& selectedEntryPath) {
+					std::string selectedMapsPath = selectedEntryPath.empty()
+						? path
+						: fs::path(selectedEntryPath).parent_path().string();
+
+					strncpy(MapsFolderPathBuf, selectedMapsPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf) - 1);
+					MapsFolderPathBuf[IM_ARRAYSIZE(MapsFolderPathBuf) - 1] = '\0';
+				});
+				mapsFolderExplorer.Open(MapsFolderPathBuf);
 			}
-			renderFileExplorer();
+			mapsFolderExplorer.Render();
 
 			ImGui::SameLine();
 
@@ -640,146 +519,11 @@ void Pluginx64::Render()
 
 			renderQuickSearch();
 
-			renderMaps(controller1);
+			renderMaps();
 
 			ImGui::EndTabItem();
 		}
 
-
-		if (ImGui::BeginTabItem(Tab3SearchWorkshopText.c_str()))
-		{
-			static char keyWord[200] = "";
-			ImGui::BeginGroup();
-			{
-				ImGui::Text(Label3Text.c_str()); // "Search A Workshop :"
-
-				ImGui::SetNextItemWidth(308.f);
-				ImGui::InputText("##RLMAPSworkshopkeyword", keyWord, IM_ARRAYSIZE(keyWord));
-
-
-				if (RLMAPS_Searching)
-				{
-					SearchButtonText = SearchingText;
-				}
-
-				if (ImGui::Button(SearchButtonText.c_str(), ImVec2(308.f, 25.f)) && !RLMAPS_Searching && std::string(keyWord) != "") // "Search"
-				{
-					std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), 1);
-					t2.detach();
-				}
-				ImGui::EndGroup();
-			}
-
-			ImGui::SameLine();
-
-			try
-			{
-				CenterNexIMGUItItem(63.f);
-				ImGui::Image(RLMAPSLogoImage->GetImGuiTex(), ImVec2(63.f, 63.f)); //rocketleaguemaps.us Logo
-			}
-			catch (const std::exception& ex)
-			{
-				cvarManager->log(ex.what());
-			}
-
-			ImGui::SameLine();
-
-			AlignRightNexIMGUItItem(180.f, 8.f);
-			if (ImGui::Button(BrowseMapsText.c_str(), ImVec2(180.f, 65.f)) && !RLMAPS_Searching)//Browse Maps
-			{
-				strncpy(keyWord, "", IM_ARRAYSIZE(""));
-				std::thread t2(&Pluginx64::GetResults, this, "", 1);
-				t2.detach();
-			}
-
-			if (FolderErrorBool)
-			{
-				ImGui::OpenPopup("FolderError");
-			}
-			renderFolderErrorPopup();
-
-			if (DownloadFailed)
-			{
-				ImGui::OpenPopup("DownloadFailed");
-			}
-			renderDownloadFailedPopup();
-
-			if (UserIsChoosingYESorNO)
-			{
-				ImGui::OpenPopup("Download?");
-			}
-			renderAcceptDownload();
-
-
-			if (RLMAPS_IsDownloadingWorkshop == true)
-			{
-				ImGui::Separator();
-
-				std::string ProgressBar_Label = convertToMB(std::to_string(RLMAPS_WorkshopDownload_Progress)) + " / " + convertToMB(std::to_string(RLMAPS_WorkshopDownload_FileSize));
-				renderProgressBar(RLMAPS_WorkshopDownload_Progress, RLMAPS_WorkshopDownload_FileSize, ImGui::GetCursorScreenPos(), ImVec2(1305.f, 24.f),
-					ImColor(112, 112, 112, 255), ImColor(33, 65, 103, 255), ProgressBar_Label.c_str());
-			}
-
-			ImGui::Separator();
-
-			ImGui::BeginChild("##RLMAPSSearchWorkshopMapsResults");
-			{
-				ImGui::Text("%s %d / %d", WorkshopsFoundText.c_str(), RLMAPS_SearchWorkshopDisplayed, RLMAPS_NumberOfMapsFound); // "Workshops Found : 0 / 0"
-
-				ImGui::SameLine();
-
-
-				if (RLMAPS_PageSelected > 1)
-				{
-					if (ImGui::Button("Previous Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
-					{
-						std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), RLMAPS_PageSelected - 1);
-						t2.detach();
-					}
-				}
-
-				ImGui::SameLine();
-
-				for (int i = RLMAPS_PageSelected - 4; i <= RLMAPS_PageSelected + 4; i++)
-				{
-					if (i <= NumPages && i > 0)
-					{
-						std::string pageName = "Page " + std::to_string(i);
-						if (RLMAPS_PageSelected != i)
-						{
-							if (ImGui::Button(pageName.c_str(), ImVec2(55.f, 25.f)) && !RLMAPS_Searching)
-							{
-								std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), i);
-								t2.detach();
-							}
-							ImGui::SameLine();
-						}
-						else
-						{
-							ImGui::Text("Current page : %d", RLMAPS_PageSelected);
-							ImGui::SameLine();
-						}
-					}
-					
-				}
-
-				if (RLMAPS_PageSelected < NumPages - 1)
-				{
-					if (ImGui::Button("Next Page", ImVec2(100.f, 25.f)) && !RLMAPS_Searching)
-					{
-						std::thread t2(&Pluginx64::GetResults, this, std::string(keyWord), RLMAPS_PageSelected + 1);
-						t2.detach();
-					}
-				}
-
-				ImGui::NewLine();
-				ImGui::NewLine();
-				RLMAPS_renderSearchWorkshopResults(MapsFolderPathBuf);
-
-				ImGui::EndChild();
-			}
-			ImGui::EndTabItem();
-		}
 		ImGui::EndTabBar();
 	}
 
@@ -793,10 +537,8 @@ void Pluginx64::Render()
 
 
 
-void Pluginx64::renderMaps(Gamepad controller)
+void Pluginx64::renderMaps()
 {
-	mapButtonList.clear();
-
 	std::vector<Map> NoUpk_MapList;
 	std::vector<Map> Good_MapList;
 
@@ -811,7 +553,6 @@ void Pluginx64::renderMaps(Gamepad controller)
 	ImGui::SliderFloat("fontsize", &fontSizeTest, 0.f, 1.f);
 	*/
 	
-	MapButtonChild_TopPos = ImGui::GetCursorScreenPos();
 	if (ImGui::BeginChild("#MapsLauncherButtons"))
 	{
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
@@ -845,27 +586,6 @@ void Pluginx64::renderMaps(Gamepad controller)
 					ImGui::OpenPopup("ExtractMapFiles");
 				}
 				renderExtractMapFilesPopup(curMap);
-
-				mapButtonPos buttonMap;
-				buttonMap.rectMin = ImGui::GetItemRectMin();
-				//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
-				buttonMap.rectMax = ImGui::GetItemRectMax();
-				//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
-				buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
-
-				if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
-				{
-					//cvarManager->log(map.mapName + " : visible");
-					buttonMap.isDisplayed = true;
-				}
-				else
-				{
-					//cvarManager->log(map.mapName + " : non visible");
-					buttonMap.isDisplayed = false;
-				}
-
-
-				mapButtonList.push_back(buttonMap);
 
 				ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 				ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
@@ -934,8 +654,6 @@ void Pluginx64::renderMaps(Gamepad controller)
 			ID++;
 		}
 
-		std::vector<bool> isHoveringMapButtonList;
-
 		if (std::string(QuickSearch_KeyWordBuf) != "") //if there is something to find
 		{
 			Good_MapList = QuickSearch_GetMapList(std::string(QuickSearch_KeyWordBuf));
@@ -953,33 +671,6 @@ void Pluginx64::renderMaps(Gamepad controller)
 			if (MapsDisplayMode == 0)
 			{
 				renderMaps_DisplayMode_0(curMap);
-
-				/*
-				//not working well
-				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-				{
-					// Set payload to carry the index of our item (could be anything)
-					ImGui::SetDragDropPayload("DND_DEMO_CELL", &ID, sizeof(int));
-
-					ImGui::EndDragDropSource();
-				}
-
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(int));
-						int payload_n = *(const int*)payload->Data;
-						
-						//https://stackoverflow.com/questions/45447361/how-to-move-certain-elements-of-stdvector-to-a-new-index-within-the-vector
-						if (payload_n > ID)
-							std::rotate(MapList.rend() - payload_n - 1, MapList.rend() - payload_n, MapList.rend() - ID);
-						else
-							std::rotate(MapList.begin() + payload_n, MapList.begin() + payload_n + 1, MapList.begin() + ID + 1);
-							
-					}
-					ImGui::EndDragDropTarget();
-				}*/
 
 				ImGui::PopID();
 				ID++;
@@ -1000,183 +691,7 @@ void Pluginx64::renderMaps(Gamepad controller)
 					ImGui::SameLine();
 				}
 			}
-
-			if (ImGui::IsItemHovered())
-			{
-				//cvarManager->log(std::to_string(ID));
-				isHoveringMapButtonList.push_back(true);
-				selectedButton = ID - 1;
-			}
-			else
-			{
-				isHoveringMapButtonList.push_back(false);
-			}
 		}
-
-		for (int i = 0; i < isHoveringMapButtonList.size(); i++)
-		{
-			isHoveringMapButton = false;
-
-			if (isHoveringMapButtonList.at(i) == true)
-			{
-				isHoveringMapButton = true;
-				break;
-			}
-		}
-
-
-		float rightStickY = controller.RightStick_Y();
-
-		static bool DpadUpWasPressed = false;
-		static bool DpadDownWasPressed = false;
-		static bool DpadLeftWasPressed = false;
-		static bool DpadRightWasPressed = false;
-
-		if (controller.Connected())
-		{
-			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_UP) && !DpadUpWasPressed) {
-				//cvarManager->log("dpad up is pressed");
-				DpadUpWasPressed = true;
-			}
-			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_UP) && DpadUpWasPressed)
-			{
-				if (mapButtonList.size() > 0)
-				{
-					if (selectedButton != 0)
-					{
-						if (MapsDisplayMode == 0)
-							selectedButton -= 1;
-						if (MapsDisplayMode == 1 && (selectedButton - nbTilesPerLine) >= 0)
-							selectedButton -= nbTilesPerLine;
-					}
-					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
-
-					if (buttonMap.isDisplayed)
-					{
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-					else
-					{
-						ImGui::SetScrollY(ImGui::GetScrollY() - (MapButtonChild_TopPos.y - buttonMap.rectMin.y));
-						buttonMap.cursorPos.y += (MapButtonChild_TopPos.y - buttonMap.rectMin.y);
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-				}
-				
-
-				//cvarManager->log("dpad up is realeased");
-				DpadUpWasPressed = false;
-			}
-
-			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_DOWN) && !DpadDownWasPressed) {
-				//cvarManager->log("dpad down is pressed");
-				DpadDownWasPressed = true;
-			}
-			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_DOWN) && DpadDownWasPressed)
-			{
-				if (mapButtonList.size() > 0)
-				{
-					if (selectedButton != mapButtonList.size() - 1)
-					{
-						if (MapsDisplayMode == 0)
-							selectedButton += 1;
-						if (MapsDisplayMode == 1)
-						{
-							if ((selectedButton + nbTilesPerLine) > mapButtonList.size() - 1)
-							{
-								selectedButton = mapButtonList.size() - 1;
-							}
-							else
-							{
-								selectedButton += nbTilesPerLine;
-							}
-						}
-					}
-					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
-
-					if (buttonMap.isDisplayed)
-					{
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-					else
-					{
-						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-				}
-
-				//cvarManager->log("dpad down is realeased");
-				DpadDownWasPressed = false;
-			}
-
-			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_LEFT) && !DpadLeftWasPressed) {
-				//cvarManager->log("dpad left is pressed");
-				DpadLeftWasPressed = true;
-			}
-			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_LEFT) && DpadLeftWasPressed)
-			{
-				if (mapButtonList.size() > 0)
-				{
-					if (MapsDisplayMode == 1 && selectedButton != 0)
-						selectedButton -= 1;
-
-
-					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
-
-					if (buttonMap.isDisplayed)
-					{
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-					else
-					{
-						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-				}
-
-
-				//cvarManager->log("dpad left is realeased");
-				DpadLeftWasPressed = false;
-			}
-
-			if (controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_RIGHT) && !DpadRightWasPressed) {
-				//cvarManager->log("dpad right is pressed");
-				DpadRightWasPressed = true;
-			}
-			else if (!controller.checkButtonPress(XINPUT_GAMEPAD_DPAD_RIGHT) && DpadRightWasPressed)
-			{
-				if (mapButtonList.size() > 0)
-				{
-					if (MapsDisplayMode == 1 && selectedButton < mapButtonList.size() - 1)
-						selectedButton++;
-
-					mapButtonPos buttonMap = mapButtonList.at(selectedButton);
-
-					if (buttonMap.isDisplayed)
-					{
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-					else
-					{
-						ImGui::SetScrollY((buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y) + ImGui::GetScrollY());
-						buttonMap.cursorPos.y -= (buttonMap.rectMax.y - ImGui::GetWindowDrawList()->GetClipRectMax().y);
-						SetCursorPos(buttonMap.cursorPos.x, buttonMap.cursorPos.y);
-					}
-				}
-
-				//cvarManager->log("dpad right is realeased");
-				DpadRightWasPressed = false;
-			}
-
-			if (!controller.RStick_InDeadzone())
-			{
-				ImGui::SetScrollY(ImGui::GetScrollY() - (rightStickY * ControllerScrollSensitivity));
-			}
-		}
-
-
 	}
 	ImGui::EndChild();
 }
@@ -1189,46 +704,29 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 		ImFont* fontA = ImGui::GetDefaultFont();
 
 		float windowWidth = ImGui::GetContentRegionAvailWidth();
-
 		
 		if (ImGui::Button("##map", ImVec2(ImGui::GetWindowWidth(), 120)))
 		{
 			gameWrapper->Execute([&, map](GameWrapper* gw)
 				{
 					cvarManager->executeCommand("load_workshop \"" + map.Folder.string() + "/" + map.UpkFile.filename().string() + "\"");
+
+					//farm_p?Game=TAGame.GameInfo_Soccar_TA?Playtest?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen?GameTags=BotsNone,PlayerCount6
+					//gameWrapper->ExecuteUnrealCommand("start \"" + map.Folder.string() + "/" + map.UpkFile.filename().string() + "\"?Game=TAGame.GameInfo_Soccar_TA??GameTags=BotsNone?NumPublicConnections=10?NumOpenPublicConnections=6?Lan?Listen");
+
+					//std::string command = "start \"" + map.Folder.string() + "/" + map.UpkFile.filename().string() + "?Game=TAGame.GameInfo_Soccar_TA?Playtest?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen?GameTags=BotsNone,PlayerCount6";
+					/*std::string command = "start " + map.Folder.string() + "/" + map.UpkFile.filename().string() + "?Game=TAGame.GameInfo_Soccar_TA?Playtest?NumPublicConnections=10?NumOpenPublicConnections=10?Lan?Listen?GameTags=BotsNone,PlayerCount6";
+					gameWrapper->ExecuteUnrealCommand(command);
+					cvarManager->log("command : " + command);*/
+
 				});
 			cvarManager->log("Map selected : " + map.UpkFile.filename().string());
 		}
-
-
-
-		mapButtonPos buttonMap;
-		buttonMap.rectMin = ImGui::GetItemRectMin();
-		//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
-		buttonMap.rectMax = ImGui::GetItemRectMax();
-		//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
-		buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
-
-		if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
-		{
-			//cvarManager->log(map.mapName + " : visible");
-			buttonMap.isDisplayed = true;
-		}
-		else
-		{
-			//cvarManager->log(map.mapName + " : non visible");
-			buttonMap.isDisplayed = false;
-		}
-
-
-		mapButtonList.push_back(buttonMap);
 
 		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
 		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 5.f);
 		ImVec2 ImageMax = ImVec2(ImageMin.x + 190.f, ButtonRectMax.y - 5.f);
-
-
 
 		draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
 		if (map.isPreviewImageLoaded == true)
@@ -1268,29 +766,6 @@ void Pluginx64::renderMaps_DisplayMode_0(Map map)
 					GoodDescription.append("...");
 				}
 			}
-			
-
-			//responsive description but it takes too much ressources and causes fps issues for not good PC (like my PC xD)
-			/*
-			float descriptionWidth = ((windowWidth - 214) * 0.867f);
-			std::string mapDescription = GetJSONLocalMapInfos(map.JsonFile).at(1);
-			std::vector<std::string> mapDescriptionParts;
-			if (ImGui::CalcTextSize(mapDescription.c_str()).x > descriptionWidth)
-			{
-				mapDescriptionParts.push_back(LimitTextSize(mapDescription, descriptionWidth)); //first line of the description
-				mapDescription.erase(mapDescription.find(mapDescriptionParts.at(0)), mapDescriptionParts.at(0).length()); //remove the first line in description
-				mapDescriptionParts.push_back(LimitTextSize(mapDescription, descriptionWidth)); //second line of the description
-
-				if (mapDescription.length() > mapDescriptionParts.at(1).length())
-				{
-					mapDescription = mapDescriptionParts.at(0) + "\n" + mapDescriptionParts.at(1) + "...";
-				}
-				else
-				{
-					mapDescription = mapDescriptionParts.at(0) + "\n" + mapDescriptionParts.at(1);
-				}
-			}
-			*/
 
 			draw_list->AddText(fontA, 25.f, ImVec2(ImageMax.x + 4.f, ButtonRectMin.y + 2.f), ImColor(255, 255, 255, 255),
 				map.mapName.c_str()); //Map title
@@ -1336,34 +811,10 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 			cvarManager->log("Map selected : " + map.UpkFile.filename().string());
 		}
 
-
-		mapButtonPos buttonMap;
-		buttonMap.rectMin = ImGui::GetItemRectMin();
-		//cvarManager->log("rectmin : " + std::to_string(buttonMap.rectMin.y));
-		buttonMap.rectMax = ImGui::GetItemRectMax();
-		//cvarManager->log("rectmax : " + std::to_string(buttonMap.rectMax.y));
-		buttonMap.cursorPos = ImVec2(((buttonMap.rectMax.x - buttonMap.rectMin.x) / 2) + buttonMap.rectMin.x, ((buttonMap.rectMax.y - buttonMap.rectMin.y) / 2) + buttonMap.rectMin.y);
-
-		if (buttonMap.cursorPos.y < ImGui::GetWindowDrawList()->GetClipRectMax().y && buttonMap.cursorPos.y > MapButtonChild_TopPos.y)
-		{
-			//cvarManager->log(map.mapName + " : visible");
-			buttonMap.isDisplayed = true;
-		}
-		else
-		{
-			//cvarManager->log(map.mapName + " : non visible");
-			buttonMap.isDisplayed = false;
-		}
-
-
-		mapButtonList.push_back(buttonMap);
-
-
 		ImVec2 ButtonRectMin = ImGui::GetItemRectMin();
 		ImVec2 ButtonRectMax = ImGui::GetItemRectMax();
 		ImVec2 ImageMin = ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 29.f);
 		ImVec2 ImageMax = ImVec2(ButtonRectMax.x - 5.f, ButtonRectMax.y - 5.f);
-
 
 		draw_list->AddRect(ImageMin, ImageMax, ImColor(255, 255, 255, 255), 0, 15, 2.0F);
 		if (map.isPreviewImageLoaded == true)
@@ -1386,8 +837,6 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 
 		ImFont* fontA = ImGui::GetDefaultFont();
 
-
-
 		std::string mapTitle;
 		if (map.JsonFile == "NoInfos")
 		{
@@ -1404,8 +853,6 @@ void Pluginx64::renderMaps_DisplayMode_1(Map map, float buttonWidth)
 		}
 
 		draw_list->AddText(fontA, 15.5f, ImVec2(ButtonRectMin.x + 5.f, ButtonRectMin.y + 6.f), ImColor(255, 255, 255, 255), mapTitle.c_str()); //Map title
-
-
 
 		ImGui::EndGroup();
 
@@ -1465,159 +912,6 @@ void Pluginx64::renderQuickSearch()
 		QuickSearch_FirstDisaplayed = true;
 	}
 }
-
-
-void Pluginx64::RLMAPS_renderSearchWorkshopResults(static char mapspath[200])
-{
-	int LinesNb = 0;
-	RLMAPS_SearchWorkshopDisplayed = 0;
-
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-
-	int nbResultPerLine = 4;
-
-	if (ImGui::GetWindowWidth() > 1560 && ImGui::GetWindowWidth() < 1830)
-	{
-		nbResultPerLine = 5;
-	}
-	else if (ImGui::GetWindowWidth() >= 1830)
-	{
-		nbResultPerLine = 6;
-	}
-
-	for (int i = 0; i < RLMAPS_MapResultList.size(); i++)
-	{
-		if (LinesNb < nbResultPerLine)
-		{
-			RLMAPS_RenderAResult(i, draw_list, mapspath);
-
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 73.f); //the float is the spacing between 2 results (+8 because of sameline())
-			LinesNb++;
-		}
-		else
-		{
-			RLMAPS_RenderAResult(i, draw_list, mapspath);
-
-			ImGui::NewLine();
-			LinesNb = 0;
-		}
-
-		RLMAPS_SearchWorkshopDisplayed++;
-	}
-	
-}
-
-void Pluginx64::RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200])
-{
-	ImGui::PushID(i);
-
-	RLMAPS_MapResult mapResult = RLMAPS_MapResultList.at(i);
-	std::string mapName = mapResult.Name;
-	//std::string mapSize = mapResult.Size;
-	std::string mapDescription = mapResult.Description;
-	std::string mapAuthor = mapResult.Author;
-
-
-	ImGui::BeginChild("##RlmapsResult", ImVec2(190.f, 260.f));
-	{
-		ImGui::BeginGroup();
-		{
-			//std::string SizeConverted = ResultSizeText + convertToMB(mapSize);
-			//std::string SizeConverted = mapSize;
-
-			ImVec2 TopCornerLeft = ImGui::GetCursorScreenPos();
-			ImVec2 RectFilled_p_max = ImVec2(TopCornerLeft.x + 190.f, TopCornerLeft.y + 260.f);
-			ImVec2 ImageP_Min = ImVec2(TopCornerLeft.x + 6.f, TopCornerLeft.y + 6.f);
-			ImVec2 ImageP_Max = ImVec2(TopCornerLeft.x + 184.f, TopCornerLeft.y + 179.f);
-
-			drawList->AddRectFilled(TopCornerLeft, RectFilled_p_max, ImColor(44, 75, 113, 255), 5.f, 15); //Blue rectangle
-			drawList->AddRect(ImageP_Min, ImageP_Max, ImColor(255, 255, 255, 255), 0, 15, 2.0F); //Image white outline
-
-			if (mapResult.isImageLoaded == true)
-			{
-				try
-				{
-					if (mapResult.Image != nullptr)
-					{
-						if (mapResult.Image->GetImGuiTex())
-						{
-							drawList->AddImage(mapResult.Image->GetImGuiTex(), ImageP_Min, ImageP_Max); //Map image preview
-						}
-					}
-				}
-				catch (const std::exception& ex)
-				{
-					//cvarManager->log(ex.what());
-				}
-			}
-
-			/*
-			std::string GoodMapName = mapName.substr(0, 29);
-			if (mapName.length() > 31)
-			{
-				GoodMapName.append("...");
-			}
-			*/
-			std::string GoodMapName = mapName;
-			if (ImGui::CalcTextSize(GoodMapName.c_str()).x > (186.f * 0.982f))
-			{
-				GoodMapName = LimitTextSize(GoodMapName, (186.f * 0.982f) - ImGui::CalcTextSize("...").x) + "...";
-			}
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 185.f), ImColor(255, 255, 255, 255), GoodMapName.c_str()); //Map title
-			//drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 200.f), ImColor(255, 255, 255, 255), SizeConverted.c_str()); //Map size
-			drawList->AddText(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 215.f), ImColor(255, 255, 255, 255),
-				std::string(ResultByText.c_str() + mapAuthor).c_str()); // "By : " Map Author
-			ImGui::SetCursorScreenPos(ImVec2(TopCornerLeft.x + 4.f, TopCornerLeft.y + 235.f));
-			if (ImGui::Button(DownloadMapButtonText.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
-			{
-				if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(mapspath)))
-				{
-					ImGui::OpenPopup("Releases");
-				}
-			}
-
-			renderReleases(mapResult);
-
-			//Popup if is a downlaod is in progress and user wants to start a new download
-			renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
-
-			//Popup if maps directory doesn't exist
-			renderInfoPopup("Exists?", DirNotExistText.c_str());
-
-			ImGui::EndGroup();
-
-			if (ImGui::IsItemHovered())
-			{
-				std::string GoodDescription = mapDescription;
-
-				if (mapDescription.length() > 150)
-				{
-					GoodDescription.insert(150, "\n");
-
-					if (mapDescription.length() > 280)
-					{
-						GoodDescription.erase(280);
-						GoodDescription.append("...");
-					}
-				}
-
-
-				ImGui::BeginTooltip();
-				ImGui::Text("Title : %s", mapName.c_str());
-				ImGui::Text("By : %s", mapAuthor.c_str());
-				ImGui::Text("Description : \n%s", GoodDescription.c_str());
-				ImGui::EndTooltip();
-			}
-			ImGui::PopID();
-		}
-		ImGui::EndChild();
-	}
-	
-}
-
-
 
 void Pluginx64::CenterNexIMGUItItem(float itemWidth)
 {
@@ -1872,52 +1166,6 @@ void Pluginx64::renderInfoPopup(const char* popupName, const char* label)
 	}
 }
 
-void Pluginx64::renderReleases(RLMAPS_MapResult mapResult)
-{
-	if (ImGui::BeginPopupModal("Releases", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		for (int releasesIndex = 0; releasesIndex < mapResult.releases.size(); releasesIndex++)
-		{
-			RLMAPS_Release release = mapResult.releases[releasesIndex];
-
-			if (ImGui::Button(release.tag_name.c_str(), ImVec2(182, 20))) // "Download Map"																								//Map download button
-			{
-				if (RLMAPS_IsDownloadingWorkshop == false && IsRetrievingWorkshopFiles == false && Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
-				{
-					std::thread t2(&Pluginx64::RLMAPS_DownloadWorkshop, this, MapsFolderPathBuf, mapResult, release);
-					t2.detach();
-				}
-				else
-				{
-					if (!Directory_Or_File_Exists(fs::path(MapsFolderPathBuf)))
-					{
-						ImGui::OpenPopup("Exists?");
-					}
-
-					if (RLMAPS_IsDownloadingWorkshop || IsRetrievingWorkshopFiles)
-					{
-						ImGui::OpenPopup("Downloading?");
-					}
-				}
-			}
-		}
-		
-
-		//Popup if is a downlaod is in progress and user wants to start a new download
-		renderInfoPopup("Downloading?", IsDownloadDingWarningText.c_str());
-
-		//Popup if maps directory doesn't exist
-		renderInfoPopup("Exists?", DirNotExistText.c_str());
-		
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button("Close", ImVec2(100.f, 25.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
 void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles)
 {
 	if (ImGui::BeginPopupModal("DownloadTextures", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -1965,7 +1213,7 @@ void Pluginx64::renderDownloadTexturesPopup(std::vector<std::string> missingText
 
 			ImGui::NewLine();
 
-			ImGui::Text("Follow this tutorial to download and to install the workshop textures :");
+			ImGui::Text("In case it doesn't work when downloading, here is a tutorial to download and install them :");
 			ImGui::SameLine();
 			renderLink("https://youtu.be/X34TMcA0Jok?t=8");
 
@@ -2208,43 +1456,31 @@ void Pluginx64::renderAddMapManuallyPopup()
 		ImGui::SetNextItemWidth(300.f);
 		ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
 
-		ImGui::Text(AuthorText.c_str()); //"Author :"
-		static char author[128] = "";
-		ImGui::SetNextItemWidth(300.f);
-		ImGui::InputText("##Author", author, IM_ARRAYSIZE(author));
-
-		ImGui::Text("Description :");
-		static char description[1024 * 16] = "";
-		ImGui::InputTextMultiline("##Description", description, IM_ARRAYSIZE(description), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 10));
-
-
 		ImGui::Text(MapFilePathText.c_str()); //"Map File Path :"
+		ImGui::SameLine();
+		renderHelpMarker(SelectZIPMapFileText.c_str()); // "Select the map file (.zip) to add manually"
 		static char mapfilePath[256] = "";
-		ImGui::SetNextItemWidth(400.f);
+		static FileExplorer addMapFileExplorer;
+		ImGui::SetNextItemWidth(600.f);
 		ImGui::InputText("##MapFilePath", mapfilePath, IM_ARRAYSIZE(mapfilePath));
 
 		ImGui::SameLine();
 
 		if (ImGui::Button(SelectFileText.c_str())) // "Select File"
 		{
-			ImGui::OpenPopup("Select map file");
+			FileExplorer::Config config;
+			config.showPreview = false;
+			config.showNewFolderButton = false;
+			config.fileFilters = { ".zip" };
+			addMapFileExplorer.SetConfig(config);
+			addMapFileExplorer.SetOnPathSelected([](const std::string& path, const std::string& selectedEntryPath) {
+				std::string selectedMapPath = selectedEntryPath.empty() ? path : selectedEntryPath;
+				strncpy(mapfilePath, selectedMapPath.c_str(), IM_ARRAYSIZE(mapfilePath) - 1);
+				mapfilePath[IM_ARRAYSIZE(mapfilePath) - 1] = '\0';
+			});
+			addMapFileExplorer.Open();
 		}
-		renderFileExplorerToAddMap(mapfilePath, {".udk", ".upk"});
-
-		ImGui::Text(ImagePathText.c_str()); //"Image Path :"
-		static char imagePath[256] = "";
-		ImGui::SetNextItemWidth(400.f);
-		ImGui::InputText("##ImagePath", imagePath, IM_ARRAYSIZE(imagePath));
-
-		ImGui::SameLine();
-
-		ImGui::PushID(1);
-		if (ImGui::Button(SelectFileText.c_str())) // "Select File"
-		{
-			ImGui::OpenPopup("Select map file");
-		}
-		renderFileExplorerToAddMap(imagePath, { ".png", ".jpg", ".jpeg", ".jfif" });
-		ImGui::PopID();
+		addMapFileExplorer.Render();
 
 		ImGui::NewLine();
 
@@ -2258,7 +1494,7 @@ void Pluginx64::renderAddMapManuallyPopup()
 		AlignRightNexIMGUItItem(100.f, 8.f);
 		if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 30.f))) //"Confirm"
 		{
-			if (std::string(name) == "" || std::string(author) == "" || std::string(description) == "" || std::string(mapfilePath) == "" || std::string(imagePath) == "") //error
+			if (std::string(name) == "" || !Directory_Or_File_Exists(std::string(mapfilePath))) //error
 			{
 				cvarManager->log("ERORRRRRR");
 				ImGui::OpenPopup("Add Map Error");
@@ -2269,7 +1505,7 @@ void Pluginx64::renderAddMapManuallyPopup()
 			}
 		}
 		renderYesNoPopup("Confirm Add Map", ConfirmLabelText.c_str(), [this]() { //"Do you really want to add this map ?"
-			AddMapManually(std::string(name), std::string(author), std::string(description), std::string(MapsFolderPathBuf), std::string(mapfilePath), std::string(imagePath));
+			AddMapManually(std::string(name), "", "", std::string(MapsFolderPathBuf), std::string(mapfilePath), "");
 			ImGui::CloseCurrentPopup();
 			}, [this]() {
 				ImGui::CloseCurrentPopup();
@@ -2281,268 +1517,14 @@ void Pluginx64::renderAddMapManuallyPopup()
 	}
 }
 
-
-void Pluginx64::renderFileExplorer()
+void Pluginx64::renderHelpMarker(const char* label)
 {
-	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
-	if (ImGui::BeginPopupModal("Select maps folder", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	ImGui::Text("(?)");
+	if (ImGui::IsItemHovered())
 	{
-		static char newFolderName[200] = "";
-
-		static char fullPathBuff[256] = "C:/";
-		std::filesystem::path currentPath = fullPathBuff;
-
-		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
-		{
-			ImGui::Columns(2, 0, true);
-			ImGui::SetColumnWidth(0, 40.f);
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
-			if(ImGui::Selectable("<--"))
-			{
-				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
-			}
-
-			ImGui::NextColumn();
-
-			std::vector<std::string> Drives = GetDrives();
-
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
-			if(ImGui::BeginCombo("", fullPathBuff))
-			{
-				for (auto drive : Drives)
-				{
-					drive += ":/";
-					if (ImGui::Selectable(drive.c_str()))
-					{
-						strncpy(fullPathBuff, drive.c_str(), IM_ARRAYSIZE(fullPathBuff));
-						currentPath = fullPathBuff;
-					}
-				}
-				ImGui::EndCombo();
-			}
-
-			currentPath = fullPathBuff;
-
-			ImGui::SameLine();
-
-			if (ImGui::Button(NewFolderText.c_str(), ImVec2(100.f, 19.f)))
-			{
-				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
-				ImGui::OpenPopup("Folder Name");
-			}
-			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
-				if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 25.f)))
-				{
-					try
-					{
-						std::filesystem::create_directory(currentPath.string() + "/" + newFolderName);
-					}
-					catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
-					{
-						cvarManager->log(ex.what());
-					}
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::SameLine();
-
-				if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-
-			ImGui::EndChild();
-		}
-		
-		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
-		{
-			try
-			{
-				for (const auto& dir : fs::directory_iterator(currentPath))
-				{
-					if (dir.is_directory())
-					{
-						if (ImGui::Selectable(dir.path().filename().string().c_str()))
-						{
-							strncpy(fullPathBuff, dir.path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
-						}
-					}
-				}
-			}
-			catch (const std::exception& ex)
-			{
-				cvarManager->log("error : " + std::string(ex.what()));
-				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
-			}
-
-			ImGui::EndChild();
-		}
-
-		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::SameLine();
-
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button(SelectText.c_str(), ImVec2(100.f, 30.f))) //"Select"
-		{
-			strncpy(MapsFolderPathBuf, fullPathBuff, IM_ARRAYSIZE(MapsFolderPathBuf));
-			SaveInCFG();
-			ImGui::CloseCurrentPopup();
-		}
-		
-		ImGui::EndPopup();
-	}
-}
-
-
-void Pluginx64::renderFileExplorerToAddMap(char* filefullPathBuff, std::vector<std::string> extensions)
-{
-	ImGui::SetNextWindowSize(ImVec2(600.f, 429.f));
-	if (ImGui::BeginPopupModal("Select map file", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		static char newFolderName[200] = "";
-
-		static char fullPathBuff[256] = "C:/";
-		std::filesystem::path currentPath = fullPathBuff;
-
-		ImGui::BeginChild("##fullPath", ImVec2(ImGui::GetContentRegionAvailWidth(), 35.f), true);
-		{
-			ImGui::Columns(2, 0, true);
-			ImGui::SetColumnWidth(0, 40.f);
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
-			if (ImGui::Selectable("<--"))
-			{
-				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
-			}
-
-			ImGui::NextColumn();
-
-			std::vector<std::string> Drives = GetDrives();
-
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvailWidth() - 108.f);
-			if (ImGui::BeginCombo("", fullPathBuff))
-			{
-				for (auto drive : Drives)
-				{
-					drive += ":/";
-					if (ImGui::Selectable(drive.c_str()))
-					{
-						strncpy(fullPathBuff, drive.c_str(), IM_ARRAYSIZE(fullPathBuff));
-						currentPath = fullPathBuff;
-					}
-				}
-				ImGui::EndCombo();
-			}
-
-			currentPath = fullPathBuff;
-
-			ImGui::SameLine();
-
-			if (ImGui::Button(NewFolderText.c_str(), ImVec2(100.f, 19.f)))
-			{
-				strncpy(newFolderName, "", IM_ARRAYSIZE(newFolderName));
-				ImGui::OpenPopup("Folder Name");
-			}
-			if (ImGui::BeginPopupModal("Folder Name", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::InputText("##newFloderNameInputText", newFolderName, IM_ARRAYSIZE(newFolderName));
-				if (ImGui::Button(ConfirmText.c_str(), ImVec2(100.f, 25.f)))
-				{
-					try
-					{
-						std::filesystem::create_directory(currentPath.string() + "/" + newFolderName);
-					}
-					catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
-					{
-						cvarManager->log(ex.what());
-					}
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::SameLine();
-
-				if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 25.f)))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-
-			ImGui::EndChild();
-		}
-
-		ImGui::BeginChild("##directories", ImVec2(ImGui::GetContentRegionAvailWidth(), ImGui::GetWindowHeight() * 0.75f), true);
-		{
-			try
-			{
-				for (const auto& dir : fs::directory_iterator(currentPath))
-				{
-					std::string dirName = dir.path().filename().string();
-					std::string dirPath = dir.path().string();
-
-					if (dir.is_directory())
-					{
-						if (ImGui::Selectable(dirName.c_str()))
-						{
-							strncpy(fullPathBuff, dirPath.c_str(), IM_ARRAYSIZE(fullPathBuff));
-						}
-					}
-					else
-					{
-						std::string fileExtension = dir.path().filename().extension().string();
-						auto checkExtensions = [&]() {
-							for (std::string extension : extensions)
-								if (extension == fileExtension)
-									return true;
-							return false;
-						};
-
-						if (checkExtensions())
-						{
-							bool isSelected = (std::string(filefullPathBuff) == dirPath);
-							if (ImGui::Selectable(dirName.c_str(), isSelected))
-							{
-								if (isSelected)
-									strncpy(filefullPathBuff, "", 256); //reset
-								else
-									strncpy(filefullPathBuff, dirPath.c_str(), 256); //select this file
-							}
-						}
-					}
-				}
-			}
-			catch (const std::exception& ex)
-			{
-				cvarManager->log("error : " + std::string(ex.what()));
-				strncpy(fullPathBuff, currentPath.parent_path().string().c_str(), IM_ARRAYSIZE(fullPathBuff));
-			}
-
-			ImGui::EndChild();
-		}
-
-		if (ImGui::Button(CancelText.c_str(), ImVec2(100.f, 30.f)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::SameLine();
-
-		AlignRightNexIMGUItItem(100.f, 8.f);
-		if (ImGui::Button(SelectText.c_str(), ImVec2(100.f, 30.f))) //"Select"
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
+		ImGui::BeginTooltip();
+		ImGui::Text("%s", label);
+		ImGui::EndTooltip();
 	}
 }
 

@@ -32,3 +32,5 @@ namespace fs = std::filesystem;
 #include <filesystem>
 
 #include "IMGUI/imgui.h"
+
+extern std::shared_ptr<GameWrapper> _globalGameWrapper;

@@ -4,10 +4,6 @@
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 
-#include "Gamepad.h"
-
-//#include <WinUser.h>
-
 
 struct Map
 {
@@ -23,79 +19,13 @@ struct Map
 	bool isPreviewImageLoaded;
 };
 
-struct RLMAPS_Release
-{
-	std::string name;
-	std::string tag_name;
-	std::string description;
-	std::string zipName;
-	std::string downloadLink;
-	std::string pictureLink;
-};
-
-struct RLMAPS_MapResult
-{
-	std::string ID;
-	std::string Name;
-	std::string Size;
-	std::string Description;
-	std::string PreviewUrl;
-	std::string Author;
-	std::vector<RLMAPS_Release> releases;
-	std::filesystem::path ImagePath; //Stored in bakkesmodFolder/data/WorkshopMapLoader/Search/img/
-	std::shared_ptr<ImageWrapper> Image;
-	bool isImageLoaded;
-	bool IsDownloadingPreview;
-};
-
-struct GameSetting
-{
-	std::string Name;
-	int selectedValue = 0;
-	std::vector<std::string> DisplayValuesNames;
-	std::vector<std::string> Values;
-
-	std::string GetSelectedValue();
-};
-
-struct mapButtonPos
-{
-	ImVec2 rectMin;
-	ImVec2 rectMax;
-	ImVec2 cursorPos;
-	bool isDisplayed;
-};
-
-
-//Hey Jerry or Martinn, have a good time reviewing my awful code ;)
-
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
 public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	/*
-	int widthTest;
-	int heightTest;
-	float fontSizeTest = 0.f;
-	*/
-
 	bool EnableAntiFreezeFix = false;
-
-	int SearchRequestCounter = 0;
-	bool isHoveringMapButton;
-
-	ImVec2 MapButtonChild_TopPos;
-	std::vector<mapButtonPos> mapButtonList;
-	int selectedButton = 0;
-
-	bool UseController = false;
-	void checkOpenMenuWithController(CanvasWrapper canvas);
-	int ControllerSensitivity = 10;
-	int ControllerScrollSensitivity = 10;
-
-
 
 	//Textures
 	std::vector<std::string> WorkshopTexturesFilesList =
@@ -109,9 +39,6 @@ public:
 	int Download_Textrures_Progress;
 	int DownloadTextrures_ProgressDisplayed;
 
-
-	
-
 	//Variables
 	std::string BakkesmodPath;
 	std::string MapsFolderPath;
@@ -122,12 +49,8 @@ public:
 	int dontAsk = 0;
 	bool DownloadTexturesBool = false;
 	std::string IfNoPreviewImagePath;
-	std::string steam_base_url = "https://steamcommunity.com/workshop/browse/?appid=252950&searchtext=";
-	std::string rlmaps_url = "https://celab.jetfox.ovh/api/v4/projects/?search=";
-	std::string rlmaps_offset_url = "http://www.rocketleaguemaps.us/api/getmultimapoffset.php?offset=";
 	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
-
 
 	//Local Maps
 	std::vector<Map> MapList;
@@ -144,22 +67,6 @@ public:
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_Image;
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_SelectedImage;
 
-
-	//Search Workshop
-	//rocketleaguemaps.us
-	std::vector<RLMAPS_MapResult> RLMAPS_MapResultList;
-	int RLMAPS_PageSelected = 0;
-	void GetResults(std::string keyWord, int IndexPage);
-	void GetMapResult(Json::Value maps, int index);
-	void GetNumpPages(std::string keyWord);
-	void GetMapSize(std::string url);
-	int NumPages = 0;
-	bool RLMAPS_Searching = false;
-	int RLMAPS_NumberOfMapsFound;
-	std::shared_ptr<ImageWrapper> RLMAPSLogoImage;
-
-
-
 	//Related to download
 	void CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath);
 	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription, std::string mapPreviewUrl);
@@ -168,13 +75,6 @@ public:
 	bool UserIsChoosingYESorNO = false;
 	bool FolderErrorBool = false;
 	bool AcceptTheDownload = false;
-
-	//rocketleaguemaps.us
-	void RLMAPS_DownloadWorkshop(std::string folderpath, RLMAPS_MapResult mapResult, RLMAPS_Release release);
-	int RLMAPS_Download_Progress;
-	int RLMAPS_WorkshopDownload_Progress;
-	int RLMAPS_WorkshopDownload_FileSize;
-	bool RLMAPS_IsDownloadingWorkshop = false;
 
 
 
@@ -188,7 +88,6 @@ public:
 	std::string UdkInDirectory(std::string dirPath);
 	void SaveInCFG();
 	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
-	void DownloadPreviewImage(std::string downloadUrl, std::string filePath, int mapResultIndex);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
 	void CleanHTML(std::string& S);
@@ -233,7 +132,6 @@ public:
 	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
 
 	//Popups
-	void renderReleases(RLMAPS_MapResult mapResult);
 	void renderNewUpdatePopup();
 	void renderInfoPopup(const char* popupName, const char* label);
 	void renderYesNoPopup(const char* popupName, const char* label, std::function<void()> yesFunc, std::function<void()> noFunc);
@@ -243,21 +141,14 @@ public:
 	void renderDownloadFailedPopup();
 	void renderDownloadTexturesPopup(std::vector<std::string> missingTextureFiles);
 
-
 	bool AddedMapSccuessfully = false;
 	void renderAddMapManuallyPopup();
-	void renderFileExplorerToAddMap(char* filefullPathBuff, std::vector<std::string> extensions);
-	void renderFileExplorer();
+	void renderHelpMarker(const char* label);
 
-
-	void renderMaps(Gamepad controller);
+	void renderMaps();
 	void renderMaps_DisplayMode_0(Map map);
 	void renderMaps_DisplayMode_1(Map map, float buttonWidth);
-
-	void RLMAPS_RenderAResult(int i, ImDrawList* drawList, static char mapspath[200]);
-	void RLMAPS_renderSearchWorkshopResults(static char mapspath[200]);
 	
-
 	ImVec2 CalcRealTextSize(const char* text, float fontSize);
 	void renderText(const char* text, float fontSize = 13.f);
 
@@ -276,14 +167,6 @@ public:
 	std::string LanguageText;
 	std::string ExtractMethodText;
 	std::string WarningText;
-
-	//Controller settings
-	std::string ControllerText;
-	std::string UseControllerText;
-	std::string ControllsText;
-	std::string ScrollSensitivityText;
-	std::string SensitivityText;
-	std::string ControllsLitText[6];
 
 	//1st Tab
 	std::string Tab1MapLoaderText;
@@ -309,20 +192,13 @@ public:
 	std::string FieldEmptyText;
 	std::string ConfirmLabelText;
 	std::string MapAddedSuccessfullyText;
+	std::string SelectZIPMapFileText;
 	
 	//2nd Tab
-	std::string Tab3SearchWorkshopText;
 	std::string DownloadButtonText;
-	std::string Label3Text;
-	std::string SearchButtonText;
-	std::string SearchingText;
-	std::string WorkshopsFoundText;
-	std::string BrowseMapsText;
 
 	//Search Result
 	std::string ResultByText;
-	std::string ResultSizeText;
-	std::string DownloadMapButtonText;
 
 	//Warnings
 	std::string DirNotExistText;
