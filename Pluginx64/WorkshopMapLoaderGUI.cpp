@@ -190,7 +190,8 @@ void Pluginx64::Render()
 			renderLink("https://www.youtube.com/@vync8978");
 			ImGui::NewLine();
 			ImGui::Text("Thanks to PatteAuSucre for testing and Teyq for his help ;)");
-			ImGui::Text("Thanks to JetFox for his contribution on the plugin");
+			ImGui::Text("Thanks to JetFox for maintaining https://rocketleaguemaps.us over the past few years.");
+			ImGui::Text("Thanks to SimpleAOB for maintaining https://bakkesplugins.com/.");
 
 			ImGui::EndMenu();
 		}
@@ -1230,7 +1231,7 @@ void Pluginx64::renderNewUpdatePopup()
 		if (!french)
 		{
 			Explanations1 = "Hello everyone, sorry for taking so long to make this update. Better late than never!";
-			Explanations2 = "The plugin previously allowed you to browse Workshop maps through https://rocketleaguemaps.us, but the website closed and moved its database to the BakkesMod website: https://bakkesplugins.com/";
+			Explanations2 = "The plugin previously allowed you to browse Workshop maps through https://rocketleaguemaps.us, but the website closed and moved its database to the BakkesMod website: https://bakkesplugins.com/.";
 			Explanations3 = "Unfortunately, I could not bring this browsing feature back into the plugin with the new website because its owner told me he would prefer the traffic to go directly through the website for financial reasons.";
 			Explanations4 = "This is completely understandable: hosting a service that is entirely free for its users has a cost, and the advertisements on the website help cover it.";
 			Explanations5 = "Thanks to him for continuing to support the Rocket League modding community! And thanks to JetFox for maintaining https://rocketleaguemaps.us over the past few years.";

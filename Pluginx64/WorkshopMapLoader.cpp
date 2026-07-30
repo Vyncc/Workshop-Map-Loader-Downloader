@@ -2,7 +2,7 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.16", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.16.1", 0)
 
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 std::shared_ptr<GameWrapper> _globalGameWrapper;

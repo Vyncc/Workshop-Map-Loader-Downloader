@@ -49,4 +49,4 @@ namespace fs = std::filesystem;
 extern std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 extern std::shared_ptr<GameWrapper> _globalGameWrapper;
 
-inline std::string PluginVersion = "1.16";
+inline std::string PluginVersion = "1.16.1";

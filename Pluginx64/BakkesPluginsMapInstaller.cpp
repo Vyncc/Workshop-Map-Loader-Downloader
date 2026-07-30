@@ -734,8 +734,20 @@ void BakkesPluginsMapInstaller::Render()
 	ImGui::EndChild();
 
 	ImGui::Spacing();
-	const float installControlsHeight = installedSuccessfully ? 78.f : 56.f;
-	const float availableVersionsHeight = ImGui::GetContentRegionAvail().y - installControlsHeight - ImGui::GetStyle().ItemSpacing.y;
+	const bool mapsDirectoryValid = Utils::DirectoryOrFileExists(fs::path(g_pluginConfig.MapsFolderPathBuffer));
+	float installControlsHeight = 32.f;
+	if(state == InstallMapState::Downloading)
+		installControlsHeight = 24.f;
+	else if(state == InstallMapState::Installing)
+		installControlsHeight = ImGui::GetTextLineHeight();
+	else if(!mapsDirectoryValid)
+		installControlsHeight += ImGui::GetTextLineHeightWithSpacing();
+
+	if(installedSuccessfully)
+		installControlsHeight += ImGui::GetTextLineHeightWithSpacing();
+
+	const float bottomPadding = ImGui::GetStyle().WindowPadding.y;
+	const float availableVersionsHeight = ImGui::GetContentRegionAvail().y - installControlsHeight - ImGui::GetStyle().ItemSpacing.y - bottomPadding;
 	const float versionsHeight = availableVersionsHeight > 100.f ? availableVersionsHeight : 100.f;
 	ImGui::BeginChild("##InstallMapVersions", ImVec2(0.f, versionsHeight), true);
 	ImGui::Text("%s", g_pluginTexts.InstallMapVersions.c_str());
@@ -782,7 +794,6 @@ void BakkesPluginsMapInstaller::Render()
 		ImGui::TextWrapped("%s", g_pluginTexts.InstallMapInstalling.c_str());
 	else
 	{
-		bool mapsDirectoryValid = Utils::DirectoryOrFileExists(fs::path(g_pluginConfig.MapsFolderPathBuffer));
 		if(!mapsDirectoryValid)
 			ImGui::TextColored(ImVec4(1.f, 0.25f, 0.25f, 1.f), "%s", g_pluginTexts.InstallMapInvalidFolder.c_str());
 
