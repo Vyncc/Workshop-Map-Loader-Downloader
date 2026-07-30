@@ -30,7 +30,23 @@ namespace fs = std::filesystem;
 #include <cstddef>
 #include <thread>
 #include <filesystem>
+#include <atomic>
+#include <chrono>
+#include <iomanip>
+#include <mutex>
+#include <optional>
+#include <regex>
+#include <sstream>
+#include <unordered_map>
+#include <algorithm>
+#include <cctype>
 
 #include "IMGUI/imgui.h"
+#include "PluginConfig.h"
+#include "PluginTexts.h"
+#include "Utils.h"
 
+extern std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 extern std::shared_ptr<GameWrapper> _globalGameWrapper;
+
+inline std::string PluginVersion = "1.16";

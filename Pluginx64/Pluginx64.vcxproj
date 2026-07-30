@@ -152,6 +152,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)LibrariesUsed\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 /Zc:char8_t- %(AdditionalOptions)</AdditionalOptions>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
@@ -172,6 +173,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BakkesPluginsMapInstaller.h" />
+    <ClInclude Include="PluginTexts.h" />
+    <ClInclude Include="PluginConfig.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="FileExplorer.h" />
     <ClInclude Include="IMGUI\imconfig.h" />
     <ClInclude Include="IMGUI\imgui.h" />
@@ -190,6 +195,10 @@
     <ClInclude Include="WorkshopMapLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BakkesPluginsMapInstaller.cpp" />
+    <ClCompile Include="PluginTexts.cpp" />
+    <ClCompile Include="PluginConfig.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="FileExplorer.cpp" />
     <ClCompile Include="IMGUI\imgui.cpp" />
     <ClCompile Include="IMGUI\imguivariouscontrols.cpp" />

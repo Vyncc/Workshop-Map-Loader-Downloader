@@ -2,22 +2,78 @@
 #include "WorkshopMapLoader.h"
 
 
-BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.15.3", 0)
+BAKKESMOD_PLUGIN(Pluginx64, "Workshop Map Loader & Downloader", "1.16", 0)
 
+std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 std::shared_ptr<GameWrapper> _globalGameWrapper;
 
+namespace
+{
+	std::string TrimConfigValue(const std::string& p_value)
+	{
+		const size_t firstCharacter = p_value.find_first_not_of(" \t\r\n");
+		if(firstCharacter == std::string::npos)
+			return "";
+
+		const size_t lastCharacter = p_value.find_last_not_of(" \t\r\n");
+		return p_value.substr(firstCharacter, lastCharacter - firstCharacter + 1);
+	}
+
+	std::string ToLowerConfigValue(std::string p_value)
+	{
+		std::transform(p_value.begin(), p_value.end(), p_value.begin(), [](unsigned char p_character)
+			{
+				return static_cast<char>(std::tolower(p_character));
+			});
+		return p_value;
+	}
+
+	bool ParseConfigBool(const std::string& p_value, bool p_defaultValue)
+	{
+		const std::string value = ToLowerConfigValue(TrimConfigValue(p_value));
+		if(value == "1" || value == "true" || value == "yes" || value == "on")
+			return true;
+		if(value == "0" || value == "false" || value == "no" || value == "off")
+			return false;
+
+		return p_defaultValue;
+	}
+
+	int ParseConfigInt(const std::string& p_value, int p_defaultValue, int p_minimum, int p_maximum)
+	{
+		try
+		{
+			size_t parsedCharacterCount = 0;
+			const int value = std::stoi(TrimConfigValue(p_value), &parsedCharacterCount);
+			if(parsedCharacterCount == TrimConfigValue(p_value).size() && value >= p_minimum && value <= p_maximum)
+				return value;
+		}
+		catch(const std::exception&)
+		{
+		}
+
+		return p_defaultValue;
+	}
+}
 
 void Pluginx64::onLoad()
 {
+	_globalCvarManager = cvarManager;
 	_globalGameWrapper = gameWrapper;
 
-	BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
-	IfNoPreviewImagePath = BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
+	m_bakkesPluginsMapInstaller.Initialize(cvarManager);
+	static std::once_flag curlInitFlag;
+	std::call_once(curlInitFlag, []() {
+		curl_global_init(CURL_GLOBAL_DEFAULT);
+		});
+
+	g_pluginConfig.BakkesmodPath = gameWrapper->GetBakkesModPath().string() + "\\";
+	IfNoPreviewImagePath = g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\Search\\NoPreview.jpg";
 
 	std::string RLWin64_Path = std::filesystem::current_path().string();
 	RLCookedPCConsole_Path = RLWin64_Path.substr(0, RLWin64_Path.length() - 14) + "TAGame\\CookedPCConsole";
 
-	std::string Data_WorkshopMapLoader_Path = BakkesmodPath + "data\\WorkshopMapLoader\\";
+	std::string Data_WorkshopMapLoader_Path = g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\";
 
 	//Load display mode images
 	MapsDisplayMode_Logo1_Image = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo1.png", false, true);
@@ -25,73 +81,31 @@ void Pluginx64::onLoad()
 	MapsDisplayMode_Logo1_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo1_selected.png", false, true);
 	MapsDisplayMode_Logo2_SelectedImage = std::make_shared<ImageWrapper>(Data_WorkshopMapLoader_Path + "logos/logo2_selected.png", false, true);
 
-
-	if (Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg"))
-	{
-		std::vector<std::string> CFGVariablesList = GetMapsFolderPathInCfg(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg");
-
-		cvarManager->log("Workshop Maps Folder : " + CFGVariablesList.at(0));
-		MapsFolderPath = CFGVariablesList.at(0);
-		unzipMethod = CFGVariablesList.at(2);
-		dontAsk = std::stoi(CFGVariablesList.at(4));
-		MapsDisplayMode = std::stoi(CFGVariablesList.at(5));
-		nbTilesPerLine = std::stoi(CFGVariablesList.at(6));
-
-
-		FR = (CFGVariablesList.at(1) == "1");
-		HasSeeNewUpdateAlert = (CFGVariablesList.at(3) == "1");
-
-
-		if (CFGVariablesList.size() >= 12)
-		{
-			EnableAntiFreezeFix = (CFGVariablesList.at(11) == "1");
-		}
-
-		if (CFGVariablesList.size() >= 11) //the user has the new version
-		{
-			HasSeeNewUpdateAlert = (PluginVersion == CFGVariablesList.at(9));
-		}
-		else  //the user has the old version
-		{
-			HasSeeNewUpdateAlert = false;
-		}
-
-
-		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
-	}
-	else
-	{
-		cvarManager->log(BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg : doesn't exist");
-
-		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\mods"))
-		{
-			try
-			{
-				fs::create_directory(RLCookedPCConsole_Path.string() + "\\mods");
-			}
-			catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
-			{
-				cvarManager->log(ex.what());
-			}
-		}
-		MapsFolderPath = RLCookedPCConsole_Path.string() + "\\mods";
-
-		FR = false;
-		unzipMethod = "Powershell";
-		HasSeeNewUpdateAlert = false;
-		dontAsk = 0;
-		MapsDisplayMode = 0;
-		nbTilesPerLine = 6;
-		PluginVersion = "1.15.2";
-		EnableAntiFreezeFix = false;
-
-		strncpy(MapsFolderPathBuf, MapsFolderPath.c_str(), IM_ARRAYSIZE(MapsFolderPathBuf)); //Make  MapsFolderPathBuf = MapsFolderPath
-		SaveInCFG();
-	}
-
-
+	LoadConfig();
 }
 
+
+
+
+std::string Pluginx64::getMutatorsCommandString()
+{
+	std::string mutatorsCommandString = "";
+
+	for (auto mutator : mutators)
+	{
+		if (mutator->GetSelectedValue() != "")
+		{
+			mutatorsCommandString += mutator->GetSelectedValue() + ",";
+		}
+	}
+
+	if (mutatorsCommandString.back() == ',')
+	{
+		mutatorsCommandString = mutatorsCommandString.substr(0, mutatorsCommandString.size() - 1);
+	}
+
+	return mutatorsCommandString;
+}
 
 
 
@@ -306,7 +320,7 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 	catch (const std::exception& ex) //manage errors when trying to create a folder in an administrator folder
 	{
 		cvarManager->log(ex.what());
-		FolderErrorText = ex.what();
+		g_pluginTexts.FolderErrorText = ex.what();
 		FolderErrorBool = true;
 		return;
 	}
@@ -314,7 +328,7 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 
 	std::string newZipFilePath = mapDestinationFolder + "/" + mapFilePath.filename().string();
 
-	if (Directory_Or_File_Exists(mapFilePath))
+	if (Utils::DirectoryOrFileExists(mapFilePath))
 	{
 		fs::copy(mapFilePath, newZipFilePath); //copy map zip file to map directory
 		cvarManager->log("Map pasted : " + newZipFilePath);
@@ -328,7 +342,7 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 	CreateJSONLocalWorkshopInfos(workshopSafeMapName, mapDestinationFolder + "/", mapName, mapAuthor, mapDescription, "");
 	cvarManager->log("JSON Created : " + mapDestinationFolder + "/" + workshopSafeMapName + ".json");
 
-	if (Directory_Or_File_Exists(imagePath))
+	if (Utils::DirectoryOrFileExists(imagePath))
 	{
 		fs::copy(imagePath, mapDestinationFolder + "/" + imagePath.filename().string()); //copy preview to map directory
 		cvarManager->log("Preview pasted : " + mapDestinationFolder + "/" + imagePath.filename().string());
@@ -338,9 +352,9 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 		cvarManager->log("Couldn't find preview to paste");
 	}
 
-	if (unzipMethod == "Bat")
+	if (g_pluginConfig.UnzipMethod == "Bat")
 	{
-		CreateUnzipBatchFile(mapDestinationFolder, newZipFilePath);
+		Utils::CreateUnzipBatchFile(g_pluginConfig.BakkesmodPath, mapDestinationFolder, newZipFilePath);
 	}
 	else
 	{
@@ -374,14 +388,12 @@ void Pluginx64::AddMapManually(std::string mapName, std::string mapAuthor, std::
 
 
 
-
 //Download Utils
 
-void Pluginx64::CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription,
-	std::string mapPreviewUrl)
+void Pluginx64::CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor,
+	std::string mapDescription, std::string mapPreviewUrl)
 {
 	std::string filename = workshopMapPath + jsonFileName + ".json";
-	//cvarManager->log(filename);
 	std::ofstream JSONFile(filename);
 
 	std::string Title = mapTitle;
@@ -391,47 +403,6 @@ void Pluginx64::CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::stri
 
 	JSONFile << "{\"Title\":\"" + Title + "\",\"Author\":\"" + Author + "\",\"Description\":\"" + Description + "\",\"PreviewUrl\":\"" + PreviewUrl + "\"}";
 	JSONFile.close();
-}
-
-void Pluginx64::CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath)
-{
-	std::string filename = BakkesmodPath + "data\\WorkshopMapLoader\\temp\\unzip.bat";
-	std::ofstream BatFile(filename);
-
-	std::string Destination_Path = destinationPath; //where it unzip (just the folder)
-	std::string ZIPFile_Path = zipFilePath; //where the .zip is (complete path + .zip)
-
-	//just replace the slashes by backslashes for both pathes
-	std::string Correct_File_Path = replace(Destination_Path, *"/", *"\\");
-	std::string Correct_ZIPFile_Path = replace(ZIPFile_Path, *"/", *"\\");
-
-
-	// Comment added by Martinn
-	// https://stackoverflow.com/questions/21704041/creating-batch-script-to-unzip-a-file-without-additional-zip-tools
-	BatFile << "@echo off\n";
-	BatFile << "setlocal\n";
-	BatFile << "cd /d %~dp0\n";
-	BatFile << "Call :UnZipFile \"" + Correct_File_Path + "\" \"" + Correct_ZIPFile_Path + "\"\n";
-	BatFile << "exit /b\n";
-	BatFile << "\n";
-	BatFile << ":UnZipFile <ExtractTo> <newzipfile>\n";
-	BatFile << "set vbs=\" % temp % \_.vbs\"\n";
-	BatFile << "if exist %vbs% del /f /q %vbs%\n";
-	BatFile << ">%vbs%  echo Set fso = CreateObject(\"Scripting.FileSystemObject\")\n";
-	BatFile << ">>%vbs% echo If NOT fso.FolderExists(%1) Then\n";
-	BatFile << ">>%vbs% echo fso.CreateFolder(%1)\n";
-	BatFile << ">>%vbs% echo End If\n";
-	BatFile << ">>%vbs% echo set objShell = CreateObject(\"Shell.Application\")\n";
-	BatFile << ">>%vbs% echo set FilesInZip=objShell.NameSpace(%2).items\n";
-	BatFile << ">>%vbs% echo objShell.NameSpace(%1).CopyHere(FilesInZip)\n";
-	BatFile << ">>%vbs% echo Set fso = Nothing\n";
-	BatFile << ">>%vbs% echo Set objShell = Nothing\n";
-	BatFile << "cscript //nologo %vbs%\n";
-	BatFile << "if exist %vbs% del /f /q %vbs%\n";
-
-	BatFile.close();
-
-	system(filename.c_str());
 }
 
 //Quick search ctrl+f
@@ -460,9 +431,9 @@ std::vector<Map> Pluginx64::QuickSearch_GetMapList(std::string keyWord)
 
 void Pluginx64::DownloadWorkshopTextures()
 {
-	std::string ZipFilePath = BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip";
+	std::string ZipFilePath = g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip";
 	
-	if (!Directory_Or_File_Exists(BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip")) //le if peut causer des problemes
+	if (!Utils::DirectoryOrFileExists(g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\Textures.zip")) //le if peut causer des problemes
 	{
 		IsDownloading_WorkshopTextures = true;
 
@@ -499,9 +470,9 @@ void Pluginx64::DownloadWorkshopTextures()
 		}
 	}
 
-	if (unzipMethod == "Bat")
+	if (g_pluginConfig.UnzipMethod == "Bat")
 	{
-		CreateUnzipBatchFile(RLCookedPCConsole_Path.string(), ZipFilePath);
+		Utils::CreateUnzipBatchFile(g_pluginConfig.BakkesmodPath, RLCookedPCConsole_Path.string(), ZipFilePath);
 	}
 	else
 	{
@@ -517,7 +488,7 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 	std::vector<std::string> missingFiles;
 	for (auto textureFile : WorkshopTexturesFilesList)
 	{
-		if (!Directory_Or_File_Exists(RLCookedPCConsole_Path.string() + "\\" + textureFile))
+		if (!Utils::DirectoryOrFileExists(RLCookedPCConsole_Path.string() + "\\" + textureFile))
 		{
 			missingFiles.push_back(textureFile);
 		}
@@ -529,18 +500,6 @@ std::vector<std::string> Pluginx64::CheckExist_TexturesFiles()
 
 
 //Utils
-
-std::wstring Pluginx64::s2ws(const std::string& s)
-{
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}
 
 std::string Pluginx64::replace(std::string s, char c1, char c2)
 {
@@ -554,47 +513,6 @@ std::string Pluginx64::replace(std::string s, char c1, char c2)
 			s[i] = c2;
 	}
 	return s;
-}
-
-std::string Pluginx64::convertToMB(std::string numberToConvert)
-{
-	if (numberToConvert.length() > 9 && numberToConvert.length() < 13) //If it's GigaBytes
-	{
-		std::string result = numberToConvert.insert(numberToConvert.length() - 6, ","); //insert a ","
-		result = numberToConvert.erase(numberToConvert.length() - 6) + " GB"; //remove the last 4 numbers
-		return result;
-	}
-
-	if (numberToConvert.length() > 6 && numberToConvert.length() < 10) //If it's MegaBytes
-	{
-		std::string result = numberToConvert.insert(numberToConvert.length() - 6, ","); //insert a ","
-		result = numberToConvert.erase(numberToConvert.length() - 4) + " MB"; //remove the last 4 numbers
-		return result;
-	}
-
-	if (numberToConvert.length() > 3 && numberToConvert.length() < 7) //If it's KiloBytes
-	{
-		std::string result = numberToConvert.insert(numberToConvert.length() - 3, ","); //insert a ","
-		result = numberToConvert.erase(numberToConvert.length() - 2) + " kB"; //remove the last 2 numbers
-		return result;
-	}
-
-	if (numberToConvert.length() > 0 && numberToConvert.length() < 4) //If it's Bytes
-	{
-		std::string result = numberToConvert + " Bytes"; //insert a ","
-		return result;
-	}
-}
-
-bool Pluginx64::Directory_Or_File_Exists(const fs::path& p, fs::file_status s)
-{
-	bool DirectoryExists;
-	if (fs::status_known(s) ? fs::exists(s) : fs::exists(p))
-		DirectoryExists = true;
-	else
-		DirectoryExists = false;
-
-	return DirectoryExists;
 }
 
 std::vector<std::string> Pluginx64::FindAllSubstringInAString(std::string texte, std::string beginString, std::string endString)
@@ -664,7 +582,7 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 
 	cvarManager->log("file renamed : " + newPath.string());
 
-	if (EnableAntiFreezeFix)
+	if (g_pluginConfig.EnableAntiFreezeFix)
 	{
 		//This is to fix the crashing issues when loading maps
 		//What it does ? it only renames the map, that's what fixes the crashing issue actually, wtf Psyonix?????
@@ -698,40 +616,115 @@ void Pluginx64::renameFileToUPK(std::filesystem::path filePath)
 
 void Pluginx64::SaveInCFG()
 {
-	std::string filename = BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg";
+	std::string filename = g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg";
 	std::ofstream CFGFile(filename);
 
-	CFGFile << "MapsFolderPath = \"" + std::string(MapsFolderPathBuf) + "\"\n";
-	CFGFile << "Language = \"" + std::to_string(FR) + "\"\n";
-	CFGFile << "UnzipMethod = \"" + unzipMethod + "\"\n";
-	CFGFile << "HasSeeNewUpdateAlert = \"" + std::to_string(HasSeeNewUpdateAlert) + "\"\n";
-	CFGFile << "dontask = \"" + std::to_string(dontAsk) + "\"\n";
-	CFGFile << "MapsDisplayMode = \"" + std::to_string(MapsDisplayMode) + "\"\n";
-	CFGFile << "nbTilesPerLine = \"" + std::to_string(nbTilesPerLine) + "\"\n";
+	CFGFile << "MapsFolderPath = \"" + std::string(g_pluginConfig.MapsFolderPathBuffer) + "\"\n";
+	CFGFile << "Language = \"" + std::to_string(g_pluginConfig.Language) + "\"\n";
+	CFGFile << "UnzipMethod = \"" + g_pluginConfig.UnzipMethod + "\"\n";
+	CFGFile << "HasSeeNewUpdateAlert = \"" + std::to_string(g_pluginConfig.HasSeeNewUpdateAlert) + "\"\n";
+	CFGFile << "dontask = \"" + std::to_string(g_pluginConfig.DontAsk) + "\"\n";
+	CFGFile << "MapsDisplayMode = \"" + std::to_string(g_pluginConfig.MapsDisplayMode) + "\"\n";
+	CFGFile << "nbTilesPerLine = \"" + std::to_string(g_pluginConfig.NbTilesPerLine) + "\"\n";
 	CFGFile << "PluginVersion = \"" + PluginVersion + "\"\n";
-	CFGFile << "EnableAntiFreezeFix = \"" + std::to_string(EnableAntiFreezeFix) + "\"";
+	CFGFile << "EnableAntiFreezeFix = \"" + std::to_string(g_pluginConfig.EnableAntiFreezeFix) + "\"";
 
 	CFGFile.close();
 	cvarManager->log("Saved in cfg");
 }
 
-std::vector<std::string> Pluginx64::GetMapsFolderPathInCfg(std::string cfgFilePath)
+void Pluginx64::LoadConfig()
 {
-	std::vector<std::string> CfgInfosList;
+	const std::string configFilePath = g_pluginConfig.BakkesmodPath + "data\\WorkshopMapLoader\\workshopmaploader.cfg";
+	const std::string defaultMapsFolderPath = (RLCookedPCConsole_Path / "mods").string();
+	std::unordered_map<std::string, std::string> configValues;
 	std::string line;
-	std::ifstream myfile(cfgFilePath);
+	std::ifstream configFile(configFilePath);
+	const bool configExists = configFile.is_open();
 
-	if (myfile.is_open())
+	g_pluginConfig.MapsFolderPath = defaultMapsFolderPath;
+	g_pluginConfig.Language = false;
+	g_pluginConfig.UnzipMethod = "Powershell";
+	g_pluginConfig.HasSeeNewUpdateAlert = false;
+	g_pluginConfig.DontAsk = 0;
+	g_pluginConfig.MapsDisplayMode = 0;
+	g_pluginConfig.NbTilesPerLine = 6;
+	g_pluginConfig.EnableAntiFreezeFix = false;
+
+	if(configExists)
 	{
-		while (std::getline(myfile, line))
+		while(std::getline(configFile, line))
 		{
-			std::string value = FindAllSubstringInAString(line, "\"", "\"").at(0);
-			CfgInfosList.push_back(value.substr(0, value.find("\"")));
+			line = TrimConfigValue(line);
+			if(line.empty() || line[0] == '#' || line[0] == ';' || line.rfind("//", 0) == 0)
+				continue;
+
+			const size_t separatorPosition = line.find('=');
+			if(separatorPosition == std::string::npos)
+				continue;
+
+			const std::string key = ToLowerConfigValue(TrimConfigValue(line.substr(0, separatorPosition)));
+			std::string value = TrimConfigValue(line.substr(separatorPosition + 1));
+			if(value.size() >= 2 && ((value.front() == '"' && value.back() == '"') || (value.front() == '\'' && value.back() == '\'')))
+				value = value.substr(1, value.size() - 2);
+
+			if(!key.empty())
+				configValues[key] = value;
 		}
-		myfile.close();
+
+		configFile.close();
+
+		if(configValues.count("mapsfolderpath") && !TrimConfigValue(configValues["mapsfolderpath"]).empty())
+			g_pluginConfig.MapsFolderPath = TrimConfigValue(configValues["mapsfolderpath"]);
+
+		if(configValues.count("language"))
+			g_pluginConfig.Language = ParseConfigBool(configValues["language"], g_pluginConfig.Language);
+		if(configValues.count("hasseenewupdatealert"))
+			g_pluginConfig.HasSeeNewUpdateAlert = ParseConfigBool(configValues["hasseenewupdatealert"], g_pluginConfig.HasSeeNewUpdateAlert);
+		if(configValues.count("dontask"))
+			g_pluginConfig.DontAsk = ParseConfigInt(configValues["dontask"], g_pluginConfig.DontAsk, 0, 1);
+		if(configValues.count("mapsdisplaymode"))
+			g_pluginConfig.MapsDisplayMode = ParseConfigInt(configValues["mapsdisplaymode"], g_pluginConfig.MapsDisplayMode, 0, 1);
+		if(configValues.count("nbtilesperline"))
+			g_pluginConfig.NbTilesPerLine = ParseConfigInt(configValues["nbtilesperline"], g_pluginConfig.NbTilesPerLine, 2, 14);
+		if(configValues.count("enableantifreezefix"))
+			g_pluginConfig.EnableAntiFreezeFix = ParseConfigBool(configValues["enableantifreezefix"], g_pluginConfig.EnableAntiFreezeFix);
+
+		if(configValues.count("unzipmethod"))
+		{
+			const std::string method = ToLowerConfigValue(TrimConfigValue(configValues["unzipmethod"]));
+			if(method == "bat" || method == "batch" || method == "1")
+				g_pluginConfig.UnzipMethod = "Bat";
+			else if(method == "powershell" || method == "0")
+				g_pluginConfig.UnzipMethod = "Powershell";
+		}
+
+		if(!configValues.count("pluginversion") || configValues["pluginversion"] != PluginVersion)
+			g_pluginConfig.HasSeeNewUpdateAlert = false;
+	}
+	else
+		cvarManager->log(configFilePath + " doesn't exist");
+
+	if(g_pluginConfig.MapsFolderPath == defaultMapsFolderPath && !Utils::DirectoryOrFileExists(defaultMapsFolderPath))
+	{
+		try
+		{
+			fs::create_directories(defaultMapsFolderPath);
+		}
+		catch(const std::exception& p_exception)
+		{
+			cvarManager->log(p_exception.what());
+		}
 	}
 
-	return CfgInfosList;
+	strncpy(g_pluginConfig.MapsFolderPathBuffer, g_pluginConfig.MapsFolderPath.c_str(), IM_ARRAYSIZE(g_pluginConfig.MapsFolderPathBuffer) - 1);
+	g_pluginConfig.MapsFolderPathBuffer[IM_ARRAYSIZE(g_pluginConfig.MapsFolderPathBuffer) - 1] = '\0';
+	cvarManager->log("Workshop Maps Folder : " + g_pluginConfig.MapsFolderPath);
+
+	if(!configExists)
+		SaveInCFG();
+
+	g_pluginTexts.SetLanguage(g_pluginConfig.Language);
 }
 
 bool Pluginx64::FileIsInDirectoryRecursive(std::string dirPath, std::string filename)
@@ -871,4 +864,7 @@ std::vector<std::string> Pluginx64::GetDrives()
 
 
 
-void Pluginx64::onUnload() {}
+void Pluginx64::onUnload()
+{
+	m_bakkesPluginsMapInstaller.Shutdown();
+}

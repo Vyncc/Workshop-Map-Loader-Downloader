@@ -40,7 +40,9 @@ void Pluginx64::RenderSettings()
 	}
 
 	ImGui::Separator();
-	ImGui::Text("Plugin made by Vync#3866, contact me on discord for custom plugin commissions.");
+	ImGui::Text("Plugin made by Vync, contact me on twitter for custom plugin commissions.");
+	renderLink("https://twitter.com/Vync5");
+	renderLink("https://www.youtube.com/@vync8978");
 }
 
 std::string Pluginx64::GetPluginName()

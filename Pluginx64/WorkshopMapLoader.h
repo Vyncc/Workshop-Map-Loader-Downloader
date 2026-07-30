@@ -4,6 +4,7 @@
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 
+#include "BakkesPluginsMapInstaller.h"
 
 struct Map
 {
@@ -19,13 +20,147 @@ struct Map
 	bool isPreviewImageLoaded;
 };
 
+struct GameSetting
+{
+	std::string Name;
+	int selectedValue = 0;
+	std::vector<std::string> DisplayValuesNames;
+	std::vector<std::string> Values;
+
+	std::string GetSelectedValue() { return Values[selectedValue]; }
+};
+
 class Pluginx64 : public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow, public BakkesMod::Plugin::PluginSettingsWindow
 {
 public:
 	virtual void onLoad();
 	virtual void onUnload();
 
-	bool EnableAntiFreezeFix = false;
+	//Custom Game
+	int nbPlayers = 6; //choose number of players in the server
+	std::string getMutatorsCommandString();
+
+public:
+	/*MIT License
+
+		Copyright (c) 2020 Stanbroek
+
+		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+		to dealin the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+		and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+		The above copyright notice and this permission notice shall be included in all
+		copies or substantial portions of the Software.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+		WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	*/
+
+	std::shared_ptr<GameSetting> gameModes =
+		std::make_shared<GameSetting>(GameSetting({
+		"GameModes", 0,
+		{ "Soccar", "Hoops", "Snow Day", "Rumble", "Dropshot", "Heatseeker", "Gridiron" },
+		{ "TAGame.GameInfo_Soccar_TA", "TAGame.GameInfo_Basketball_TA", "TAGame.Gameinfo_Hockey_TA", "TAGame.GameInfo_Items_TA", "TAGame.GameInfo_Breakout_TA", "TAGame.GameInfo_GodBall_TA", "TAGame.GameInfo_Football_TA" } }));
+
+
+	std::vector<std::shared_ptr<GameSetting>> mutators =
+	{
+		std::make_shared<GameSetting>(GameSetting({
+			"Free Play", 0,
+			{"Disable Freeplay", "Enable Freeplay"},
+			{"", "FreePlay"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Match Duration", 0,
+			{"5 Minutes",  "10 Minutes", "20 Minutes", "Unlimited"},
+			{"", "10Minutes",  "20Minutes",  "UnlimitedTime"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Max Score", 0,
+			{"Default", "1 Goal", "3 Goals", "5 Goals", "7 Goals", "Unlimited"},
+			{"", "Max1", "Max3", "Max5", "Max7", "UnlimitedScore"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Overtime", 0,
+			{"Unlimited", "+5 Max, First Score", "+5 Max, Random Team"},
+			{"", "Overtime5MinutesFirstScore", "Overtime5MinutesRandom"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Max Time Limit", 0,
+			{"Default", "11 Minutes"},
+			{"", "MaxTime11Minutes"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Series Length", 0,
+			{"Unlimited", "3 Games", "5 Games", "7 Games"},
+			{"", "3Games", "5Games", "7Games" } })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Game Speed", 0,
+			{"Default", "Slo-mo", "Time Warp"},
+			{"", "SloMoGameSpeed", "SloMoDistanceBall"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Max Speed", 0,
+			{"Default", "Slow", "Fast", "Super Fast"},
+			{"", "SlowBall", "FastBall", "SuperFastBall"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Type", 0,
+			{"Default", "Cube", "Puck", "BasketBall", "BeachBall", "Anniversary", "HauntedBall"},
+			{"", "Ball_CubeBall", "Ball_Puck", "Ball_BasketBall", "Ball_BeachBall", "Ball_Anniversary", "Ball_Haunted"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Gravity", 0,
+			{"Default", "Low", "High", "Super High"},
+			{"", "LowGravityBall", "HighGravityBall", "SuperGravityBall"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Physics", 0,
+			{ "Default", "Light", "Heavy", "Super Light", "CurveBall", "Beach Ball Curve" },
+			{ "", "LightBall", "HeavyBall", "SuperLightBall", "MagnusBall", "MagnusBeachBall" } })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Size", 0,
+			{ "Default", "Small", "Medium", "Large", "Gigantic"},
+			{"", "SmallBall", "MediumBall", "BigBall", "GiantBall"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Ball Bounciness", 0,
+			{"Default", "Low", "High", "Super High"},
+			{"", "LowBounciness", "HighBounciness", "SuperBounciness"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Number Of Ball", 0,
+			{"One", "Two", "Four", "Six"},
+			{"", "TwoBalls", "FourBalls", "SixBalls"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Boosts Amount", 0,
+			{"Default", "No Boost",  "Unlimited", "Recharge (slow)", "Recharge (fast)"},
+			{"", "NoBooster", "UnlimitedBooster", "SlowRecharge",    "RapidRecharge"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Rumble", 0,
+			{"None", "Default", "Slow", "Civilized", "Destruction Derby", "Spring Loaded", "Spikes Only", "Rugby", "Haunted Ball Beam", "Tactical Rumble"},
+			{"", "ItemsMode", "ItemsModeSlow", "ItemsModeBallManipulators", "ItemsModeCarManipulators", "ItemsModeSprings", "ItemsModeSpikes", "ItemsModeRugby", "ItemsModeHauntedBallBeam", "ItemsModeSelection"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Boost Strength", 0,
+			{"1X", "1.5X", "2X", "10X"},
+			{"", "BoostMultiplier1_5x", "BoostMultiplier2x", "BoostMultiplier10x"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Gravity", 0,
+			{"Default", "Low", "High", "Super High",   "Reverse"},
+			{"", "LowGravity", "HighGravity", "SuperGravity", "ReverseGravity"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Demolish", 0,
+			{"Default", "Disabled", "Friendly Fire", "On Contact", "On Contact (FF)"},
+			{"", "NoDemolish", "DemolishAll", "AlwaysDemolishOpposing", "AlwaysDemolish"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Respawn Time", 0,
+			{"3 Seconds", "2 Seconds", "1 Second", "Disable Goal Reset"},
+			{"", "TwoSecondsRespawn", "OneSecondsRespawn", "DisableGoalDelay"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Bot Loadouts", 0,
+			{"Default", "Random"},
+			{"", "RandomizedBotLoadouts"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Audio", 0,
+			{"Default", "Haunted"},
+			{"", "HauntedAudio"} })),
+		std::make_shared<GameSetting>(GameSetting({
+			"Game Event", 0,
+			{"Default", "Haunted", "Rugby"},
+			{"", "HauntedGameEventRules", "RugbyGameEventRules"} }))
+	};
+
+public:
 
 	//Textures
 	std::vector<std::string> WorkshopTexturesFilesList =
@@ -39,55 +174,47 @@ public:
 	int Download_Textrures_Progress;
 	int DownloadTextrures_ProgressDisplayed;
 
+public:
 	//Variables
-	std::string BakkesmodPath;
-	std::string MapsFolderPath;
-	std::string PluginVersion = "1.15.3";
-	static bool FR;
-	std::string unzipMethod = "Bat";
-	bool HasSeeNewUpdateAlert;
-	int dontAsk = 0;
 	bool DownloadTexturesBool = false;
 	std::string IfNoPreviewImagePath;
-	static char MapsFolderPathBuf[200];
 	std::filesystem::path RLCookedPCConsole_Path;
 
+public:
 	//Local Maps
 	std::vector<Map> MapList;
 	std::vector<std::string> GetJSONLocalMapInfos(std::string jsonFilePath);
 	void RefreshMapsFunct(std::string mapsfolders);
 	void AddMapManually(std::string mapName, std::string mapAuthor, std::string mapDescription, std::filesystem::path mapsDirectoryPath, std::filesystem::path mapFilePath, std::filesystem::path imagePath);
 
+public:
 	//Display mode
-	int nbTilesPerLine = 5;
 	float maxTextSize = 160.f;
-	int MapsDisplayMode = 0;
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo1_Image;
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo1_SelectedImage;
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_Image;
 	std::shared_ptr<ImageWrapper> MapsDisplayMode_Logo2_SelectedImage;
 
+public:
 	//Related to download
-	void CreateUnzipBatchFile(std::string destinationPath, std::string zipFilePath);
-	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription, std::string mapPreviewUrl);
+	void CreateJSONLocalWorkshopInfos(std::string jsonFileName, std::string workshopMapPath, std::string mapTitle, std::string mapAuthor, std::string mapDescription,
+		std::string mapPreviewUrl);
 	bool IsRetrievingWorkshopFiles = false;
 	bool DownloadFailed = false;
 	bool UserIsChoosingYESorNO = false;
 	bool FolderErrorBool = false;
 	bool AcceptTheDownload = false;
 
+	BakkesPluginsMapInstaller m_bakkesPluginsMapInstaller;
 
-
+public:
 	//utils
-	std::wstring s2ws(const std::string& s);
 	std::string replace(std::string s, char c1, char c2);
-	std::string convertToMB(std::string numberToConvert);
 	std::vector<std::string> FindAllSubstringInAString(std::string texte, std::string beginString, std::string endString);
-	bool Directory_Or_File_Exists(const fs::path& p, fs::file_status s = fs::file_status{});
 	void renameFileToUPK(std::filesystem::path filePath);
 	std::string UdkInDirectory(std::string dirPath);
+	void LoadConfig();
 	void SaveInCFG();
-	std::vector<std::string> GetMapsFolderPathInCfg(std::string cfgFilePath);
 	bool FileIsInDirectoryRecursive(std::string dirPath, std::string filename);
 	float DoRatio(float x, float y);
 	void CleanHTML(std::string& S);
@@ -95,12 +222,12 @@ public:
 	void eraseAll(std::string& str, const std::string& from);
 	std::vector<std::string> GetDrives();
 
-
+public:
 	//ImGui SettingsWindow Functions
 	void RenderSettings() override;
 	std::string GetPluginName() override;
 
-
+public:
 	//ImGui
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
@@ -127,9 +254,7 @@ public:
 	void renderImageButton(ImTextureID user_texture_id, ImVec2 size, std::function<void()> function);
 	void CenterNexIMGUItItem(float itemWidth);
 	void AlignRightNexIMGUItItem(float itemWidth, float borderGap);
-	std::string LimitTextSize(std::string str, float maxTextSize); //à mettre dans utils
-
-	void renderProgressBar(float value, float maxValue, ImVec2 pos, ImVec2 size, ImColor colorBackground, ImColor colorProgress, const char* label);
+	std::string LimitTextSize(std::string str, float maxTextSize); //Ã  mettre dans utils
 
 	//Popups
 	void renderNewUpdatePopup();
@@ -148,85 +273,10 @@ public:
 	void renderMaps();
 	void renderMaps_DisplayMode_0(Map map);
 	void renderMaps_DisplayMode_1(Map map, float buttonWidth);
+
+	void renderLaunchModePopup(Map curMap);
+	void renderCustomGamePopup(Map curMap);
 	
 	ImVec2 CalcRealTextSize(const char* text, float fontSize);
 	void renderText(const char* text, float fontSize = 13.f);
-
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////  Text Variables
-
-	//Menubar
-	std::string SettingsText;
-	std::string MultiplayerText;
-	std::string LastUpdateText;
-	std::string JoinCWGText;
-	std::string OpenCPCCText;
-	std::string NoMapsCanBeJoinText;
-	std::string MapsJoinableText;
-	std::string DlTexturesText;
-	std::string LanguageText;
-	std::string ExtractMethodText;
-	std::string WarningText;
-
-	//1st Tab
-	std::string Tab1MapLoaderText;
-	std::string Label1Text; //Put the folder's path of the maps, don't forget to add a  /  at the end.
-	std::string SelectMapsFolderText;
-	std::string RefreshMapsButtonText;
-	std::string SavePathText;
-	std::string MapsPerLineText;
-	//context menu strip
-	std::string OpenMapDirText;
-	std::string DeleteMapText;
-
-	//LauchMode Popup
-	std::string CancelText;
-
-	//Add Map
-	std::string AddMapText;
-	std::string NameText;
-	std::string AuthorText;
-	std::string MapFilePathText;
-	std::string ImagePathText;
-	std::string SelectFileText;
-	std::string FieldEmptyText;
-	std::string ConfirmLabelText;
-	std::string MapAddedSuccessfullyText;
-	std::string SelectZIPMapFileText;
-	
-	//2nd Tab
-	std::string DownloadButtonText;
-
-	//Search Result
-	std::string ResultByText;
-
-	//Warnings
-	std::string DirNotExistText;
-	std::string DownloadFailedText; std::string DownloadFailedErrorText;
-	std::string FolderErrorText;
-	std::string WantToDawnloadText;
-	std::string YESButtonText;
-	std::string NOButtonText;
-	std::string IsDownloadDingWarningText;
-	std::string PathSavedText;
-
-	//ExtractMapFiles
-	std::string EMFMessageText1;
-	std::string EMFMessageText2;
-	std::string EMFStillDoesntWorkText;
-	//ExtractManually
-	std::string EMLabelText;
-
-	//Download Texutures
-	std::string DLTLabel1Text;
-	std::string DLTLabel2Text;
-	std::string DLTMissingFilesText;
-	std::string DLTTexturesInstalledText;
-	std::string CloseText;
-	std::string DontAskText;
-
-	//File Explorer
-	std::string NewFolderText;
-	std::string ConfirmText;
-	std::string SelectText;
 };
